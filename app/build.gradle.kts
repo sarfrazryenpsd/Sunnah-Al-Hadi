@@ -51,6 +51,8 @@ dependencies {
     implementation(libs.bundles.hilt)
     implementation(libs.bundles.room)
     implementation(libs.coil)
+    implementation(libs.kotlinx.serialization.json)
+
 
     ksp(libs.androidx.room.compiler)
     ksp(libs.dagger.hilt.compiler)

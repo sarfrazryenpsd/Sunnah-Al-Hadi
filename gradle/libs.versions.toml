@@ -5,6 +5,7 @@ coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+kotlinxSerializationJson = "1.6.0"
 lifecycleRuntimeKtx = "2.9.0"
 activityCompose = "1.10.1"
 composeBom = "2025.05.00"
@@ -40,6 +41,7 @@ dagger-hilt-android = {module = "com.google.dagger:hilt-android", version.ref = 
 dagger-hilt-compiler = {module = "com.google.dagger:hilt-compiler", version.ref = "hilt"}
 dagger-hilt-compose = {module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-compose"}
 coil = {module = "io.coil-kt.coil3:coil-compose", version.ref = "coil"}
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
