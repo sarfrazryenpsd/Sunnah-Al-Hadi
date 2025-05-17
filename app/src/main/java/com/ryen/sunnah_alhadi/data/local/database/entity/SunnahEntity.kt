@@ -5,7 +5,15 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 @Entity(
     tableName = "sunnahs",
@@ -26,10 +34,38 @@ data class SunnahEntity(
     val extra: List<ExtraContent>?     // optional
 )
 
+object SubtypeSerializer : KSerializer<Any> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Subtype", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: Any) {
+        when (value) {
+            is ArabicSubtype -> encoder.encodeString(value.name)
+            is EnglishSubtype -> encoder.encodeString(value.name)
+            is String -> encoder.encodeString(value)
+            else -> throw SerializationException("Unknown subtype format")
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): Any {
+        val value = decoder.decodeString()
+        // Try to parse as enums, fallback to string
+        return try {
+            ArabicSubtype.valueOf(value)
+        } catch (e: IllegalArgumentException) {
+            try {
+                EnglishSubtype.valueOf(value)
+            } catch (e: IllegalArgumentException) {
+                value // Fallback to raw string
+            }
+        }
+    }
+}
+
 @Serializable
 data class ContentBlock(
     val type: ContentType,       // "arabic_text" or "english_text"
-    val subtype: String,    // e.g., "verse", "normal"
+    @Serializable(with = SubtypeSerializer::class)
+    val subtype: Any,    // e.g., "verse", "normal"
     val content: String
 )
 
@@ -41,25 +77,41 @@ data class ExtraContent(
 
 @Serializable
 data class Reference(
-    val text: String
+    val source: String
 )
 
 @Serializable
 enum class ContentType {
+    @SerialName("arabic_text")
     ARABIC_TEXT,
+
+    @SerialName("english_text")
     ENGLISH_TEXT
 }
 
+
 @Serializable
 enum class ArabicSubtype {
+    @SerialName("verse")
     VERSE,
+    @SerialName("supplication")
     SUPPLICATION,
+    @SerialName("honorifics")
     HONORIFIC,
+    @SerialName("other")
     OTHER
 }
 
+
 @Serializable
 enum class EnglishSubtype {
+    @SerialName("normal")
     NORMAL,
+    @SerialName("translation")
     TRANSLATION
+}
+
+@Serializable
+enum class Extras {
+
 }

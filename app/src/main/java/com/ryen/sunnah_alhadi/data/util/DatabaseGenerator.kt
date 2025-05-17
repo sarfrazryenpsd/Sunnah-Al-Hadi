@@ -23,7 +23,7 @@ class DatabaseGenerator(private val context: Context) {
     @Serializable
     data class Category(
         val id: Int,
-        val title: String,
+        val topic: String,
         val sunnahs: List<Sunnah>
     )
 
@@ -58,7 +58,7 @@ class DatabaseGenerator(private val context: Context) {
 
             // Convert and insert data
             val categoryEntities = sunnahData.categories.map { category ->
-                CategoryEntity(id = category.id, title = category.title)
+                CategoryEntity(id = category.id, topic = category.topic)
             }
 
             val sunnahEntities = sunnahData.categories.flatMap { category ->
