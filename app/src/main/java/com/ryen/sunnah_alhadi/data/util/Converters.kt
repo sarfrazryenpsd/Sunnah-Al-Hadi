@@ -72,11 +72,11 @@ class Converters {
             try {
                 json.decodeFromString(value)
             } catch (e: Exception) {
+                println("Error deserializing ExtraContent list: ${e.message}")
                 null
             }
         }
     }
-
     // Additional converters for primitive lists, if needed
     @TypeConverter
     fun fromStringList(value: List<String>?): String {

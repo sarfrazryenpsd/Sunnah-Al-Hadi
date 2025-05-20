@@ -4,14 +4,20 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.ryen.sunnah_alhadi.data.local.database.entity.CategoryEntity
+import com.ryen.sunnah_alhadi.data.local.database.entity.SunnahEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface CategoryDao {
-    @Query("SELECT * FROM categories")
-    fun getAllCategories(): Flow<List<CategoryEntity>>
+interface SunnahDao {
+    @Query("SELECT * FROM sunnahs WHERE categoryId = :categoryId")
+    fun getSunnahsByCategory(categoryId: Int): Flow<List<SunnahEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(categories: List<CategoryEntity>)
+    suspend fun insertAll(sunnahs: List<SunnahEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(sunnah: SunnahEntity)
+
+    @Query("SELECT COUNT(*) FROM sunnahs")
+    suspend fun getCount(): Int
 }

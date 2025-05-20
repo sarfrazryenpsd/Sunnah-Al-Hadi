@@ -71,7 +71,7 @@ data class ContentBlock(
 
 @Serializable
 data class ExtraContent(
-    val title: String,
+    val type: ExtraContentType,
     val content: List<ContentBlock>
 )
 
@@ -112,6 +112,36 @@ enum class EnglishSubtype {
 }
 
 @Serializable
-enum class Extras {
+enum class ExtraContentType {
+    @SerialName("parable")
+    PARABLE,
 
+    @SerialName("scholarly_explanation")
+    SCHOLARLY_EXPLANATION,
+
+    @SerialName("explanation")
+    EXPLANATION,
+
+    @SerialName("translation")
+    TRANSLATION,
+
+    @SerialName("hadith")
+    HADITH,
+
+    @SerialName("note")
+    NOTES,
+
+    @SerialName("warning")
+    WARNING,
+
+    @SerialName("benefit")
+    BENEFIT
 }
+
+/*
+kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 5039: Encountered an unknown key 'type' at path: $.categories[0].sunnahs[6].extra[0]
+Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys.
+JSON input: .....
+            {
+              "type": "parable",
+            .....*/
