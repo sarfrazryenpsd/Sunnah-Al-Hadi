@@ -20,4 +20,8 @@ interface SunnahDao {
 
     @Query("SELECT COUNT(*) FROM sunnahs")
     suspend fun getCount(): Int
+
+    @Query("SELECT * FROM sunnahs")
+    suspend fun getAllSunnahs(): List<SunnahEntity>
+
 }

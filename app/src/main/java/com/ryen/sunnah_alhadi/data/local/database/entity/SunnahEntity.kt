@@ -137,11 +137,3 @@ enum class ExtraContentType {
     @SerialName("benefit")
     BENEFIT
 }
-
-/*
-kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 5039: Encountered an unknown key 'type' at path: $.categories[0].sunnahs[6].extra[0]
-Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys.
-JSON input: .....
-            {
-              "type": "parable",
-            .....*/
