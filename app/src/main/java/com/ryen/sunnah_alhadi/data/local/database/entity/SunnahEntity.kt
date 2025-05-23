@@ -69,7 +69,6 @@ data class ContentBlock(
     val content: String
 )
 
-
 @Serializable
 data class ExtraContent(
     val type: ExtraContentType,

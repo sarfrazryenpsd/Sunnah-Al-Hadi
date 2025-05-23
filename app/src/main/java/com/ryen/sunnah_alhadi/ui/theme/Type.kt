@@ -90,27 +90,103 @@ private val notoSerifJP = FontFamily(
 
 // Set of Material typography styles to start with
 // Material 3 Typography using Outfit as the app UI font
+object TextSizeConfig {
+    // Display sizes
+    const val DISPLAY_LARGE = 57
+    const val DISPLAY_MEDIUM = 45
+    const val DISPLAY_SMALL = 36
+
+    // Headline sizes
+    const val HEADLINE_LARGE = 32
+    const val HEADLINE_MEDIUM = 28
+    const val HEADLINE_SMALL = 24
+
+    // Title sizes
+    const val TITLE_LARGE = 22
+    const val TITLE_MEDIUM = 16
+    const val TITLE_SMALL = 14
+
+    // Body sizes
+    const val BODY_LARGE = 16
+    const val BODY_MEDIUM = 14
+    const val BODY_SMALL = 12
+
+    // Label sizes
+    const val LABEL_LARGE = 14
+    const val LABEL_MEDIUM = 12
+    const val LABEL_SMALL = 11
+
+    // Content specific sizes
+    const val SUNNAH_TITLE = 24
+    const val TOPIC_HEADING = 20
+    const val ENGLISH_BODY_NORMAL = 16
+    const val ENGLISH_BODY_TRANSLATION = 18
+    const val REFERENCE = 14
+
+    // Arabic specific sizes
+    const val ARABIC_HONORIFIC = 20
+    const val ARABIC_SUPPLICATION = 22
+    const val ARABIC_VERSE = 24
+    const val ARABIC_OTHER = 20
+}
+
+object LineHeightConfig {
+    const val DISPLAY_LARGE = 64
+    const val DISPLAY_MEDIUM = 52
+    const val DISPLAY_SMALL = 44
+
+    const val HEADLINE_LARGE = 40
+    const val HEADLINE_MEDIUM = 36
+    const val HEADLINE_SMALL = 32
+
+    const val TITLE_LARGE = 28
+    const val TITLE_MEDIUM = 24
+    const val TITLE_SMALL = 20
+
+    const val BODY_LARGE = 24
+    const val BODY_MEDIUM = 20
+    const val BODY_SMALL = 16
+
+    const val LABEL_LARGE = 20
+    const val LABEL_MEDIUM = 16
+    const val LABEL_SMALL = 16
+
+    // Content specific
+    const val SUNNAH_TITLE = 32
+    const val TOPIC_HEADING = 28
+    const val ENGLISH_BODY_NORMAL = 24
+    const val ENGLISH_BODY_TRANSLATION = 26
+    const val REFERENCE = 20
+
+    // Arabic specific
+    const val ARABIC_HONORIFIC = 28
+    const val ARABIC_SUPPLICATION = 36
+    const val ARABIC_VERSE = 36
+    const val ARABIC_OTHER = 32
+}
+
+// Improved Typography with configuration
 val AppTypography = Typography(
     // Large title text
     displayLarge = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Bold,
-        fontSize = 57.sp,
-        lineHeight = 64.sp,
+        fontSize = TextSizeConfig.DISPLAY_LARGE.sp,
+        lineHeight = LineHeightConfig.DISPLAY_LARGE.sp,
         letterSpacing = (-0.25).sp
     ),
     displayMedium = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Bold,
-        fontSize = 45.sp,
-        lineHeight = 52.sp,
+        fontSize = TextSizeConfig.DISPLAY_MEDIUM.sp,
+        lineHeight = LineHeightConfig.DISPLAY_MEDIUM.sp,
         letterSpacing = 0.sp
     ),
     displaySmall = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Bold,
-        fontSize = 36.sp,
-        lineHeight = 44.sp,
+        fontSize = TextSizeConfig.DISPLAY_SMALL.sp,
+        lineHeight = LineHeightConfig.DISPLAY_SMALL.sp,
         letterSpacing = 0.sp
     ),
 
@@ -118,22 +194,22 @@ val AppTypography = Typography(
     headlineLarge = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 32.sp,
-        lineHeight = 40.sp,
+        fontSize = TextSizeConfig.HEADLINE_LARGE.sp,
+        lineHeight = LineHeightConfig.HEADLINE_LARGE.sp,
         letterSpacing = 0.sp
     ),
     headlineMedium = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 28.sp,
-        lineHeight = 36.sp,
+        fontSize = TextSizeConfig.HEADLINE_MEDIUM.sp,
+        lineHeight = LineHeightConfig.HEADLINE_MEDIUM.sp,
         letterSpacing = 0.sp
     ),
     headlineSmall = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 24.sp,
-        lineHeight = 32.sp,
+        fontSize = TextSizeConfig.HEADLINE_SMALL.sp,
+        lineHeight = LineHeightConfig.HEADLINE_SMALL.sp,
         letterSpacing = 0.sp
     ),
 
@@ -141,22 +217,22 @@ val AppTypography = Typography(
     titleLarge = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Medium,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
+        fontSize = TextSizeConfig.TITLE_LARGE.sp,
+        lineHeight = LineHeightConfig.TITLE_LARGE.sp,
         letterSpacing = 0.sp
     ),
     titleMedium = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Medium,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
+        fontSize = TextSizeConfig.TITLE_MEDIUM.sp,
+        lineHeight = LineHeightConfig.TITLE_MEDIUM.sp,
         letterSpacing = 0.15.sp
     ),
     titleSmall = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
+        fontSize = TextSizeConfig.TITLE_SMALL.sp,
+        lineHeight = LineHeightConfig.TITLE_SMALL.sp,
         letterSpacing = 0.1.sp
     ),
 
@@ -164,22 +240,22 @@ val AppTypography = Typography(
     bodyLarge = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
+        fontSize = TextSizeConfig.BODY_LARGE.sp,
+        lineHeight = LineHeightConfig.BODY_LARGE.sp,
         letterSpacing = 0.15.sp
     ),
     bodyMedium = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
+        fontSize = TextSizeConfig.BODY_MEDIUM.sp,
+        lineHeight = LineHeightConfig.BODY_MEDIUM.sp,
         letterSpacing = 0.25.sp
     ),
     bodySmall = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
+        fontSize = TextSizeConfig.BODY_SMALL.sp,
+        lineHeight = LineHeightConfig.BODY_SMALL.sp,
         letterSpacing = 0.4.sp
     ),
 
@@ -187,99 +263,102 @@ val AppTypography = Typography(
     labelLarge = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
+        fontSize = TextSizeConfig.LABEL_LARGE.sp,
+        lineHeight = LineHeightConfig.LABEL_LARGE.sp,
         letterSpacing = 0.1.sp
     ),
     labelMedium = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Medium,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
+        fontSize = TextSizeConfig.LABEL_MEDIUM.sp,
+        lineHeight = LineHeightConfig.LABEL_MEDIUM.sp,
         letterSpacing = 0.5.sp
     ),
     labelSmall = TextStyle(
         fontFamily = figtree,
         fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
+        fontSize = TextSizeConfig.LABEL_SMALL.sp,
+        lineHeight = LineHeightConfig.LABEL_SMALL.sp,
         letterSpacing = 0.5.sp
     )
 )
 
-object ContentTypography{
-
+// Improved ContentTypography with configuration
+object ContentTypography {
     val sunnahTitle = TextStyle(
         fontFamily = amiri,
         fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        lineHeight = 32.sp,
+        fontSize = TextSizeConfig.SUNNAH_TITLE.sp,
+        lineHeight = LineHeightConfig.SUNNAH_TITLE.sp,
         letterSpacing = 0.sp
     )
+
     val topicHeading = TextStyle(
         fontFamily = cinzel_decorative,
         fontWeight = FontWeight.Black,
-        fontSize = 20.sp,
-        lineHeight = 28.sp,
+        fontSize = TextSizeConfig.TOPIC_HEADING.sp,
+        lineHeight = LineHeightConfig.TOPIC_HEADING.sp,
         letterSpacing = 0.5.sp
     )
+
     val englishBodyNormal = TextStyle(
         fontFamily = notoSerifJP,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
+        fontSize = TextSizeConfig.ENGLISH_BODY_NORMAL.sp,
+        lineHeight = LineHeightConfig.ENGLISH_BODY_NORMAL.sp,
         letterSpacing = 0.15.sp
     )
+
     val englishBodyTranslation = TextStyle(
         fontFamily = cormorant_garamond,
         fontWeight = FontWeight.Light,
         fontStyle = FontStyle.Italic,
-        fontSize = 18.sp,
-        lineHeight = 26.sp,
+        fontSize = TextSizeConfig.ENGLISH_BODY_TRANSLATION.sp,
+        lineHeight = LineHeightConfig.ENGLISH_BODY_TRANSLATION.sp,
         letterSpacing = 0.15.sp
     )
+
     val reference = TextStyle(
         fontFamily = notoSerifJP,
         fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
+        fontSize = TextSizeConfig.REFERENCE.sp,
+        lineHeight = LineHeightConfig.REFERENCE.sp,
         letterSpacing = 0.25.sp
     )
-
 }
 
-object ArabicTypography{
-
+// Improved ArabicTypography with configuration
+object ArabicTypography {
     val honorific = TextStyle(
         fontFamily = mirza,
         fontWeight = FontWeight.Bold,
-        fontSize = 20.sp,
-        lineHeight = 28.sp,
+        fontSize = TextSizeConfig.ARABIC_HONORIFIC.sp,
+        lineHeight = LineHeightConfig.ARABIC_HONORIFIC.sp,
         letterSpacing = 0.sp
     )
 
     val supplication = TextStyle(
         fontFamily = lateef,
         fontWeight = FontWeight.Medium,
-        fontSize = 22.sp,
-        lineHeight = 36.sp,
+        fontSize = TextSizeConfig.ARABIC_SUPPLICATION.sp,
+        lineHeight = LineHeightConfig.ARABIC_SUPPLICATION.sp,
         letterSpacing = 0.sp
     )
 
     val quranicVerse = TextStyle(
         fontFamily = lateef,
         fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        lineHeight = 36.sp,
+        fontSize = TextSizeConfig.ARABIC_VERSE.sp,
+        lineHeight = LineHeightConfig.ARABIC_VERSE.sp,
         letterSpacing = 0.sp
     )
 
     val other = TextStyle(
         fontFamily = notoNaskhArabic,
         fontWeight = FontWeight.Bold,
-        fontSize = 20.sp,
-        lineHeight = 32.sp,
+        fontSize = TextSizeConfig.ARABIC_OTHER.sp,
+        lineHeight = LineHeightConfig.ARABIC_OTHER.sp,
         letterSpacing = 0.sp
     )
-
 }
+
