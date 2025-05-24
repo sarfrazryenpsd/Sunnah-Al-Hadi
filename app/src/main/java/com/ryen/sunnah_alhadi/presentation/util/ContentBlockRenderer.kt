@@ -1,4 +1,4 @@
-package com.ryen.sunnah_alhadi.presentation.mapper
+package com.ryen.sunnah_alhadi.presentation.util
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,10 +28,7 @@ import com.ryen.sunnah_alhadi.data.local.database.entity.Reference
 import com.ryen.sunnah_alhadi.ui.theme.ArabicTypography
 import com.ryen.sunnah_alhadi.ui.theme.ContentTypography
 
-
-/**
- * Typography resolver for content blocks
- */
+// ContentBlockRenderer.kt
 object ContentStyleResolver {
 
     @Composable
