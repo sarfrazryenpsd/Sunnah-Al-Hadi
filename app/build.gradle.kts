@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.material3.window.size.class1)
     implementation(libs.bundles.compose)
     implementation(libs.bundles.hilt)
     implementation(libs.bundles.room)

@@ -118,16 +118,16 @@ object TextSizeConfig {
 
     // Content specific sizes
     const val SUNNAH_TITLE = 24
-    const val TOPIC_HEADING = 20
-    const val ENGLISH_BODY_NORMAL = 16
+    const val TOPIC_HEADING = 16
+    const val ENGLISH_BODY_NORMAL = 14
     const val ENGLISH_BODY_TRANSLATION = 18
-    const val REFERENCE = 14
+    const val REFERENCE = 10
 
     // Arabic specific sizes
-    const val ARABIC_HONORIFIC = 20
-    const val ARABIC_SUPPLICATION = 22
+    const val ARABIC_HONORIFIC = 16
+    const val ARABIC_SUPPLICATION = 18
     const val ARABIC_VERSE = 24
-    const val ARABIC_OTHER = 20
+    const val ARABIC_OTHER = 16
 }
 
 object LineHeightConfig {
@@ -311,7 +311,7 @@ object ContentTypography {
 
     val englishBodyTranslation = TextStyle(
         fontFamily = cormorant_garamond,
-        fontWeight = FontWeight.Light,
+        fontWeight = FontWeight.SemiBold,
         fontStyle = FontStyle.Italic,
         fontSize = TextSizeConfig.ENGLISH_BODY_TRANSLATION.sp,
         lineHeight = LineHeightConfig.ENGLISH_BODY_TRANSLATION.sp,
