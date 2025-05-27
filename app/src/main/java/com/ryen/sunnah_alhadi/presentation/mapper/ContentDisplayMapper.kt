@@ -25,8 +25,8 @@ import com.ryen.sunnah_alhadi.data.local.database.entity.EnglishSubtype
 import com.ryen.sunnah_alhadi.data.local.database.entity.ExtraContent
 import com.ryen.sunnah_alhadi.data.local.database.entity.ExtraContentType
 import com.ryen.sunnah_alhadi.data.local.database.entity.Reference
-import com.ryen.sunnah_alhadi.ui.theme.ArabicTypography
-import com.ryen.sunnah_alhadi.ui.theme.ContentTypography
+import com.ryen.sunnah_alhadi.ui.theme.DynamicArabicTypography
+import com.ryen.sunnah_alhadi.ui.theme.DynamicContentTypography
 
 
 /**
@@ -45,20 +45,20 @@ object ContentStyleResolver {
     @Composable
     private fun getArabicStyle(subtype: Any): TextStyle {
         return when (subtype) {
-            ArabicSubtype.VERSE -> ArabicTypography.quranicVerse
-            ArabicSubtype.SUPPLICATION -> ArabicTypography.supplication
-            ArabicSubtype.HONORIFIC -> ArabicTypography.honorific
-            ArabicSubtype.OTHER -> ArabicTypography.other
-            else -> ArabicTypography.other // Fallback for string subtypes
+            ArabicSubtype.VERSE -> DynamicArabicTypography.quranicVerse()
+            ArabicSubtype.SUPPLICATION -> DynamicArabicTypography.supplication()
+            ArabicSubtype.HONORIFIC -> DynamicArabicTypography.honorific()
+            ArabicSubtype.OTHER -> DynamicArabicTypography.other()
+            else -> DynamicArabicTypography.other() // Fallback for string subtypes
         }
     }
 
     @Composable
     private fun getEnglishStyle(subtype: Any): TextStyle {
         return when (subtype) {
-            EnglishSubtype.NORMAL -> ContentTypography.englishBodyNormal
-            EnglishSubtype.TRANSLATION -> ContentTypography.englishBodyTranslation
-            else -> ContentTypography.englishBodyNormal // Fallback for string subtypes
+            EnglishSubtype.NORMAL -> DynamicContentTypography.englishBodyNormal()
+            EnglishSubtype.TRANSLATION -> DynamicContentTypography.englishBodyTranslation()
+            else -> DynamicContentTypography.englishBodyNormal() // Fallback for string subtypes
         }
     }
 
@@ -230,9 +230,9 @@ private fun MixedContentRenderer(
 @Composable
 private fun determineArabicStyle(arabicText: String, commonPhrases: List<String>): TextStyle {
     return when {
-        commonPhrases.any { arabicText.contains(it) } -> ArabicTypography.honorific
-        arabicText.length > 50 -> ArabicTypography.quranicVerse // Likely a verse
-        else -> ArabicTypography.supplication
+        commonPhrases.any { arabicText.contains(it) } -> DynamicArabicTypography.honorific()
+        arabicText.length > 50 -> DynamicArabicTypography.quranicVerse() // Likely a verse
+        else -> DynamicArabicTypography.supplication()
     }
 }
 
@@ -274,7 +274,7 @@ fun ReferenceRenderer(
         ) {
             Text(
                 text = "References:",
-                style = ContentTypography.reference.copy(
+                style = DynamicContentTypography.reference().copy(
                     fontStyle = FontStyle.Italic
                 ),
                 color = MaterialTheme.colorScheme.outline
@@ -283,7 +283,7 @@ fun ReferenceRenderer(
             references.forEach { reference ->
                 Text(
                     text = "• ${reference.source}",
-                    style = ContentTypography.reference,
+                    style = DynamicContentTypography.reference(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 8.dp)
                 )

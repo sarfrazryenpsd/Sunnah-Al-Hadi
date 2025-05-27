@@ -52,7 +52,7 @@ fun SunnahAlHadiTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = AppTypography,
+        typography = MaterialTheme.typography,
         content = content
     )
 }
