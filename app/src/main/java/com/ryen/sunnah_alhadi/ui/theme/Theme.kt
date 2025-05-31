@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.ryen.sunnah_alhadi.presentation.util.DynamicTypographyProvider
 
 // Color definitions
 object SunnahColors {

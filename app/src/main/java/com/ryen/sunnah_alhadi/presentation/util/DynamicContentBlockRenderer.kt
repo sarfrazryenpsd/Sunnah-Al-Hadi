@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -13,28 +12,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toComposeRect
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -46,7 +34,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.window.layout.WindowMetricsCalculator
 import com.ryen.sunnah_alhadi.data.local.database.entity.ArabicSubtype
 import com.ryen.sunnah_alhadi.data.local.database.entity.ContentBlock
 import com.ryen.sunnah_alhadi.data.local.database.entity.ContentType
@@ -55,13 +42,8 @@ import com.ryen.sunnah_alhadi.data.local.database.entity.ExtraContent
 import com.ryen.sunnah_alhadi.data.local.database.entity.ExtraContentType
 import com.ryen.sunnah_alhadi.data.local.database.entity.Reference
 import com.ryen.sunnah_alhadi.data.local.database.entity.SunnahEntity
-import com.ryen.sunnah_alhadi.ui.theme.DynamicAppTypography
-import com.ryen.sunnah_alhadi.ui.theme.DynamicArabicTypography
-import com.ryen.sunnah_alhadi.ui.theme.DynamicContentTypography
-import com.ryen.sunnah_alhadi.ui.theme.DynamicTypographyProvider
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicTextConfig
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
-import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 
 /**
  * Dynamic Content Style Resolver that adapts to different screen sizes
@@ -590,342 +572,6 @@ object PreviewData {
     )
 }
 
-//@Preview(name = "Mixed Content - Light Theme")
-//@Composable
-//fun ContentBlockRendererPreview() {
-//    SunnahAlHadiTheme {
-//        Surface {
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(16.dp)
-//                    .verticalScroll(rememberScrollState()),
-//                verticalArrangement = Arrangement.spacedBy(16.dp)
-//            ) {
-//                Text(
-//                    text = "Mixed English-Arabic Content",
-//                    style = MaterialTheme.typography.headlineSmall,
-//                    color = MaterialTheme.colorScheme.primary
-//                )
-//
-//                Card(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-//                ) {
-//                    Column(
-//                        modifier = Modifier.padding(16.dp)
-//                    ) {
-//                        DynamicContentBlockRenderer(
-//                            contentBlocks = PreviewData.mixedContentBlocks,
-//                            modifier = Modifier.fillMaxWidth()
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//@Preview(name = "Arabic Content Only")
-//@Composable
-//fun ArabicContentPreview() {
-//    SunnahAlHadiTheme {
-//        Surface {
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(16.dp)
-//                    .verticalScroll(rememberScrollState()),
-//                verticalArrangement = Arrangement.spacedBy(16.dp)
-//            ) {
-//                Text(
-//                    text = "Pure Arabic Content",
-//                    style = MaterialTheme.typography.headlineSmall,
-//                    color = MaterialTheme.colorScheme.primary
-//                )
-//
-//                Card(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-//                ) {
-//                    Column(
-//                        modifier = Modifier.padding(16.dp)
-//                    ) {
-//                        DynamicContentBlockRenderer(
-//                            contentBlocks = PreviewData.pureArabicBlocks,
-//                            modifier = Modifier.fillMaxWidth()
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//@Preview(name = "English Content Only")
-//@Composable
-//fun EnglishContentPreview() {
-//    SunnahAlHadiTheme {
-//        Surface {
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(16.dp)
-//                    .verticalScroll(rememberScrollState()),
-//                verticalArrangement = Arrangement.spacedBy(16.dp)
-//            ) {
-//                Text(
-//                    text = "English Content",
-//                    style = MaterialTheme.typography.headlineSmall,
-//                    color = MaterialTheme.colorScheme.primary
-//                )
-//
-//                Card(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-//                ) {
-//                    Column(
-//                        modifier = Modifier.padding(16.dp)
-//                    ) {
-//                        DynamicContentBlockRenderer(
-//                            contentBlocks = PreviewData.englishBlocks,
-//                            modifier = Modifier.fillMaxWidth()
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//@Preview(name = "Complete Sunnah Card")
-//@Composable
-//fun CompleteSunnahCardPreview() {
-//    SunnahAlHadiTheme {
-//        Surface {
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(16.dp)
-//                    .verticalScroll(rememberScrollState())
-//            ) {
-//                SunnahCardPreview(
-//                    sunnah = PreviewData.sampleSunnah,
-//                    isBookmarked = false
-//                )
-//            }
-//        }
-//    }
-//}
-//
-//@Preview(name = "Complete Sunnah Card - Dark Theme", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-//@Composable
-//fun CompleteSunnahCardDarkPreview() {
-//    SunnahAlHadiTheme {
-//        Surface {
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(16.dp)
-//                    .verticalScroll(rememberScrollState())
-//            ) {
-//                SunnahCardPreview(
-//                    sunnah = PreviewData.sampleSunnah,
-//                    isBookmarked = true
-//                )
-//            }
-//        }
-//    }
-//}
-//
-//@Preview(name = "References and Extra Content")
-//@Composable
-//fun ReferencesAndExtraPreview() {
-//    SunnahAlHadiTheme {
-//        Surface {
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(16.dp)
-//                    .verticalScroll(rememberScrollState()),
-//                verticalArrangement = Arrangement.spacedBy(16.dp)
-//            ) {
-//                Text(
-//                    text = "References Section",
-//                    style = MaterialTheme.typography.headlineSmall,
-//                    color = MaterialTheme.colorScheme.primary
-//                )
-//
-//                Card(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-//                ) {
-//                    Column(
-//                        modifier = Modifier.padding(16.dp)
-//                    ) {
-//                        DynamicReferenceRenderer(
-//                            references = PreviewData.sampleReferences,
-//                            modifier = Modifier.fillMaxWidth()
-//                        )
-//                    }
-//                }
-//
-//                Text(
-//                    text = "Extra Content Section",
-//                    style = MaterialTheme.typography.headlineSmall,
-//                    color = MaterialTheme.colorScheme.primary
-//                )
-//
-//                Card(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-//                ) {
-//                    Column(
-//                        modifier = Modifier.padding(16.dp)
-//                    ) {
-//                        DynamicExtraContentRenderer(
-//                            extraContent = PreviewData.sampleExtraContent,
-//                            modifier = Modifier.fillMaxWidth()
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//@Composable
-//private fun SunnahCardPreview(
-//    sunnah: SunnahEntity,
-//    isBookmarked: Boolean,
-//    modifier: Modifier = Modifier
-//) {
-//    Card(
-//        modifier = modifier.fillMaxWidth(),
-//        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-//    ) {
-//        Column(
-//            modifier = Modifier.padding(16.dp),
-//            verticalArrangement = Arrangement.spacedBy(12.dp)
-//        ) {
-//            // Title section
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceBetween,
-//                verticalAlignment = Alignment.Top
-//            ) {
-//                Text(
-//                    text = sunnah.title,
-//                    style = DynamicContentTypography.sunnahTitle(),
-//                    textAlign = TextAlign.Center,
-//                    modifier = Modifier.weight(1f),
-//                    color = MaterialTheme.colorScheme.onSurface
-//                )
-//            }
-//
-//            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-//
-//            // Main content
-//            DynamicContentBlockRenderer(
-//                contentBlocks = sunnah.body,
-//                modifier = Modifier.fillMaxWidth()
-//            )
-//
-//            // Extra content
-//            sunnah.extra?.let { extras ->
-//                DynamicExtraContentRenderer(
-//                    extraContent = extras,
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-//            }
-//            // References
-//            sunnah.references?.let { refs ->
-//                DynamicReferenceRenderer(
-//                    references = refs,
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-//            }
-//
-//        }
-//    }
-//}
-//
-//// Additional preview for typography testing
-//@Preview(name = "Typography Showcase", heightDp = 800)
-//@Composable
-//fun TypographyShowcasePreview() {
-//    SunnahAlHadiTheme {
-//        Surface {
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(16.dp)
-//                    .verticalScroll(rememberScrollState()),
-//                verticalArrangement = Arrangement.spacedBy(12.dp)
-//            ) {
-//                Text(
-//                    text = "Typography Showcase",
-//                    style = MaterialTheme.typography.headlineLarge,
-//                    color = MaterialTheme.colorScheme.primary
-//                )
-//
-//                HorizontalDivider()
-//
-//                // Arabic Typography
-//                Text(
-//                    text = "Arabic Styles:",
-//                    style = MaterialTheme.typography.titleMedium,
-//                    color = MaterialTheme.colorScheme.secondary
-//                )
-//
-//                Text(
-//                    text = "وَلَوْلَا دَفْعُ اللَّهِ النَّاسَ بَعْضَهُم بِبَعْضٍۢ لَّفَسَدَتِ الْأَرْضُ",
-//                    style = DynamicArabicTypography.quranicVerse(),
-//                    color = MaterialTheme.colorScheme.primary
-//                )
-//
-//                Text(
-//                    text = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم",
-//                    style = DynamicArabicTypography.honorific(),
-//                    color = MaterialTheme.colorScheme.tertiary
-//                )
-//
-//                Text(
-//                    text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-//                    style = DynamicArabicTypography.supplication(),
-//                )
-//
-//                Spacer(modifier = Modifier.height(8.dp))
-//
-//                // English Typography
-//                Text(
-//                    text = "English Styles:",
-//                    style = MaterialTheme.typography.titleMedium,
-//                    color = MaterialTheme.colorScheme.secondary
-//                )
-//
-//                Text(
-//                    text = "Regular body text with proper line height and spacing for comfortable reading.",
-//                    style = MaterialTheme.typography.bodyLarge
-//                )
-//
-//                Text(
-//                    text = "Translation text with italic styling for better distinction from regular content.",
-//                    style = MaterialTheme.typography.bodyLarge.copy(
-//                        fontStyle = FontStyle.Italic
-//                    ),
-//                    color = MaterialTheme.colorScheme.secondary
-//                )
-//
-//                Text(
-//                    text = "Reference text with medium weight",
-//                    style = MaterialTheme.typography.bodyMedium,
-//                    color = MaterialTheme.colorScheme.outline
-//                )
-//            }
-//        }
-//    }
-//}
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable

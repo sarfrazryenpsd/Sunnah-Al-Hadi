@@ -1,4 +1,4 @@
-package com.ryen.sunnah_alhadi.ui.theme
+package com.ryen.sunnah_alhadi.presentation.util
 
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -9,6 +9,20 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ryen.sunnah_alhadi.ui.theme.DynamicLineHeightConfig
+import com.ryen.sunnah_alhadi.ui.theme.DynamicTextConfig
+import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicLineHeightConfig
+import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicTextConfig
+import com.ryen.sunnah_alhadi.ui.theme.amiri
+import com.ryen.sunnah_alhadi.ui.theme.cinzel_decorative
+import com.ryen.sunnah_alhadi.ui.theme.cormorant_garamond
+import com.ryen.sunnah_alhadi.ui.theme.figtree
+import com.ryen.sunnah_alhadi.ui.theme.getScaleFactors
+import com.ryen.sunnah_alhadi.ui.theme.lateef
+import com.ryen.sunnah_alhadi.ui.theme.mirza
+import com.ryen.sunnah_alhadi.ui.theme.notoNaskhArabic
+import com.ryen.sunnah_alhadi.ui.theme.notoSerifJP
+import com.ryen.sunnah_alhadi.ui.theme.toScreenSize
 
 // Provider composable to setup dynamic typography
 @Composable

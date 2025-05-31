@@ -6,5 +6,6 @@ data class Sunnah(
     val title: String,
     val body: List<ContentBlock>,
     val references: List<String>? = null,
-    val isBookmarked: Boolean = false
+    val isBookmarked: Boolean = false,
+    val lastSeen: Long? = null
 )

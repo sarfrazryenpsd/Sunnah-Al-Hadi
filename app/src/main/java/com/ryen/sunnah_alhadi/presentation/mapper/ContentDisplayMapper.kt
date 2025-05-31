@@ -25,8 +25,8 @@ import com.ryen.sunnah_alhadi.data.local.database.entity.EnglishSubtype
 import com.ryen.sunnah_alhadi.data.local.database.entity.ExtraContent
 import com.ryen.sunnah_alhadi.data.local.database.entity.ExtraContentType
 import com.ryen.sunnah_alhadi.data.local.database.entity.Reference
-import com.ryen.sunnah_alhadi.ui.theme.DynamicArabicTypography
-import com.ryen.sunnah_alhadi.ui.theme.DynamicContentTypography
+import com.ryen.sunnah_alhadi.presentation.util.DynamicArabicTypography
+import com.ryen.sunnah_alhadi.presentation.util.DynamicContentTypography
 
 
 /**
