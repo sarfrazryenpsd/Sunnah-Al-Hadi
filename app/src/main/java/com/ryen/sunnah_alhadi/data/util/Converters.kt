@@ -77,22 +77,4 @@ class Converters {
             }
         }
     }
-    // Additional converters for primitive lists, if needed
-    @TypeConverter
-    fun fromStringList(value: List<String>?): String {
-        return value?.let { json.encodeToString(it) } ?: "[]"
-    }
-
-    @TypeConverter
-    fun toStringList(value: String): List<String>? {
-        return if (value.isBlank() || value == "[]") {
-            null
-        } else {
-            try {
-                json.decodeFromString(value)
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
 }
