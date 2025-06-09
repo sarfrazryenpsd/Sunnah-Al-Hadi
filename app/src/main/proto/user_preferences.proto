@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "com.ryen.sunnah_alhadi.datastore";
+option java_multiple_files = true;
+
+message UserPreferences {
+  string username = 1;
+  int32 theme_mode = 2;
+  bool is_dynamic_theme_enabled = 3;
+  bool is_daily_reminder_enabled = 4;
+  bool has_completed_onboarding = 5;
+  bool has_seen_disclaimer = 6;
+  repeated string recently_viewed_sunnah_ids = 7;
+}

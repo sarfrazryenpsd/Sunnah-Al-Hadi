@@ -1,20 +1,22 @@
 [versions]
 agp = "8.10.1"
-kotlin = "2.0.21"
+kotlin = "2.1.10"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-kotlinxSerializationJson = "1.6.0"
-lifecycleRuntimeKtx = "2.9.0"
+kotlinxSerializationJson = "1.8.0"
+lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
-composeBom = "2025.05.01"
+composeBom = "2025.06.00"
 material3-adaptive = "1.1.0"
 roomRuntime = "2.7.1"
 ksp = "2.0.21-1.0.27"
 hilt = "2.53.1"
 hilt-compose = "1.2.0"
 coil = "3.0.4"
+datastore = "1.1.7"
+protobuf = "4.29.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,6 +44,9 @@ dagger-hilt-android = {module = "com.google.dagger:hilt-android", version.ref = 
 dagger-hilt-compiler = {module = "com.google.dagger:hilt-compiler", version.ref = "hilt"}
 dagger-hilt-compose = {module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-compose"}
 coil = {module = "io.coil-kt.coil3:coil-compose", version.ref = "coil"}
+datastore-proto = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastore" }
+protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobuf" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 [plugins]
@@ -51,6 +56,7 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = {id = "com.google.devtools.ksp", version.ref = "ksp"}
 dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+protobuf = {id = "com.google.protobuf", version = "0.9.4"}
 
 [bundles]
 compose = [

@@ -9,5 +9,6 @@ interface SunnahRepository {
     suspend fun getSunnahsByCategory(categoryId: Int): List<Sunnah>
     suspend fun getRandomSunnahs(): List<Sunnah>
     suspend fun searchSunnahs(query: String): List<Sunnah>
+    suspend fun updateLastSeen(sunnahId: String, timestamp: Long)
 
 }

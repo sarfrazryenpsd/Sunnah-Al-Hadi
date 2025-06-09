@@ -21,4 +21,5 @@ interface SunnahDao {
     @Query("SELECT * FROM sunnahs ORDER BY RANDOM()")
     suspend fun getRandomSunnahs(): List<SunnahEntity>
 
+
 }

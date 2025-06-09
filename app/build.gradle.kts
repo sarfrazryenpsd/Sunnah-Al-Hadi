@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.protobuf)
 }
 
 android {
@@ -42,6 +43,19 @@ android {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${libs.versions.protobuf.get()}"
+    }
+    generateProtoTasks {
+        all().forEach {
+            it.builtins {
+                create("java")
+            }
+        }
+    }
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -57,6 +71,10 @@ dependencies {
 
     ksp(libs.androidx.room.compiler)
     ksp(libs.dagger.hilt.compiler)
+
+    implementation(libs.protobuf.javalite)
+    implementation(libs.datastore.proto)
+    implementation(libs.datastore.core)
 
     debugImplementation(libs.bundles.compose.debug)
     testImplementation(libs.junit)
