@@ -483,22 +483,22 @@ object PreviewData {
     val mixedContentBlocks = listOf(
         ContentBlock(
             type = ContentType.ENGLISH_TEXT,
-            subtype = EnglishSubtype.NORMAL,
+            subtype = EnglishSubtype.NORMAL.name,
             content = "The beloved Prophet صَلَّى اللهُ عَلَيْهِ وَسَلَّم said: \"By virtue of the righteous Muslim, Allah Almighty removes a calamity from 100 houses in his neighborhood.\""
         ),
         ContentBlock(
             type = ContentType.ENGLISH_TEXT,
-            subtype = EnglishSubtype.NORMAL,
+            subtype = EnglishSubtype.NORMAL.name,
             content = "Then he صَلَّى اللهُ عَلَيْهِ وَسَلَّم recited:"
         ),
         ContentBlock(
             type = ContentType.ARABIC_TEXT,
-            subtype = ArabicSubtype.VERSE,
+            subtype = ArabicSubtype.VERSE.name,
             content = "وَلَوْلَا دَفْعُ اللَّهِ النَّاسَ بَعْضَهُم بِبَعْضٍۢ لَّفَسَدَتِ الْأَرْضُ"
         ),
         ContentBlock(
             type = ContentType.ENGLISH_TEXT,
-            subtype = EnglishSubtype.TRANSLATION,
+            subtype = EnglishSubtype.TRANSLATION.name,
             content = "\"And if Allah does not keep away some people by means of others, the earth would have been corrupted.\""
         )
     )
@@ -506,17 +506,17 @@ object PreviewData {
     val pureArabicBlocks = listOf(
         ContentBlock(
             type = ContentType.ARABIC_TEXT,
-            subtype = ArabicSubtype.SUPPLICATION,
+            subtype = ArabicSubtype.SUPPLICATION.name,
             content = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
         ),
         ContentBlock(
             type = ContentType.ARABIC_TEXT,
-            subtype = ArabicSubtype.HONORIFIC,
+            subtype = ArabicSubtype.HONORIFIC.name,
             content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
         ),
         ContentBlock(
             type = ContentType.ARABIC_TEXT,
-            subtype = ArabicSubtype.OTHER,
+            subtype = ArabicSubtype.OTHER.name,
             content = "اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا"
         )
     )
@@ -524,12 +524,12 @@ object PreviewData {
     val englishBlocks = listOf(
         ContentBlock(
             type = ContentType.ENGLISH_TEXT,
-            subtype = EnglishSubtype.NORMAL,
+            subtype = EnglishSubtype.NORMAL.name,
             content = "It is recommended to recite Bismillah before starting any good deed. This practice brings blessings and protection from Allah."
         ),
         ContentBlock(
             type = ContentType.ENGLISH_TEXT,
-            subtype = EnglishSubtype.TRANSLATION,
+            subtype = EnglishSubtype.TRANSLATION.name,
             content = "Translation: \"In the name of Allah, the Most Gracious, the Most Merciful.\""
         )
     )
@@ -545,7 +545,7 @@ object PreviewData {
             content = listOf(
                 ContentBlock(
                     type = ContentType.ENGLISH_TEXT,
-                    subtype = EnglishSubtype.NORMAL,
+                    subtype = EnglishSubtype.NORMAL.name,
                     content = "This hadith teaches us the importance of being a righteous neighbor and how our good deeds can benefit the entire community."
                 )
             )
@@ -555,7 +555,7 @@ object PreviewData {
             content = listOf(
                 ContentBlock(
                     type = ContentType.ENGLISH_TEXT,
-                    subtype = EnglishSubtype.NORMAL,
+                    subtype = EnglishSubtype.NORMAL.name,
                     content = "Remember that righteousness should be consistent in all aspects of life, not just in public display."
                 )
             )
