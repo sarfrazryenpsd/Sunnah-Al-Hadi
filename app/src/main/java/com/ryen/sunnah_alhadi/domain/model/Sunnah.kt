@@ -5,7 +5,8 @@ data class Sunnah(
     val categoryId: Int,
     val title: String,
     val body: List<ContentBlock>,
-    val references: List<String>? = null,
+    val references: List<Reference>? = null,
     val isBookmarked: Boolean = false,
+    val extra: List<ExtraContent>? = null,
     val lastSeen: Long? = null
 )

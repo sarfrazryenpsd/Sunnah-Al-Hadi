@@ -3,7 +3,7 @@ syntax = "proto3";
 option java_package = "com.ryen.sunnah_alhadi.datastore";
 option java_multiple_files = true;
 
-message UserPreferences {
+message ProtoUserPreferences {
   string username = 1;
   int32 theme_mode = 2;
   bool is_dynamic_theme_enabled = 3;

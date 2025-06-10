@@ -1,14 +1,14 @@
-package com.ryen.sunnah_alhadi.data.local.database
+package com.ryen.sunnah_alhadi.data.local.datasource
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.ryen.sunnah_alhadi.data.local.database.dao.BookmarkDao
-import com.ryen.sunnah_alhadi.data.local.database.dao.CategoryDao
-import com.ryen.sunnah_alhadi.data.local.database.dao.SunnahDao
-import com.ryen.sunnah_alhadi.data.local.database.entity.BookmarkEntity
-import com.ryen.sunnah_alhadi.data.local.database.entity.CategoryEntity
-import com.ryen.sunnah_alhadi.data.local.database.entity.SunnahEntity
+import com.ryen.sunnah_alhadi.data.local.datasource.dao.BookmarkDao
+import com.ryen.sunnah_alhadi.data.local.datasource.dao.CategoryDao
+import com.ryen.sunnah_alhadi.data.local.datasource.dao.SunnahDao
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.BookmarkEntity
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.CategoryEntity
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahEntity
 import com.ryen.sunnah_alhadi.data.util.Converters
 
 @Database(

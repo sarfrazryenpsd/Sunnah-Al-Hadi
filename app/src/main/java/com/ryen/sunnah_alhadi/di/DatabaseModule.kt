@@ -1,11 +1,10 @@
 package com.ryen.sunnah_alhadi.di
 
-import android.app.Application
 import android.content.Context
 import androidx.room.Room
-import com.ryen.sunnah_alhadi.data.local.database.AppDatabase
-import com.ryen.sunnah_alhadi.data.local.database.dao.CategoryDao
-import com.ryen.sunnah_alhadi.data.local.database.dao.SunnahDao
+import com.ryen.sunnah_alhadi.data.local.datasource.AppDatabase
+import com.ryen.sunnah_alhadi.data.local.datasource.dao.CategoryDao
+import com.ryen.sunnah_alhadi.data.local.datasource.dao.SunnahDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,4 +1,4 @@
-package com.ryen.sunnah_alhadi.data.local.database.entity
+package com.ryen.sunnah_alhadi.data.local.datasource.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey

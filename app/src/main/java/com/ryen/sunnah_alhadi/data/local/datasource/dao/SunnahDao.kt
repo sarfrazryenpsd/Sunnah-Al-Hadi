@@ -1,11 +1,8 @@
-package com.ryen.sunnah_alhadi.data.local.database.dao
+package com.ryen.sunnah_alhadi.data.local.datasource.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.ryen.sunnah_alhadi.data.local.database.entity.SunnahEntity
-import kotlinx.coroutines.flow.Flow
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahEntity
 
 @Dao
 interface SunnahDao {

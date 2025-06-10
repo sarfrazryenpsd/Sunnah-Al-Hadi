@@ -18,13 +18,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.ryen.sunnah_alhadi.data.local.database.entity.ArabicSubtype
-import com.ryen.sunnah_alhadi.data.local.database.entity.ContentBlock
-import com.ryen.sunnah_alhadi.data.local.database.entity.ContentType
-import com.ryen.sunnah_alhadi.data.local.database.entity.EnglishSubtype
-import com.ryen.sunnah_alhadi.data.local.database.entity.ExtraContent
-import com.ryen.sunnah_alhadi.data.local.database.entity.ExtraContentType
-import com.ryen.sunnah_alhadi.data.local.database.entity.Reference
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.ArabicSubtype
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.ContentBlock
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.ContentType
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.EnglishSubtype
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.ExtraContent
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.ExtraContentType
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.Reference
 import com.ryen.sunnah_alhadi.presentation.util.DynamicArabicTypography
 import com.ryen.sunnah_alhadi.presentation.util.DynamicContentTypography
 

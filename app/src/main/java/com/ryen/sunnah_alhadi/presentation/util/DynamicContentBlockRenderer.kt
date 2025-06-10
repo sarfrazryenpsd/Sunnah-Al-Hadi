@@ -34,14 +34,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.ryen.sunnah_alhadi.data.local.database.entity.ArabicSubtype
-import com.ryen.sunnah_alhadi.data.local.database.entity.ContentBlock
-import com.ryen.sunnah_alhadi.data.local.database.entity.ContentType
-import com.ryen.sunnah_alhadi.data.local.database.entity.EnglishSubtype
-import com.ryen.sunnah_alhadi.data.local.database.entity.ExtraContent
-import com.ryen.sunnah_alhadi.data.local.database.entity.ExtraContentType
-import com.ryen.sunnah_alhadi.data.local.database.entity.Reference
-import com.ryen.sunnah_alhadi.data.local.database.entity.SunnahEntity
+import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
+import com.ryen.sunnah_alhadi.domain.model.ContentBlock
+import com.ryen.sunnah_alhadi.domain.model.ContentType
+import com.ryen.sunnah_alhadi.domain.model.EnglishSubtype
+import com.ryen.sunnah_alhadi.domain.model.ExtraContent
+import com.ryen.sunnah_alhadi.domain.model.ExtraContentType
+import com.ryen.sunnah_alhadi.domain.model.Reference
+import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicTextConfig
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
 
@@ -562,7 +562,7 @@ object PreviewData {
         )
     )
 
-    val sampleSunnah = SunnahEntity(
+    val sampleSunnah = Sunnah(
         id = "preview_01",
         categoryId = 1,
         title = "The Righteous Neighbor Saves Many",

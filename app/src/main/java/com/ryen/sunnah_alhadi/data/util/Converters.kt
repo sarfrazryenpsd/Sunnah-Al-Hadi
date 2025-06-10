@@ -1,10 +1,9 @@
 package com.ryen.sunnah_alhadi.data.util
 
 import androidx.room.TypeConverter
-import com.ryen.sunnah_alhadi.data.local.database.entity.ContentBlock
-import com.ryen.sunnah_alhadi.data.local.database.entity.ExtraContent
-import com.ryen.sunnah_alhadi.data.local.database.entity.Reference
-import kotlinx.serialization.encodeToString
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.ContentBlock
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.ExtraContent
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.Reference
 import kotlinx.serialization.json.Json
 
 /**

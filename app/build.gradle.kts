@@ -48,16 +48,17 @@ protobuf {
         artifact = "com.google.protobuf:protoc:${libs.versions.protobuf.get()}"
     }
     generateProtoTasks {
-        all().forEach {
-            it.builtins {
-                create("java")
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
             }
         }
     }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(platform(libs.androidx.compose.bom))
@@ -67,7 +68,6 @@ dependencies {
     implementation(libs.bundles.room)
     implementation(libs.coil)
     implementation(libs.kotlinx.serialization.json)
-
 
     ksp(libs.androidx.room.compiler)
     ksp(libs.dagger.hilt.compiler)
