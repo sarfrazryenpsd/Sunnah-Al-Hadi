@@ -5,11 +5,8 @@ import com.ryen.sunnah_alhadi.data.local.datasource.dao.SunnahDao
 import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class SunnahRepositoryImpl @Inject constructor(
+class SunnahRepositoryImpl (
     private val sunnahDao: SunnahDao,
     private val bookmarkDao: BookmarkDao
 ) : SunnahRepository {

@@ -9,14 +9,10 @@ import com.ryen.sunnah_alhadi.datastore.ProtoUserPreferences
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class UserPreferencesRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+class UserPreferencesRepositoryImpl (
+    private val context: Context
 ) : UserPreferencesRepository {
 
     private val Context.dataStore: DataStore<ProtoUserPreferences> by dataStore(

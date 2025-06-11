@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.protobuf)
 }
 
@@ -64,13 +63,12 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3.window.size.class1)
     implementation(libs.bundles.compose)
-    implementation(libs.bundles.hilt)
     implementation(libs.bundles.room)
     implementation(libs.coil)
     implementation(libs.kotlinx.serialization.json)
 
     ksp(libs.androidx.room.compiler)
-    ksp(libs.dagger.hilt.compiler)
+    implementation (libs.bundles.koin)
 
     implementation(libs.protobuf.javalite)
     implementation(libs.datastore.proto)

@@ -8,32 +8,12 @@ import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
 import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import org.koin.android.ext.koin.androidContext
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
-
-    @Binds
-    abstract fun bindBookmarkRepository(
-        bookmarkRepositoryImpl: BookmarkRepositoryImpl
-    ): BookmarkRepository
-
-    @Binds
-    abstract fun bindCategoryRepository(
-        categoryRepositoryImpl: CategoryRepositoryImpl
-    ): CategoryRepository
-
-    @Binds
-    abstract fun bindSunnahRepository(
-        sunnahRepositoryImpl: SunnahRepositoryImpl
-    ): SunnahRepository
-
-    @Binds
-    abstract fun bindUserPreferencesRepository(
-        userPreferencesRepositoryImpl: UserPreferencesRepositoryImpl
-    ): UserPreferencesRepository
+val repositoryModule = module {
+    single<BookmarkRepository> { BookmarkRepositoryImpl(get()) }
+    single<CategoryRepository> { CategoryRepositoryImpl(get()) }
+    single<SunnahRepository> { SunnahRepositoryImpl(get(), get()) }
+    single<UserPreferencesRepository> { UserPreferencesRepositoryImpl(androidContext()) }
 }

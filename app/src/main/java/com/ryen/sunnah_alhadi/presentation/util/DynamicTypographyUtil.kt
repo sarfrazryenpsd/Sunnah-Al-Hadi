@@ -49,6 +49,7 @@ fun DynamicTypographyProvider(
 
 // Dynamic Typography objects that adapt to screen size
 object DynamicAppTypography {
+
     @Composable
     fun displayLarge(): TextStyle {
         val textConfig = LocalDynamicTextConfig.current
@@ -243,6 +244,7 @@ object DynamicAppTypography {
             letterSpacing = 0.5.sp
         )
     }
+
 }
 
 // Dynamic Content Typography

@@ -6,11 +6,8 @@ import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.domain.model.Bookmark
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class BookmarkRepositoryImpl @Inject constructor(
+class BookmarkRepositoryImpl(
     private val bookmarkDao: BookmarkDao
 ) : BookmarkRepository {
 
