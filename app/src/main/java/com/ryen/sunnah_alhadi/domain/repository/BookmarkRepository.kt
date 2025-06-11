@@ -2,6 +2,7 @@ package com.ryen.sunnah_alhadi.domain.repository
 
 import com.ryen.sunnah_alhadi.domain.model.Bookmark
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
+import kotlinx.coroutines.flow.Flow
 
 interface BookmarkRepository {
 
@@ -11,5 +12,6 @@ interface BookmarkRepository {
     suspend fun addBookmark(sunnahId: String)
     suspend fun removeBookmark(sunnahId: String)
     suspend fun toggleBookmark(sunnahId: String)
+    fun getBookmarkedSunnahsFlow(): Flow<List<Sunnah>>
 
 }

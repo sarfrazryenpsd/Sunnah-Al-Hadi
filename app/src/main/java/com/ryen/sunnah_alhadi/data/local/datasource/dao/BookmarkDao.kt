@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.BookmarkEntity
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BookmarkDao {
@@ -18,6 +19,13 @@ interface BookmarkDao {
         ORDER BY b.bookmarkedAt DESC
     """)
     suspend fun getBookmarkedSunnahs(): List<SunnahEntity>
+
+    @Query("""
+        SELECT s.* FROM sunnahs s 
+        INNER JOIN bookmarks b ON s.id = b.sunnahId 
+        ORDER BY b.bookmarkedAt DESC
+    """)
+    fun getBookmarkedSunnahsFlow(): Flow<List<SunnahEntity>>
 
     @Query("SELECT COUNT(*) > 0 FROM bookmarks WHERE sunnahId = :sunnahId")
     suspend fun isBookmarked(sunnahId: String): Boolean

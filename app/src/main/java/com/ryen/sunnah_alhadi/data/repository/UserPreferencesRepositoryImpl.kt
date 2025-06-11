@@ -9,7 +9,9 @@ import com.ryen.sunnah_alhadi.datastore.ProtoUserPreferences
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 class UserPreferencesRepositoryImpl (
     private val context: Context
@@ -98,5 +100,9 @@ class UserPreferencesRepositoryImpl (
                 .addAllRecentlyViewedSunnahIds(trimmedList)
                 .build()
         }
+    }
+
+    override fun getUserPreferencesFlow(): Flow<UserPreferences> {
+        return context.dataStore.data.map { it.toDomain() }
     }
 }

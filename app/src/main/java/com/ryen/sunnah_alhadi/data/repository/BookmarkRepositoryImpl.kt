@@ -6,8 +6,10 @@ import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.domain.model.Bookmark
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-class BookmarkRepositoryImpl(
+class EnhancedBookmarkRepositoryImpl(
     private val bookmarkDao: BookmarkDao
 ) : BookmarkRepository {
 
@@ -17,6 +19,13 @@ class BookmarkRepositoryImpl(
 
     override suspend fun getBookmarkedSunnahs(): List<Sunnah> {
         return bookmarkDao.getBookmarkedSunnahs().map { it.toDomain(isBookmarked = true) }
+    }
+
+    override fun getBookmarkedSunnahsFlow(): Flow<List<Sunnah>> {
+        return bookmarkDao.getBookmarkedSunnahsFlow()
+            .map { entities ->
+                entities.map { it.toDomain(isBookmarked = true) }
+            }
     }
 
     override suspend fun isBookmarked(sunnahId: String): Boolean {
