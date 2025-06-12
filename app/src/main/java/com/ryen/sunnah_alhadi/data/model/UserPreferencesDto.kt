@@ -11,7 +11,11 @@ fun ProtoUserPreferences.toDomain(): UserPreferences {
         isDailyReminderEnabled = this.isDailyReminderEnabled,
         hasCompletedOnboarding = this.hasCompletedOnboarding,
         hasSeenDisclaimer = this.hasSeenDisclaimer,
-        recentlyViewedSunnahIds = this.recentlyViewedSunnahIdsList.toList()
+        recentlyViewedSunnahIds = this.recentlyViewedSunnahIdsList.toList(),
+        currentSotdId = this.currentSotdId,
+        sotdGeneratedDate = this.sotdGeneratedDate,
+        isSotdSeen = this.isSotdSeen,
+        isSotdNotificationScheduled = this.isSotdNotificationScheduled
     )
 }
 
@@ -24,5 +28,9 @@ fun UserPreferences.toProto(): ProtoUserPreferences {
         .setHasCompletedOnboarding(this.hasCompletedOnboarding)
         .setHasSeenDisclaimer(this.hasSeenDisclaimer)
         .addAllRecentlyViewedSunnahIds(this.recentlyViewedSunnahIds)
+        .setCurrentSotdId(this.currentSotdId)
+        .setSotdGeneratedDate(this.sotdGeneratedDate)
+        .setIsSotdSeen(this.isSotdSeen)
+        .setIsSotdNotificationScheduled(this.isSotdNotificationScheduled)
         .build()
 }

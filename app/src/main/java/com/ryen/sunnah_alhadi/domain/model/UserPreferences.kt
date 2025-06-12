@@ -7,5 +7,9 @@ data class UserPreferences(
     val isDailyReminderEnabled: Boolean = true,
     val hasCompletedOnboarding: Boolean = false,
     val hasSeenDisclaimer: Boolean = false,
-    val recentlyViewedSunnahIds: List<String> = emptyList()
+    val recentlyViewedSunnahIds: List<String> = emptyList(),
+    val currentSotdId: String = "",
+    val sotdGeneratedDate: Long = 0L,
+    val isSotdSeen: Boolean = false,
+    val isSotdNotificationScheduled: Boolean = false
 )

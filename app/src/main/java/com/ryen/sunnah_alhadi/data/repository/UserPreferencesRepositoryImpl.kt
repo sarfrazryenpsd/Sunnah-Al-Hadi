@@ -12,6 +12,7 @@ import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.util.Calendar
 
 class UserPreferencesRepositoryImpl (
     private val context: Context
@@ -100,6 +101,111 @@ class UserPreferencesRepositoryImpl (
                 .addAllRecentlyViewedSunnahIds(trimmedList)
                 .build()
         }
+    }
+
+    override suspend fun getCurrentSotd(): String {
+        return context.dataStore.data.first().currentSotdId
+    }
+
+    override suspend fun updateCurrentSotd(sotdId: String, generatedDate: Long) {
+        context.dataStore.updateData { currentPrefs ->
+            // Add current SOTD to recently viewed if it exists
+            val currentList = currentPrefs.recentlyViewedSunnahIdsList.toMutableList()
+            if (currentPrefs.currentSotdId.isNotEmpty()) {
+                currentList.remove(currentPrefs.currentSotdId)
+                currentList.add(0, currentPrefs.currentSotdId)
+
+                // Keep only latest 30
+                val trimmedList = if (currentList.size > 30) {
+                    currentList.take(30)
+                } else {
+                    currentList
+                }
+
+                currentPrefs.toBuilder()
+                    .setCurrentSotdId(sotdId)
+                    .setSotdGeneratedDate(generatedDate)
+                    .setIsSotdSeen(false)
+                    .setIsSotdNotificationScheduled(false)
+                    .clearRecentlyViewedSunnahIds()
+                    .addAllRecentlyViewedSunnahIds(trimmedList)
+                    .build()
+            } else {
+                currentPrefs.toBuilder()
+                    .setCurrentSotdId(sotdId)
+                    .setSotdGeneratedDate(generatedDate)
+                    .setIsSotdSeen(false)
+                    .setIsSotdNotificationScheduled(false)
+                    .build()
+            }
+        }
+    }
+
+    override suspend fun markSotdAsSeen() {
+        context.dataStore.updateData { currentPrefs ->
+            currentPrefs.toBuilder()
+                .setIsSotdSeen(true)
+                .build()
+        }
+    }
+
+    override suspend fun markSotdAsUnseen() {
+        context.dataStore.updateData { currentPrefs ->
+            currentPrefs.toBuilder()
+                .setIsSotdSeen(false)
+                .build()
+        }
+    }
+
+    override suspend fun isSotdSeen(): Boolean {
+        return context.dataStore.data.first().isSotdSeen
+    }
+
+    override suspend fun getSotdGeneratedDate(): Long {
+        return context.dataStore.data.first().sotdGeneratedDate
+    }
+
+    override suspend fun shouldGenerateNewSotd(): Boolean {
+        val prefs = context.dataStore.data.first()
+        val today = System.currentTimeMillis()
+        val generatedDate = prefs.sotdGeneratedDate
+
+        // Check if it's a new day (compare dates, not exact time)
+        return if (generatedDate == 0L) {
+            true // First time
+        } else {
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = today
+            val todayDay = calendar.get(Calendar.DAY_OF_YEAR)
+            val todayYear = calendar.get(Calendar.YEAR)
+
+            calendar.timeInMillis = generatedDate
+            val generatedDay = calendar.get(Calendar.DAY_OF_YEAR)
+            val generatedYear = calendar.get(Calendar.YEAR)
+
+            todayDay != generatedDay || todayYear != generatedYear
+        }
+    }
+
+    override suspend fun updateSotdNotificationScheduled(scheduled: Boolean) {
+        context.dataStore.updateData { currentPrefs ->
+            currentPrefs.toBuilder()
+                .setIsSotdNotificationScheduled(scheduled)
+                .build()
+        }
+    }
+
+    override suspend fun isSotdNotificationScheduled(): Boolean {
+        return context.dataStore.data.first().isSotdNotificationScheduled
+    }
+
+    // Flow versions
+    override fun getCurrentSotdFlow(): Flow<String> {
+        return context.dataStore.data.map { it.currentSotdId }
+    }
+
+    override fun isSotdSeenFlow(): Flow<Boolean> {
+        return context.dataStore.data.map { it.isSotdSeen }
     }
 
     override fun getUserPreferencesFlow(): Flow<UserPreferences> {

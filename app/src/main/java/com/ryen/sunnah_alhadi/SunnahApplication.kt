@@ -2,6 +2,7 @@ package com.ryen.sunnah_alhadi
 
 import android.app.Application
 import com.ryen.sunnah_alhadi.di.databaseModule
+import com.ryen.sunnah_alhadi.di.sotdModule
 import com.ryen.sunnah_alhadi.di.useCaseModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -16,7 +17,8 @@ class SunnahApplication : Application() {
             androidContext(this@SunnahApplication)
             modules(
                 databaseModule,
-                useCaseModule
+                useCaseModule,
+                sotdModule
                 // Add other modules here
             )
         }

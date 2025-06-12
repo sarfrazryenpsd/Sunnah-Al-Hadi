@@ -15,6 +15,20 @@ interface UserPreferencesRepository {
     suspend fun markDisclaimerSeen()
     suspend fun getRecentlyViewedIds(): List<String>
     suspend fun addToRecentlyViewed(sunnahId: String)
+
+    suspend fun getCurrentSotd(): String
+    suspend fun updateCurrentSotd(sotdId: String, generatedDate: Long)
+    suspend fun markSotdAsSeen()
+    suspend fun markSotdAsUnseen() // For testing or manual reset
+    suspend fun isSotdSeen(): Boolean
+    suspend fun getSotdGeneratedDate(): Long
+    suspend fun shouldGenerateNewSotd(): Boolean // Helper method
+    suspend fun updateSotdNotificationScheduled(scheduled: Boolean)
+    suspend fun isSotdNotificationScheduled(): Boolean
+
+    // Flow versions for real-time updates
+    fun getCurrentSotdFlow(): Flow<String>
+    fun isSotdSeenFlow(): Flow<Boolean>
     fun getUserPreferencesFlow(): Flow<UserPreferences>
 
 }
