@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.domain.repository
 
+import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
@@ -23,8 +24,11 @@ interface UserPreferencesRepository {
     suspend fun isSotdSeen(): Boolean
     suspend fun getSotdGeneratedDate(): Long
     suspend fun shouldGenerateNewSotd(): Boolean // Helper method
-    suspend fun updateSotdNotificationScheduled(scheduled: Boolean)
-    suspend fun isSotdNotificationScheduled(): Boolean
+
+    suspend fun updateSotdNotificationTime(time: NotificationTime)
+    suspend fun updateSotdNotificationEnabled(enabled: Boolean)
+    suspend fun getSotdNotificationTime(): NotificationTime
+    suspend fun isSotdNotificationEnabled(): Boolean
 
     // Flow versions for real-time updates
     fun getCurrentSotdFlow(): Flow<String>

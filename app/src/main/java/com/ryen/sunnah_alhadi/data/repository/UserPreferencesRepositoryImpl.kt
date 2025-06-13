@@ -6,6 +6,7 @@ import androidx.datastore.dataStore
 import com.ryen.sunnah_alhadi.data.local.proto.ProtoUserPreferencesSerializer
 import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.datastore.ProtoUserPreferences
+import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
@@ -107,6 +108,31 @@ class UserPreferencesRepositoryImpl (
         return context.dataStore.data.first().currentSotdId
     }
 
+    override suspend fun updateSotdNotificationTime(time: NotificationTime) {
+        context.dataStore.updateData { currentPrefs ->
+            currentPrefs.toBuilder()
+                .setSotdNotificationTime(time.ordinal)
+                .build()
+        }
+    }
+
+    override suspend fun updateSotdNotificationEnabled(enabled: Boolean) {
+        context.dataStore.updateData { currentPrefs ->
+            currentPrefs.toBuilder()
+                .setIsSotdNotificationEnabled(enabled)
+                .build()
+        }
+    }
+
+    override suspend fun getSotdNotificationTime(): NotificationTime {
+        val prefs = context.dataStore.data.first()
+        return NotificationTime.entries[prefs.sotdNotificationTime]
+    }
+
+    override suspend fun isSotdNotificationEnabled(): Boolean {
+        return context.dataStore.data.first().isSotdNotificationEnabled
+    }
+
     override suspend fun updateCurrentSotd(sotdId: String, generatedDate: Long) {
         context.dataStore.updateData { currentPrefs ->
             // Add current SOTD to recently viewed if it exists
@@ -126,7 +152,6 @@ class UserPreferencesRepositoryImpl (
                     .setCurrentSotdId(sotdId)
                     .setSotdGeneratedDate(generatedDate)
                     .setIsSotdSeen(false)
-                    .setIsSotdNotificationScheduled(false)
                     .clearRecentlyViewedSunnahIds()
                     .addAllRecentlyViewedSunnahIds(trimmedList)
                     .build()
@@ -135,7 +160,6 @@ class UserPreferencesRepositoryImpl (
                     .setCurrentSotdId(sotdId)
                     .setSotdGeneratedDate(generatedDate)
                     .setIsSotdSeen(false)
-                    .setIsSotdNotificationScheduled(false)
                     .build()
             }
         }
@@ -185,18 +209,6 @@ class UserPreferencesRepositoryImpl (
 
             todayDay != generatedDay || todayYear != generatedYear
         }
-    }
-
-    override suspend fun updateSotdNotificationScheduled(scheduled: Boolean) {
-        context.dataStore.updateData { currentPrefs ->
-            currentPrefs.toBuilder()
-                .setIsSotdNotificationScheduled(scheduled)
-                .build()
-        }
-    }
-
-    override suspend fun isSotdNotificationScheduled(): Boolean {
-        return context.dataStore.data.first().isSotdNotificationScheduled
     }
 
     // Flow versions

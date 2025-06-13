@@ -11,5 +11,6 @@ data class UserPreferences(
     val currentSotdId: String = "",
     val sotdGeneratedDate: Long = 0L,
     val isSotdSeen: Boolean = false,
-    val isSotdNotificationScheduled: Boolean = false
+    val sotdNotificationTime: NotificationTime = NotificationTime.MORNING,
+    val isSotdNotificationEnabled: Boolean = true
 )

@@ -12,7 +12,8 @@ message ProtoUserPreferences {
   bool has_seen_disclaimer = 6;
   repeated string recently_viewed_sunnah_ids = 7;
   string current_sotd_id = 8;
-  int64 sotd_generated_date = 9;  // timestamp when SOTD was generated
+  int64 sotd_generated_date = 9;
   bool is_sotd_seen = 10;
-  bool is_sotd_notification_scheduled = 11;
+  int32 sotd_notification_time = 11;  // 0=MORNING, 1=EVENING, 2=NIGHT
+  bool is_sotd_notification_enabled = 12;
 }

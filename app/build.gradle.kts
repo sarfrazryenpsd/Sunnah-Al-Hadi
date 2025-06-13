@@ -74,6 +74,8 @@ dependencies {
     implementation(libs.datastore.proto)
     implementation(libs.datastore.core)
 
+    implementation(libs.androidx.work.runtime.ktx)
+
     debugImplementation(libs.bundles.compose.debug)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

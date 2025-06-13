@@ -1,6 +1,7 @@
 package com.ryen.sunnah_alhadi.data.model
 
 import com.ryen.sunnah_alhadi.datastore.ProtoUserPreferences
+import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 
 fun ProtoUserPreferences.toDomain(): UserPreferences {
@@ -15,7 +16,8 @@ fun ProtoUserPreferences.toDomain(): UserPreferences {
         currentSotdId = this.currentSotdId,
         sotdGeneratedDate = this.sotdGeneratedDate,
         isSotdSeen = this.isSotdSeen,
-        isSotdNotificationScheduled = this.isSotdNotificationScheduled
+        sotdNotificationTime = NotificationTime.entries.toTypedArray().getOrElse(this.sotdNotificationTime) { NotificationTime.MORNING },
+        isSotdNotificationEnabled = this.isSotdNotificationEnabled
     )
 }
 
@@ -31,6 +33,7 @@ fun UserPreferences.toProto(): ProtoUserPreferences {
         .setCurrentSotdId(this.currentSotdId)
         .setSotdGeneratedDate(this.sotdGeneratedDate)
         .setIsSotdSeen(this.isSotdSeen)
-        .setIsSotdNotificationScheduled(this.isSotdNotificationScheduled)
+        .setSotdNotificationTime(this.sotdNotificationTime.ordinal)
+        .setIsSotdNotificationEnabled(this.isSotdNotificationEnabled)
         .build()
 }
