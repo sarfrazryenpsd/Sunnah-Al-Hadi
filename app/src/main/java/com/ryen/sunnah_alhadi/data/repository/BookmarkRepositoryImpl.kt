@@ -9,7 +9,7 @@ import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class EnhancedBookmarkRepositoryImpl(
+class BookmarkRepositoryImpl(
     private val bookmarkDao: BookmarkDao
 ) : BookmarkRepository {
 
