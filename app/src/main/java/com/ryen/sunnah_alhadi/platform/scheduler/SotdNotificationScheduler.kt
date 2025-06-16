@@ -12,7 +12,7 @@ import com.ryen.sunnah_alhadi.platform.worker.SotdNotificationWorker
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
-class SotdNotificationScheduler(private val context: Context) {
+class SotdNotificationScheduler(context: Context) {
 
     companion object {
         private const val WORK_NAME = "sotd_notification_work"

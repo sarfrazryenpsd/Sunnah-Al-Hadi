@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.ryen.sunnah_alhadi"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.ryen.sunnah_alhadi"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = 26
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 

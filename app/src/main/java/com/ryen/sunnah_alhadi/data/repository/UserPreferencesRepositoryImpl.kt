@@ -10,9 +10,19 @@ import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Calendar
 
 class UserPreferencesRepositoryImpl (
@@ -24,8 +34,16 @@ class UserPreferencesRepositoryImpl (
         serializer = ProtoUserPreferencesSerializer
     )
 
+    // Cache frequently accessed data
+    private val _userPreferencesFlow = context.dataStore.data.map { it.toDomain() }
+        .stateIn(
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
+
     override suspend fun getUserPreferences(): UserPreferences {
-        return context.dataStore.data.first().toDomain()
+        return _userPreferencesFlow.filterNotNull().first()
     }
 
     override suspend fun updateUsername(username: String) {
@@ -80,22 +98,17 @@ class UserPreferencesRepositoryImpl (
         return context.dataStore.data.first().recentlyViewedSunnahIdsList.toList()
     }
 
+    // Optimized recently viewed management
     override suspend fun addToRecentlyViewed(sunnahId: String) {
         context.dataStore.updateData { currentPrefs ->
             val currentList = currentPrefs.recentlyViewedSunnahIdsList.toMutableList()
 
-            // Remove if already exists to avoid duplicates
-            currentList.remove(sunnahId)
+            // More efficient approach
+            currentList.removeAll { it == sunnahId } // Remove all occurrences
+            currentList.add(0, sunnahId) // Add to beginning
 
-            // Add to the beginning
-            currentList.add(0, sunnahId)
-
-            // Keep only the latest 30 entries
-            val trimmedList = if (currentList.size > 30) {
-                currentList.take(30)
-            } else {
-                currentList
-            }
+            // Use take instead of manual size check
+            val trimmedList = currentList.take(RECENTLY_VIEWED_LIMIT)
 
             currentPrefs.toBuilder()
                 .clearRecentlyViewedSunnahIds()
@@ -126,42 +139,37 @@ class UserPreferencesRepositoryImpl (
 
     override suspend fun getSotdNotificationTime(): NotificationTime {
         val prefs = context.dataStore.data.first()
-        return NotificationTime.entries[prefs.sotdNotificationTime]
+        return NotificationTime.entries.getOrElse(prefs.sotdNotificationTime) {
+            NotificationTime.MORNING
+        }
     }
 
     override suspend fun isSotdNotificationEnabled(): Boolean {
         return context.dataStore.data.first().isSotdNotificationEnabled
     }
 
+    // FIXED: Simplified and optimized SOTD update
     override suspend fun updateCurrentSotd(sotdId: String, generatedDate: Long) {
         context.dataStore.updateData { currentPrefs ->
-            // Add current SOTD to recently viewed if it exists
             val currentList = currentPrefs.recentlyViewedSunnahIdsList.toMutableList()
-            if (currentPrefs.currentSotdId.isNotEmpty()) {
-                currentList.remove(currentPrefs.currentSotdId)
-                currentList.add(0, currentPrefs.currentSotdId)
 
-                // Keep only latest 30
-                val trimmedList = if (currentList.size > 30) {
-                    currentList.take(30)
-                } else {
-                    currentList
-                }
-
-                currentPrefs.toBuilder()
-                    .setCurrentSotdId(sotdId)
-                    .setSotdGeneratedDate(generatedDate)
-                    .setIsSotdSeen(false)
-                    .clearRecentlyViewedSunnahIds()
-                    .addAllRecentlyViewedSunnahIds(trimmedList)
-                    .build()
-            } else {
-                currentPrefs.toBuilder()
-                    .setCurrentSotdId(sotdId)
-                    .setSotdGeneratedDate(generatedDate)
-                    .setIsSotdSeen(false)
-                    .build()
+            // Add previous SOTD to recently viewed if it exists and is not empty
+            val previousSotdId = currentPrefs.currentSotdId
+            if (previousSotdId.isNotEmpty()) {
+                currentList.removeAll { it == previousSotdId }
+                currentList.add(0, previousSotdId)
             }
+
+            // Keep only latest entries
+            val trimmedList = currentList.take(RECENTLY_VIEWED_LIMIT)
+
+            currentPrefs.toBuilder()
+                .setCurrentSotdId(sotdId)
+                .setSotdGeneratedDate(generatedDate)
+                .setIsSotdSeen(false)
+                .clearRecentlyViewedSunnahIds()
+                .addAllRecentlyViewedSunnahIds(trimmedList)
+                .build()
         }
     }
 
@@ -189,38 +197,35 @@ class UserPreferencesRepositoryImpl (
         return context.dataStore.data.first().sotdGeneratedDate
     }
 
+    // OPTIMIZED: Use more efficient date comparison
     override suspend fun shouldGenerateNewSotd(): Boolean {
         val prefs = context.dataStore.data.first()
-        val today = System.currentTimeMillis()
         val generatedDate = prefs.sotdGeneratedDate
 
-        // Check if it's a new day (compare dates, not exact time)
-        return if (generatedDate == 0L) {
-            true // First time
-        } else {
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = today
-            val todayDay = calendar.get(Calendar.DAY_OF_YEAR)
-            val todayYear = calendar.get(Calendar.YEAR)
+        if (generatedDate == 0L) return true // First time
 
-            calendar.timeInMillis = generatedDate
-            val generatedDay = calendar.get(Calendar.DAY_OF_YEAR)
-            val generatedYear = calendar.get(Calendar.YEAR)
+        val currentDate = LocalDate.now()
+        val generatedLocalDate = Instant.ofEpochMilli(generatedDate)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
 
-            todayDay != generatedDay || todayYear != generatedYear
-        }
+        return currentDate != generatedLocalDate
     }
 
-    // Flow versions
+    // Flow versions with caching
     override fun getCurrentSotdFlow(): Flow<String> {
-        return context.dataStore.data.map { it.currentSotdId }
+        return context.dataStore.data.map { it.currentSotdId }.distinctUntilChanged()
     }
 
     override fun isSotdSeenFlow(): Flow<Boolean> {
-        return context.dataStore.data.map { it.isSotdSeen }
+        return context.dataStore.data.map { it.isSotdSeen }.distinctUntilChanged()
     }
 
     override fun getUserPreferencesFlow(): Flow<UserPreferences> {
-        return context.dataStore.data.map { it.toDomain() }
+        return _userPreferencesFlow.filterNotNull()
+    }
+
+    companion object {
+        private const val RECENTLY_VIEWED_LIMIT = 30
     }
 }
