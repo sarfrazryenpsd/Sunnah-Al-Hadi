@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.BookmarkEntity
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahEntity
 import kotlinx.coroutines.flow.Flow
@@ -35,4 +36,16 @@ interface BookmarkDao {
 
     @Query("DELETE FROM bookmarks WHERE sunnahId = :sunnahId")
     suspend fun removeBookmark(sunnahId: String)
+
+    // Toggle bookmark - returns true if added, false if removed
+    @Transaction
+    suspend fun toggleBookmark(sunnahId: String): Boolean {
+        return if (isBookmarked(sunnahId)) {
+            removeBookmark(sunnahId)
+            false
+        } else {
+            addBookmark(BookmarkEntity(sunnahId))
+            true
+        }
+    }
 }
