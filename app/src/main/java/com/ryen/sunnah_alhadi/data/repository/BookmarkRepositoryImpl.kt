@@ -3,7 +3,7 @@ package com.ryen.sunnah_alhadi.data.repository
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.BookmarkDao
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.BookmarkEntity
 import com.ryen.sunnah_alhadi.data.model.toDomain
-import com.ryen.sunnah_alhadi.domain.model.Bookmark
+import com.ryen.sunnah_alhadi.domain.model.SunnahBookmarked
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +13,7 @@ class BookmarkRepositoryImpl(
     private val bookmarkDao: BookmarkDao
 ) : BookmarkRepository {
 
-    override suspend fun getAllBookmarks(): List<Bookmark> {
+    override suspend fun getAllBookmarks(): List<SunnahBookmarked> {
         return bookmarkDao.getAllBookmarks().map { it.toDomain() }
     }
 

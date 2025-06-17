@@ -1,5 +1,7 @@
 package com.ryen.sunnah_alhadi.data.local.datasource.entity
 
+import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
@@ -32,6 +34,12 @@ data class SunnahEntity(
     val body: List<ContentBlock>,
     val references: List<Reference>?,  // optional
     val extra: List<ExtraContent>?     // optional
+)
+
+data class SunnahWithBookmark(
+    @Embedded val sunnah: SunnahEntity,
+    @ColumnInfo(name = "isBookmarked") val isBookmarked: Boolean,
+    @ColumnInfo(name = "bookmarkedAt") val bookmarkedAt: Long? = null
 )
 
 object SubtypeSerializer : KSerializer<Any> {

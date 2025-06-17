@@ -20,3 +20,4 @@ data class BookmarkEntity(
     @PrimaryKey val sunnahId: String,
     val bookmarkedAt: Long = System.currentTimeMillis()
 )
+

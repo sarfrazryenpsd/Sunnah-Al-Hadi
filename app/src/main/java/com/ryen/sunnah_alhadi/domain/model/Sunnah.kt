@@ -8,5 +8,5 @@ data class Sunnah(
     val references: List<Reference>? = null,
     val isBookmarked: Boolean = false,
     val extra: List<ExtraContent>? = null,
-    val lastSeen: Long? = null
+    val bookmarkedAt: Long? = null
 )
