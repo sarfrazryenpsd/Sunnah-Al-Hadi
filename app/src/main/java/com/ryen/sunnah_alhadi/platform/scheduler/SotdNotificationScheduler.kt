@@ -1,58 +1,61 @@
 package com.ryen.sunnah_alhadi.platform.scheduler
 
 import android.content.Context
+import android.util.Log
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.platform.worker.SotdNotificationWorker
+import java.time.Duration
+import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
-class SotdNotificationScheduler(context: Context) {
+class SotdNotificationScheduler(private val context: Context) {
 
     companion object {
         private const val WORK_NAME = "sotd_notification_work"
+        private const val TAG_SOTD = "sotd_notification"
     }
 
     private val workManager: WorkManager = WorkManager.getInstance(context)
 
-    fun scheduleNotification(notificationTime: NotificationTime) {
-        // Cancel existing work
+    private fun scheduleNotification(notificationTime: NotificationTime) {
+        // Cancel existing work first
         cancelNotification()
 
-        // Calculate initial delay
-        val currentTime = Calendar.getInstance()
-        val targetTime = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, notificationTime.hour)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+        val initialDelay = calculateInitialDelay(notificationTime)
 
-            // If the time has already passed today, schedule for tomorrow
-            if (before(currentTime)) {
-                add(Calendar.DAY_OF_YEAR, 1)
-            }
-        }
+        // Create constraints to ensure reliability
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+            .setRequiresBatteryNotLow(false)
+            .setRequiresCharging(false)
+            .setRequiresDeviceIdle(false)
+            .setRequiresStorageNotLow(false)
+            .build()
 
-        val initialDelay = targetTime.timeInMillis - currentTime.timeInMillis
-
-        // Create periodic work request
+        // Use daily periodic work with more robust scheduling
         val workRequest = PeriodicWorkRequestBuilder<SotdNotificationWorker>(
             repeatInterval = 1,
-            repeatIntervalTimeUnit = TimeUnit.DAYS
+            repeatIntervalTimeUnit = TimeUnit.DAYS,
+            flexTimeInterval = 30, // 30-minute flex window
+            flexTimeIntervalUnit = TimeUnit.MINUTES
         )
             .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                    .setRequiresBatteryNotLow(false)
-                    .build()
+            .setConstraints(constraints)
+            .addTag(TAG_SOTD)
+            .setBackoffCriteria(
+                BackoffPolicy.EXPONENTIAL,
+                WorkRequest.MIN_BACKOFF_MILLIS,
+                TimeUnit.MILLISECONDS
             )
-            .addTag("sotd_notification")
             .build()
 
         workManager.enqueueUniquePeriodicWork(
@@ -60,14 +63,62 @@ class SotdNotificationScheduler(context: Context) {
             ExistingPeriodicWorkPolicy.UPDATE,
             workRequest
         )
+
+        Log.d("SotdScheduler", "Scheduled notification for ${notificationTime.name} with ${initialDelay}ms delay")
+    }
+
+    private fun calculateInitialDelay(notificationTime: NotificationTime): Long {
+        val now = ZonedDateTime.now()
+        var targetTime = now.withHour(notificationTime.hour)
+            .withMinute(0)
+            .withSecond(0)
+            .withNano(0)
+
+        // If the time has already passed today, schedule for tomorrow
+        if (targetTime.isBefore(now) || targetTime.isEqual(now)) {
+            targetTime = targetTime.plusDays(1)
+        }
+
+        val delayMillis = Duration.between(now, targetTime).toMillis()
+        return maxOf(delayMillis, 0L) // Ensure non-negative delay
     }
 
     private fun cancelNotification() {
         workManager.cancelUniqueWork(WORK_NAME)
+        workManager.cancelAllWorkByTag(TAG_SOTD)
+        Log.d("SotdScheduler", "Cancelled SOTD notifications")
     }
 
-    fun isNotificationScheduled(): Boolean {
-        val workInfos = workManager.getWorkInfosForUniqueWork(WORK_NAME).get()
-        return workInfos.any { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING }
+    private fun isNotificationScheduled(): Boolean {
+        return try {
+            val workInfos = workManager.getWorkInfosForUniqueWork(WORK_NAME).get()
+            workInfos.any {
+                it.state == WorkInfo.State.ENQUEUED ||
+                        it.state == WorkInfo.State.RUNNING
+            }
+        } catch (e: Exception) {
+            Log.e("SotdScheduler", "Error checking notification status", e)
+            false
+        }
+    }
+
+    fun getScheduledNotificationInfo(): WorkInfo? {
+        return try {
+            val workInfos = workManager.getWorkInfosForUniqueWork(WORK_NAME).get()
+            workInfos.firstOrNull {
+                it.state == WorkInfo.State.ENQUEUED ||
+                        it.state == WorkInfo.State.RUNNING
+            }
+        } catch (e: Exception) {
+            Log.e("SotdScheduler", "Error getting notification info", e)
+            null
+        }
+    }
+
+    // Add method to reschedule on timezone change
+    fun rescheduleOnTimezoneChange(notificationTime: NotificationTime) {
+        if (isNotificationScheduled()) {
+            scheduleNotification(notificationTime)
+        }
     }
 }
