@@ -118,7 +118,7 @@ class UserPreferencesRepositoryImpl (
     }
 
     override suspend fun getCurrentSotd(): String {
-        return context.dataStore.data.first().currentSotdId
+        return _userPreferencesFlow.filterNotNull().first().currentSotdId
     }
 
     override suspend fun updateSotdNotificationTime(time: NotificationTime) {

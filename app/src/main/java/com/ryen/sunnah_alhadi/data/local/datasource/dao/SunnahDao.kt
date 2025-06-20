@@ -89,7 +89,14 @@ interface SunnahDao {
     @Query("SELECT * FROM sunnahs WHERE categoryId = :categoryId")
     suspend fun getSunnahsByCategory(categoryId: Int): List<SunnahEntity>
 
-    @Query("SELECT * FROM sunnahs ORDER BY RANDOM()")
-    suspend fun getRandomSunnahs(): List<SunnahEntity>
+    @Query("""
+        SELECT s.*, 
+               CASE WHEN b.sunnahId IS NOT NULL THEN 1 ELSE 0 END as isBookmarked,
+               b.bookmarkedAt as bookmarkedAt
+        FROM sunnahs s 
+        LEFT JOIN bookmarks b ON s.id = b.sunnahId
+        ORDER BY RANDOM()
+    """)
+    suspend fun getRandomSunnahsWithBookmarkStatus(): List<SunnahWithBookmark>
 
 }

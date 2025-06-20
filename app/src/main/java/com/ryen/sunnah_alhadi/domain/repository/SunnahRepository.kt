@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.domain.repository
 
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahWithBookmark
 import com.ryen.sunnah_alhadi.data.util.RepositoryResult
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 

@@ -2,6 +2,7 @@ package com.ryen.sunnah_alhadi.data.repository
 
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.BookmarkDao
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.SunnahDao
+import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahWithBookmark
 import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.data.util.RepositoryResult
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
@@ -9,7 +10,6 @@ import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 
 class SunnahRepositoryImpl(
     private val sunnahDao: SunnahDao,
-    private val bookmarkDao: BookmarkDao
 ) : SunnahRepository {
 
     override suspend fun getAllSunnahs(): RepositoryResult<List<Sunnah>> = try {
@@ -34,10 +34,9 @@ class SunnahRepositoryImpl(
     }
 
     override suspend fun getRandomSunnahs(): RepositoryResult<List<Sunnah>> = try {
-        val sunnahs = sunnahDao.getRandomSunnahs()
+        val sunnahs = sunnahDao.getRandomSunnahsWithBookmarkStatus()
         RepositoryResult.Success(sunnahs.map {
-            val isBookmarked = bookmarkDao.isBookmarked(it.id)
-            it.toDomain(isBookmarked)
+            it.toDomain()
         })
     } catch (e: Exception) {
         RepositoryResult.Error(e, "Failed to load random sunnahs.")
