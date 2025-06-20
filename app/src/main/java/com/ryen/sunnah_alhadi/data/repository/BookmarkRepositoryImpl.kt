@@ -116,10 +116,6 @@ class BookmarkRepositoryImpl(
             val isCurrentlyBookmarked = when (val result = isBookmarked(sunnahId)) {
                 is RepositoryResult.Success -> result.data
                 is RepositoryResult.Error -> return result
-                else -> return RepositoryResult.Error(
-                    IllegalStateException("Unexpected result type"),
-                    "Failed to check bookmark status"
-                )
             }
 
             val toggleResult = if (isCurrentlyBookmarked) {
@@ -131,10 +127,6 @@ class BookmarkRepositoryImpl(
             when (toggleResult) {
                 is RepositoryResult.Success -> RepositoryResult.Success(!isCurrentlyBookmarked)
                 is RepositoryResult.Error -> toggleResult
-                else -> RepositoryResult.Error(
-                    IllegalStateException("Unexpected result type"),
-                    "Failed to toggle bookmark"
-                )
             }
         } catch (e: Exception) {
             Log.e("BookmarkRepo", "Error toggling bookmark for $sunnahId", e)

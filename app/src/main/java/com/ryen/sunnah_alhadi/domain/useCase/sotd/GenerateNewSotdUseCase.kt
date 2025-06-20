@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.domain.useCase.sotd
 
+import com.ryen.sunnah_alhadi.data.util.RepositoryResult
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.domain.useCase.NoParamUseCase
@@ -17,20 +18,25 @@ class GenerateNewSotdUseCase(
         val recentlyViewed = userPreferencesRepository.getRecentlyViewedIds()
         val currentSotd = userPreferencesRepository.getCurrentSotd()
 
-        // Include current SOTD in exclusion list if it exists
         val exclusionList = if (currentSotd.isNotEmpty()) {
             (recentlyViewed + currentSotd).distinct()
         } else {
             recentlyViewed
         }
 
-        val allSunnahs = sunnahRepository.getAllSunnahs()
+        val allSunnahs = when (val result = sunnahRepository.getAllSunnahs()) {
+            is RepositoryResult.Success -> result.data
+            is RepositoryResult.Error -> {
+                // Optional: log the error or handle fallback
+                return null
+            }
+        }
+
         val availableSunnahs = allSunnahs.filter { it.id !in exclusionList }
 
         val selectedSunnah = if (availableSunnahs.isNotEmpty()) {
             availableSunnahs.random()
         } else {
-            // If all have been viewed, reset and pick from all
             allSunnahs.randomOrNull()
         }
 

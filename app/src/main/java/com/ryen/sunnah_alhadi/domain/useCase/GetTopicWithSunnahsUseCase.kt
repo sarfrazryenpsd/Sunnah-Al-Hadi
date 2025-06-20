@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.domain.useCase
 
+import com.ryen.sunnah_alhadi.data.util.RepositoryResult
 import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
@@ -13,7 +14,13 @@ class GetTopicWithSunnahsUseCase(
     override suspend fun execute(parameters: Int): TopicWithSunnahs {
         val category = categoryRepository.getCategoryById(parameters)
             ?: throw IllegalArgumentException("Category not found")
-        val sunnahs = sunnahRepository.getSunnahsByCategory(parameters)
+        val sunnahs = when (val result = sunnahRepository.getSunnahsByCategory(parameters)) {
+            is RepositoryResult.Success -> result.data
+            is RepositoryResult.Error -> {
+                // Handle error
+                emptyList()
+            }
+        }
 
         return TopicWithSunnahs(
             category = category,

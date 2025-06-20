@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.domain.useCase
 
+import com.ryen.sunnah_alhadi.data.util.RepositoryResult
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 
@@ -9,9 +10,21 @@ class GetAllSunnahsUseCase(
 
     override suspend fun execute(parameters: BrowseParams): List<Sunnah> {
         var sunnahs = if (parameters.categoryId != null) {
-            sunnahRepository.getSunnahsByCategory(parameters.categoryId)
+            when (val result = sunnahRepository.getSunnahsByCategory(parameters.categoryId)) {
+                is RepositoryResult.Success -> result.data
+                is RepositoryResult.Error -> {
+                    // Handle error
+                    emptyList()
+                }
+            }
         } else {
-            sunnahRepository.getAllSunnahs()
+            when(val allSunnahResult = sunnahRepository.getAllSunnahs()){
+                is RepositoryResult.Success -> allSunnahResult.data
+                is RepositoryResult.Error -> {
+                    // Handle error
+                    emptyList()
+                }
+            }
         }
 
         // Apply sorting

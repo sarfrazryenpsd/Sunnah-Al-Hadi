@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.domain.useCase
 
+import com.ryen.sunnah_alhadi.data.util.RepositoryResult
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 
@@ -10,7 +11,13 @@ class SearchSunnahsUseCase(
     override suspend fun execute(parameters: SearchParams): List<Sunnah> {
         if (parameters.query.length < 2) return emptyList()
 
-        var results = sunnahRepository.searchSunnahs(parameters.query.trim())
+        var results = when(val queryResult = sunnahRepository.searchSunnahs(parameters.query.trim())){
+            is RepositoryResult.Success -> queryResult.data
+            is RepositoryResult.Error -> {
+                // Handle error
+                emptyList()
+            }
+        }
 
         // Apply filters
         if (parameters.categoryId != null) {

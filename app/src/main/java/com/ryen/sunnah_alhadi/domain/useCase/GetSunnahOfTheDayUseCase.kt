@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.domain.useCase
 
+import com.ryen.sunnah_alhadi.data.util.RepositoryResult
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
@@ -10,8 +11,12 @@ class GetSunnahOfTheDayUseCase(
 ) : NoParamUseCase<Sunnah?>() {
     override suspend fun execute(): Sunnah? {
         val recentlyViewed = userPreferencesRepository.getRecentlyViewedIds()
-        val allSunnahs = sunnahRepository.getAllSunnahs()
-        val availableSunnahs = allSunnahs.filter { it.id !in recentlyViewed }
+        val allSunnahs = when(val allSunnahsResult = sunnahRepository.getAllSunnahs()){
+            is RepositoryResult.Error -> return null
+            is RepositoryResult.Success -> allSunnahsResult.data
+        }
+        val availableSunnahs = allSunnahs.filterNot { it.id in recentlyViewed }
+
 
         val selectedSunnah = if (availableSunnahs.isNotEmpty()) {
             availableSunnahs.random()

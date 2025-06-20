@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.domain.useCase.sotd
 
+import com.ryen.sunnah_alhadi.data.util.RepositoryResult
 import com.ryen.sunnah_alhadi.domain.model.SotdState
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
@@ -16,7 +17,13 @@ class GetCurrentSotdUseCase(
         val generatedDate = userPreferencesRepository.getSotdGeneratedDate()
 
         val sunnah = if (currentSotdId.isNotEmpty()) {
-            sunnahRepository.getSunnahById(currentSotdId)
+            when(val result = sunnahRepository.getSunnahById(currentSotdId)){
+                is RepositoryResult.Success -> result.data
+                is RepositoryResult.Error -> {
+                    // Handle error
+                    null
+                }
+            }
         } else null
 
         return SotdState(
