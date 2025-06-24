@@ -4,7 +4,7 @@ import android.util.Log
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.BookmarkDao
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.BookmarkEntity
 import com.ryen.sunnah_alhadi.data.model.toDomain
-import com.ryen.sunnah_alhadi.data.util.RepositoryResult
+import com.ryen.sunnah_alhadi.util.Result
 import com.ryen.sunnah_alhadi.domain.model.SunnahBookmarked
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
@@ -16,63 +16,63 @@ class BookmarkRepositoryImpl(
     private val bookmarkDao: BookmarkDao
 ) : BookmarkRepository {
 
-    override suspend fun getAllBookmarks(): RepositoryResult<List<SunnahBookmarked>> {
+    override suspend fun getAllBookmarks(): Result<List<SunnahBookmarked>> {
         return try {
             val bookmarks = bookmarkDao.getAllBookmarks().map { it.toDomain() }
-            RepositoryResult.Success(bookmarks)
+            Result.Success(bookmarks)
         } catch (e: Exception) {
             Log.e("BookmarkRepo", "Error getting all bookmarks", e)
-            RepositoryResult.Error(e, "Failed to load bookmarks")
+            Result.Error(e, "Failed to load bookmarks")
         }
     }
 
-    override suspend fun getBookmarkedSunnahs(): RepositoryResult<List<Sunnah>> {
+    override suspend fun getBookmarkedSunnahs(): Result<List<Sunnah>> {
         return try {
             val sunnahs = bookmarkDao.getBookmarkedSunnahs().map { it.toDomain(isBookmarked = true) }
-            RepositoryResult.Success(sunnahs)
+            Result.Success(sunnahs)
         } catch (e: Exception) {
             Log.e("BookmarkRepo", "Error getting bookmarked sunnahs", e)
-            RepositoryResult.Error(e, "Failed to load bookmarked sunnahs")
+            Result.Error(e, "Failed to load bookmarked sunnahs")
         }
     }
 
-    override fun getBookmarkedSunnahsFlow(): Flow<RepositoryResult<List<Sunnah>>> {
+    override fun getBookmarkedSunnahsFlow(): Flow<Result<List<Sunnah>>> {
         return bookmarkDao.getBookmarkedSunnahsFlow()
             .map { entities ->
                 try {
                     val sunnahs = entities.map { it.toDomain(isBookmarked = true) }
-                    RepositoryResult.Success(sunnahs)
+                    Result.Success(sunnahs)
                 } catch (e: Exception) {
                     Log.e("BookmarkRepo", "Error in bookmarked sunnahs flow", e)
-                    RepositoryResult.Error(e, "Failed to load bookmarked sunnahs")
+                    Result.Error(e, "Failed to load bookmarked sunnahs")
                 }
             }
             .catch { e ->
                 Log.e("BookmarkRepo", "Flow error", e)
-                emit(RepositoryResult.Error(e, "Database connection error"))
+                emit(Result.Error(e, "Database connection error"))
             }
     }
 
-    override suspend fun isBookmarked(sunnahId: String): RepositoryResult<Boolean> {
+    override suspend fun isBookmarked(sunnahId: String): Result<Boolean> {
         return try {
             if (sunnahId.isBlank()) {
-                return RepositoryResult.Error(
+                return Result.Error(
                     IllegalArgumentException("Sunnah ID cannot be blank"),
                     "Invalid sunnah ID"
                 )
             }
             val isBookmarked = bookmarkDao.isBookmarked(sunnahId)
-            RepositoryResult.Success(isBookmarked)
+            Result.Success(isBookmarked)
         } catch (e: Exception) {
             Log.e("BookmarkRepo", "Error checking bookmark status for $sunnahId", e)
-            RepositoryResult.Error(e, "Failed to check bookmark status")
+            Result.Error(e, "Failed to check bookmark status")
         }
     }
 
-    override suspend fun addBookmark(sunnahId: String): RepositoryResult<Unit> {
+    override suspend fun addBookmark(sunnahId: String): Result<Unit> {
         return try {
             if (sunnahId.isBlank()) {
-                return RepositoryResult.Error(
+                return Result.Error(
                     IllegalArgumentException("Sunnah ID cannot be blank"),
                     "Invalid sunnah ID"
                 )
@@ -80,42 +80,42 @@ class BookmarkRepositoryImpl(
             val bookmark = BookmarkEntity(sunnahId = sunnahId)
             bookmarkDao.addBookmark(bookmark)
             Log.d("BookmarkRepo", "Added bookmark for $sunnahId")
-            RepositoryResult.Success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
             Log.e("BookmarkRepo", "Error adding bookmark for $sunnahId", e)
-            RepositoryResult.Error(e, "Failed to add bookmark")
+            Result.Error(e, "Failed to add bookmark")
         }
     }
 
-    override suspend fun removeBookmark(sunnahId: String): RepositoryResult<Unit> {
+    override suspend fun removeBookmark(sunnahId: String): Result<Unit> {
         return try {
             if (sunnahId.isBlank()) {
-                return RepositoryResult.Error(
+                return Result.Error(
                     IllegalArgumentException("Sunnah ID cannot be blank"),
                     "Invalid sunnah ID"
                 )
             }
             bookmarkDao.removeBookmark(sunnahId)
             Log.d("BookmarkRepo", "Removed bookmark for $sunnahId")
-            RepositoryResult.Success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
             Log.e("BookmarkRepo", "Error removing bookmark for $sunnahId", e)
-            RepositoryResult.Error(e, "Failed to remove bookmark")
+            Result.Error(e, "Failed to remove bookmark")
         }
     }
 
-    override suspend fun toggleBookmark(sunnahId: String): RepositoryResult<Boolean> {
+    override suspend fun toggleBookmark(sunnahId: String): Result<Boolean> {
         return try {
             if (sunnahId.isBlank()) {
-                return RepositoryResult.Error(
+                return Result.Error(
                     IllegalArgumentException("Sunnah ID cannot be blank"),
                     "Invalid sunnah ID"
                 )
             }
 
             val isCurrentlyBookmarked = when (val result = isBookmarked(sunnahId)) {
-                is RepositoryResult.Success -> result.data
-                is RepositoryResult.Error -> return result
+                is Result.Success -> result.data
+                is Result.Error -> return result
             }
 
             val toggleResult = if (isCurrentlyBookmarked) {
@@ -125,12 +125,12 @@ class BookmarkRepositoryImpl(
             }
 
             when (toggleResult) {
-                is RepositoryResult.Success -> RepositoryResult.Success(!isCurrentlyBookmarked)
-                is RepositoryResult.Error -> toggleResult
+                is Result.Success -> Result.Success(!isCurrentlyBookmarked)
+                is Result.Error -> toggleResult
             }
         } catch (e: Exception) {
             Log.e("BookmarkRepo", "Error toggling bookmark for $sunnahId", e)
-            RepositoryResult.Error(e, "Failed to toggle bookmark")
+            Result.Error(e, "Failed to toggle bookmark")
         }
     }
 }

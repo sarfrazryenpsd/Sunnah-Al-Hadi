@@ -1,6 +1,6 @@
 package com.ryen.sunnah_alhadi.domain.useCase.sotd
 
-import com.ryen.sunnah_alhadi.data.util.RepositoryResult
+import com.ryen.sunnah_alhadi.util.Result
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.domain.useCase.NoParamUseCase
@@ -25,8 +25,8 @@ class GenerateNewSotdUseCase(
         }
 
         val allSunnahs = when (val result = sunnahRepository.getAllSunnahs()) {
-            is RepositoryResult.Success -> result.data
-            is RepositoryResult.Error -> {
+            is Result.Success -> result.data
+            is Result.Error -> {
                 // Optional: log the error or handle fallback
                 return null
             }

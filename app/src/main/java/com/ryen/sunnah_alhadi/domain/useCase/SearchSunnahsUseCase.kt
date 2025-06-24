@@ -1,6 +1,6 @@
 package com.ryen.sunnah_alhadi.domain.useCase
 
-import com.ryen.sunnah_alhadi.data.util.RepositoryResult
+import com.ryen.sunnah_alhadi.util.Result
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 
@@ -12,8 +12,8 @@ class SearchSunnahsUseCase(
         if (parameters.query.length < 2) return emptyList()
 
         var results = when(val queryResult = sunnahRepository.searchSunnahs(parameters.query.trim())){
-            is RepositoryResult.Success -> queryResult.data
-            is RepositoryResult.Error -> {
+            is Result.Success -> queryResult.data
+            is Result.Error -> {
                 // Handle error
                 emptyList()
             }

@@ -1,8 +1,8 @@
 package com.ryen.sunnah_alhadi.domain.useCase
 
-import com.ryen.sunnah_alhadi.data.util.RepositoryResult
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
+import com.ryen.sunnah_alhadi.util.Result
 
 class GetAllSunnahsUseCase(
     private val sunnahRepository: SunnahRepository
@@ -11,16 +11,16 @@ class GetAllSunnahsUseCase(
     override suspend fun execute(parameters: BrowseParams): List<Sunnah> {
         var sunnahs = if (parameters.categoryId != null) {
             when (val result = sunnahRepository.getSunnahsByCategory(parameters.categoryId)) {
-                is RepositoryResult.Success -> result.data
-                is RepositoryResult.Error -> {
+                is Result.Success -> result.data
+                is Result.Error -> {
                     // Handle error
                     emptyList()
                 }
             }
         } else {
             when(val allSunnahResult = sunnahRepository.getAllSunnahs()){
-                is RepositoryResult.Success -> allSunnahResult.data
-                is RepositoryResult.Error -> {
+                is Result.Success -> allSunnahResult.data
+                is Result.Error -> {
                     // Handle error
                     emptyList()
                 }
