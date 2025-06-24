@@ -99,4 +99,12 @@ interface SunnahDao {
     """)
     suspend fun getRandomSunnahsWithBookmarkStatus(): List<SunnahWithBookmark>
 
+    @Query("""
+    SELECT id FROM sunnahs 
+    WHERE id NOT IN (:excludeIds) 
+    ORDER BY RANDOM() 
+    LIMIT 1
+    """)
+    suspend fun getRandomSunnahIdForSotd(excludeIds: List<String>): String
+
 }

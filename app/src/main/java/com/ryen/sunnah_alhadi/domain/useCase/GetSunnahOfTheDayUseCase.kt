@@ -11,24 +11,9 @@ class GetSunnahOfTheDayUseCase(
 ) : NoParamUseCase<Sunnah?>() {
     override suspend fun execute(): Sunnah? {
         val recentlyViewed = userPreferencesRepository.getRecentlyViewedIds()
-        val allSunnahs = when(val allSunnahsResult = sunnahRepository.getAllSunnahs()){
-            is RepositoryResult.Error -> return null
-            is RepositoryResult.Success -> allSunnahsResult.data
+        return when (val sunnah = sunnahRepository.getRandomSunnahForSotd(recentlyViewed)) {
+            is RepositoryResult.Success -> sunnah.data
+            is RepositoryResult.Error -> null
         }
-        val availableSunnahs = allSunnahs.filterNot { it.id in recentlyViewed }
-
-
-        val selectedSunnah = if (availableSunnahs.isNotEmpty()) {
-            availableSunnahs.random()
-        } else {
-            // Reset queue if all viewed
-            allSunnahs.randomOrNull()
-        }
-
-        selectedSunnah?.let {
-            userPreferencesRepository.addToRecentlyViewed(it.id)
-        }
-
-        return selectedSunnah
     }
 }

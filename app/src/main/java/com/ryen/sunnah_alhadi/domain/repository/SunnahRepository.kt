@@ -1,6 +1,5 @@
 package com.ryen.sunnah_alhadi.domain.repository
 
-import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahWithBookmark
 import com.ryen.sunnah_alhadi.data.util.RepositoryResult
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 
@@ -13,4 +12,5 @@ interface SunnahRepository {
     suspend fun searchSunnahs(query: String): RepositoryResult<List<Sunnah>>
     suspend fun getBookmarkedSunnahs(): RepositoryResult<List<Sunnah>>
     suspend fun getAllSunnahsWithBookmarkStatus(): RepositoryResult<List<Sunnah>>
+    suspend fun getRandomSunnahForSotd(excludeIds: List<String>): RepositoryResult<Sunnah>
 }

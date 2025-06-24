@@ -66,4 +66,16 @@ class SunnahRepositoryImpl(
     } catch (e: Exception) {
         RepositoryResult.Error(e, "Failed to load all sunnahs with bookmark status.")
     }
+
+    override suspend fun getRandomSunnahForSotd(excludeIds: List<String>): RepositoryResult<Sunnah> = try {
+            val sunnahId = sunnahDao.getRandomSunnahIdForSotd(excludeIds)
+            val sunnahEntity = sunnahDao.getSunnahById(sunnahId)
+            if (sunnahEntity != null) {
+                RepositoryResult.Success(sunnahEntity.toDomain())
+            } else {
+                RepositoryResult.Error(Exception("Sunnah not found"), "Sunnah not found")
+            }
+        } catch (e: Exception){
+            RepositoryResult.Error(e, "Failed to load random sunnah id for SOTD")
+        }
 }

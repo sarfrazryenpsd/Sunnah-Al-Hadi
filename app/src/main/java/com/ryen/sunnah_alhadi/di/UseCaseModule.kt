@@ -5,7 +5,6 @@ import com.ryen.sunnah_alhadi.domain.useCase.GetAllSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetBookmarkedSunnahsFlowUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetHomeDataUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
-import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahDetailUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahOfTheDayUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetTopicWithSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
@@ -25,7 +24,6 @@ val useCaseModule = module {
     factory { GetTopicWithSunnahsUseCase(get(), get()) }
 
     // Sunnah Detail
-    factory { GetSunnahDetailUseCase(get(), get()) }
     factory { ToggleBookmarkUseCase(get()) }
 
     // Browse All
