@@ -13,6 +13,7 @@ import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdUseCase
 import com.ryen.sunnah_alhadi.platform.notification.SotdNotificationHelper
+import com.ryen.sunnah_alhadi.util.Result
 import org.koin.core.context.GlobalContext
 import org.koin.mp.KoinPlatform.getKoin
 
@@ -67,14 +68,19 @@ class SotdNotificationWorker(
             }
 
             // Get sunnah and show notification
-            val sunnah = getSunnahByIdUseCase(newSotdId)
-            if (sunnah == null) {
-                Log.e("SotdWorker", "Failed to get sunnah for ID: $newSotdId")
-                return Result.retry()
+            when(val sunnah = getSunnahByIdUseCase(newSotdId)){
+                is com.ryen.sunnah_alhadi.util.Result.Error -> {
+                    Log.e("SotdWorker", "Failed to get sunnah for ID: $newSotdId")
+                    return Result.retry()
+                }
+                is com.ryen.sunnah_alhadi.util.Result.Success -> {
+                    sunnah.let {
+                        sunnah.data?.let { it1 -> notificationHelper.showSotdNotification(it1) }
+                    }
+                    Log.d("SotdWorker", "SOTD notification sent successfully")
+                    Result.success()
+                }
             }
-
-            notificationHelper.showSotdNotification(sunnah)
-            Log.d("SotdWorker", "SOTD notification sent successfully")
 
             Result.success()
 
