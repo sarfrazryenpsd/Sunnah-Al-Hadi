@@ -8,15 +8,9 @@ import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 class GetSunnahOfTheDayUseCase(
     private val sunnahRepository: SunnahRepository,
     private val userPreferencesRepository: UserPreferencesRepository
-) : NoParamUseCase<Sunnah?>() {
-    override suspend fun execute(): Sunnah? {
+) : NoParamUseCase<Result<Sunnah?>>() {
+    override suspend fun execute(): Result<Sunnah?> {
         val recentlyViewed = userPreferencesRepository.getRecentlyViewedIds()
-        return when (val sunnah = sunnahRepository.getRandomSunnahForSotd(recentlyViewed)) {
-            is Result.Success -> sunnah.data.let {
-                userPreferencesRepository.addToRecentlyViewed(it.id)
-                it
-            }
-            is Result.Error -> null
-        }
+        return sunnahRepository.getRandomSunnahForSotd(recentlyViewed)
     }
 }

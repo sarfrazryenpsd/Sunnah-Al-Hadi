@@ -4,41 +4,11 @@ import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.util.Result
 
-class GetAllSunnahsUseCase(
+class GetAllSunnahsUseCase (
     private val sunnahRepository: SunnahRepository
-) : UseCase<BrowseParams, List<Sunnah>>() {
-
-    override suspend fun execute(parameters: BrowseParams): List<Sunnah> {
-        var sunnahs = if (parameters.categoryId != null) {
-            when (val result = sunnahRepository.getSunnahsByCategory(parameters.categoryId)) {
-                is Result.Success -> result.data
-                is Result.Error -> {
-                    // Handle error
-                    emptyList()
-                }
-            }
-        } else {
-            when(val allSunnahResult = sunnahRepository.getAllSunnahs()){
-                is Result.Success -> allSunnahResult.data
-                is Result.Error -> {
-                    // Handle error
-                    emptyList()
-                }
-            }
-        }
-
-        // Apply sorting
-        sunnahs = when (parameters.sortBy) {
-            SortBy.TITLE -> sunnahs.sortedBy { it.title }
-            SortBy.CATEGORY -> sunnahs.sortedBy { it.categoryId }
-            SortBy.RELEVANCE -> sunnahs
-        }
-
-        return sunnahs
+): UseCase<Unit, Result<List<Sunnah>>>() {
+    override suspend fun execute(parameters: Unit): Result<List<Sunnah>> {
+        return sunnahRepository.getAllSunnahs()
     }
 }
 
-data class BrowseParams(
-    val categoryId: Int? = null,
-    val sortBy: SortBy = SortBy.TITLE
-)
