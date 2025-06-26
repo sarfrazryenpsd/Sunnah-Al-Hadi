@@ -1,23 +1,53 @@
 package com.ryen.sunnah_alhadi.di
 
-import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdUseCase
+import android.content.Context
+import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
+import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
+import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.GetCurrentSotdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.MarkSotdAsSeenUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.ShouldShowSotdCardUseCase
 import com.ryen.sunnah_alhadi.platform.notification.SotdNotificationHelper
 import com.ryen.sunnah_alhadi.platform.scheduler.SotdNotificationScheduler
-import org.koin.android.ext.koin.androidContext
-import org.koin.dsl.module
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 
-val sotdModule = module {
+@Module
+@InstallIn(SingletonComponent::class)
+object SotdModule {
 
-    // Notification components
-    single { SotdNotificationHelper(androidContext()) }
-    single { SotdNotificationScheduler(androidContext()) }
+    @Provides
+    fun provideSotdNotificationHelper(@ApplicationContext context: Context): SotdNotificationHelper {
+        return SotdNotificationHelper(context)
+    }
 
-    // Use cases
-    single { GenerateNewSotdUseCase(get(), get()) }
-    single { GetCurrentSotdUseCase(get(), get()) }
-    single { ShouldShowSotdCardUseCase(get()) }
-    single { MarkSotdAsSeenUseCase(get()) }
+    @Provides
+    fun provideSotdNotificationScheduler(@ApplicationContext context: Context): SotdNotificationScheduler {
+        return SotdNotificationScheduler(context)
+    }
+
+    @Provides
+    fun provideGenerateNewSotdUseCase(
+        userPreferencesRepository: UserPreferencesRepository,
+        sunnahRepository: SunnahRepository
+    ): GenerateNewSotdIdUseCase = GenerateNewSotdIdUseCase(sunnahRepository, userPreferencesRepository)
+
+    @Provides
+    fun provideGetCurrentSotdUseCase(
+        userPreferencesRepository: UserPreferencesRepository,
+        sunnahRepository: SunnahRepository
+    ): GetCurrentSotdUseCase = GetCurrentSotdUseCase(sunnahRepository, userPreferencesRepository)
+
+    @Provides
+    fun provideShouldShowSotdCardUseCase(
+        repository: UserPreferencesRepository
+    ): ShouldShowSotdCardUseCase = ShouldShowSotdCardUseCase(repository)
+
+    @Provides
+    fun provideMarkSotdAsSeenUseCase(
+        repository: UserPreferencesRepository
+    ): MarkSotdAsSeenUseCase = MarkSotdAsSeenUseCase(repository)
 }

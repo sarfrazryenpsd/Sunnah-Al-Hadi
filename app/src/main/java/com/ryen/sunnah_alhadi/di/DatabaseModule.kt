@@ -1,17 +1,27 @@
 package com.ryen.sunnah_alhadi.di
 
+import android.content.Context
 import androidx.room.Room
 import com.ryen.sunnah_alhadi.data.local.datasource.AppDatabase
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.BookmarkDao
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.CategoryDao
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.SunnahDao
-import org.koin.android.ext.koin.androidContext
-import org.koin.dsl.module
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-val databaseModule = module {
-    single<AppDatabase> {
-        Room.databaseBuilder(
-            androidContext(),
+@Module
+@InstallIn(SingletonComponent::class)
+object DatabaseModule {
+
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context,
             AppDatabase::class.java,
             "sunnah_database.db"
         )
@@ -19,8 +29,14 @@ val databaseModule = module {
             .build()
     }
 
-    single<CategoryDao> { get<AppDatabase>().categoryDao() }
-    single<SunnahDao> { get<AppDatabase>().sunnahDao() }
-    single<BookmarkDao> { get<AppDatabase>().bookmarkDao() }
+    @Provides
+    fun provideCategoryDao(db: AppDatabase): CategoryDao = db.categoryDao()
+
+    @Provides
+    fun provideSunnahDao(db: AppDatabase): SunnahDao = db.sunnahDao()
+
+    @Provides
+    fun provideBookmarkDao(db: AppDatabase): BookmarkDao = db.bookmarkDao()
 }
+
 

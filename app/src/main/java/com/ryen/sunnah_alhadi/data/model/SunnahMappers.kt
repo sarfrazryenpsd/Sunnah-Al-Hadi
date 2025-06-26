@@ -11,9 +11,6 @@ import com.ryen.sunnah_alhadi.data.local.datasource.entity.ExtraContentType
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.Reference
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahEntity
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahWithBookmark
-import com.ryen.sunnah_alhadi.domain.model.SunnahBookmarked
-import com.ryen.sunnah_alhadi.domain.model.Category
-import com.ryen.sunnah_alhadi.domain.model.Sunnah
 
 fun SunnahEntity.toDomain(isBookmarked: Boolean = false, bookmarkedAt: Long? = null): com.ryen.sunnah_alhadi.domain.model.Sunnah {
     return com.ryen.sunnah_alhadi.domain.model.Sunnah(

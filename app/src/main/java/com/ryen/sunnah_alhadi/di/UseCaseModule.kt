@@ -1,5 +1,9 @@
 package com.ryen.sunnah_alhadi.di
 
+import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
+import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
+import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
+import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.domain.useCase.ExportSunnahAsImageUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetAllSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetBookmarkedSunnahsFlowUseCase
@@ -12,41 +16,64 @@ import com.ryen.sunnah_alhadi.domain.useCase.ScheduleDailyReminderUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.SearchSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.ToggleBookmarkUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.UpdateUserPreferencesUseCase
-import org.koin.dsl.module
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
 
-val useCaseModule = module {
+@Module
+@InstallIn(SingletonComponent::class)
+object UseCaseModule {
 
-    // Home
-    factory { GetHomeDataUseCase(get(), get()) }
+    @Provides
+    fun provideGetHomeDataUseCase(
+        repository: CategoryRepository,
+        prefs: UserPreferencesRepository
+    ) = GetHomeDataUseCase(repository, prefs)
 
-    // Topic Detail
-    factory { GetTopicWithSunnahsUseCase(get(), get()) }
+    @Provides fun provideGetTopicWithSunnahsUseCase(
+        categoryRepository: CategoryRepository,
+        sunnahRepository: SunnahRepository
+    ) = GetTopicWithSunnahsUseCase(categoryRepository, sunnahRepository)
 
-    // Sunnah Detail
-    factory { ToggleBookmarkUseCase(get()) }
+    @Provides fun provideToggleBookmarkUseCase(
+        repository: BookmarkRepository
+    ) = ToggleBookmarkUseCase(repository)
 
-    // Browse All
-    factory { SearchSunnahsUseCase(get()) }
-    factory { GetAllSunnahsUseCase(get()) }
+    @Provides fun provideSearchSunnahsUseCase(
+        sunnahRepository: SunnahRepository
+    ) = SearchSunnahsUseCase(sunnahRepository)
 
-    // Saved
-    factory { GetBookmarkedSunnahsFlowUseCase(get()) }
+    @Provides fun provideGetAllSunnahsUseCase(
+        sunnahRepository: SunnahRepository
+    ) = GetAllSunnahsUseCase(sunnahRepository)
 
-    // User Preferences
-    factory { UpdateUserPreferencesUseCase(get()) }
-    factory { GetUserPreferencesFlowUseCase(get()) }
+    @Provides fun provideGetBookmarkedSunnahsFlowUseCase(
+        repository: BookmarkRepository
+    ) = GetBookmarkedSunnahsFlowUseCase(repository)
 
-    // Daily Reminder
-    factory { GetSunnahOfTheDayUseCase(get(), get()) }
-    factory { ScheduleDailyReminderUseCase() }
+    @Provides fun provideUpdateUserPreferencesUseCase(
+        repository: UserPreferencesRepository
+    ) = UpdateUserPreferencesUseCase(repository)
 
-    // Export
-    factory { ExportSunnahAsImageUseCase() }
+    @Provides fun provideGetUserPreferencesFlowUseCase(
+        repository: UserPreferencesRepository
+    ) = GetUserPreferencesFlowUseCase(repository)
 
-    // Disclaimer
-    /*factory { HandleDisclaimerUseCase(get()) }
-    factory { ShouldShowDisclaimerUseCase(get()) }*/
+    @Provides fun provideGetSunnahOfTheDayUseCase(
+        sunnahRepository: SunnahRepository,
+        userPreferencesRepository: UserPreferencesRepository
+    ) = GetSunnahOfTheDayUseCase(sunnahRepository, userPreferencesRepository)
 
-    factory { GetSunnahByIdUseCase(get()) }
+    @Provides
+    fun provideScheduleDailyReminderUseCase() = ScheduleDailyReminderUseCase()
+
+    @Provides
+    fun provideExportSunnahAsImageUseCase() = ExportSunnahAsImageUseCase()
+
+    @Provides
+    fun provideGetSunnahByIdUseCase(
+        sunnahRepository: SunnahRepository,
+    ) = GetSunnahByIdUseCase(sunnahRepository)
 }

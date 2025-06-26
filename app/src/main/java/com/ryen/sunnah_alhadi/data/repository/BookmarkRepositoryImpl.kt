@@ -4,15 +4,16 @@ import android.util.Log
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.BookmarkDao
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.BookmarkEntity
 import com.ryen.sunnah_alhadi.data.model.toDomain
-import com.ryen.sunnah_alhadi.util.Result
-import com.ryen.sunnah_alhadi.domain.model.SunnahBookmarked
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
+import com.ryen.sunnah_alhadi.domain.model.SunnahBookmarked
 import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
+import com.ryen.sunnah_alhadi.util.Result
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class BookmarkRepositoryImpl(
+class BookmarkRepositoryImpl @Inject constructor(
     private val bookmarkDao: BookmarkDao
 ) : BookmarkRepository {
 
@@ -55,12 +56,6 @@ class BookmarkRepositoryImpl(
 
     override suspend fun isBookmarked(sunnahId: String): Result<Boolean> {
         return try {
-            if (sunnahId.isBlank()) {
-                return Result.Error(
-                    IllegalArgumentException("Sunnah ID cannot be blank"),
-                    "Invalid sunnah ID"
-                )
-            }
             val isBookmarked = bookmarkDao.isBookmarked(sunnahId)
             Result.Success(isBookmarked)
         } catch (e: Exception) {
@@ -71,12 +66,7 @@ class BookmarkRepositoryImpl(
 
     override suspend fun addBookmark(sunnahId: String): Result<Unit> {
         return try {
-            if (sunnahId.isBlank()) {
-                return Result.Error(
-                    IllegalArgumentException("Sunnah ID cannot be blank"),
-                    "Invalid sunnah ID"
-                )
-            }
+
             val bookmark = BookmarkEntity(sunnahId = sunnahId)
             bookmarkDao.addBookmark(bookmark)
             Log.d("BookmarkRepo", "Added bookmark for $sunnahId")
@@ -89,12 +79,6 @@ class BookmarkRepositoryImpl(
 
     override suspend fun removeBookmark(sunnahId: String): Result<Unit> {
         return try {
-            if (sunnahId.isBlank()) {
-                return Result.Error(
-                    IllegalArgumentException("Sunnah ID cannot be blank"),
-                    "Invalid sunnah ID"
-                )
-            }
             bookmarkDao.removeBookmark(sunnahId)
             Log.d("BookmarkRepo", "Removed bookmark for $sunnahId")
             Result.Success(Unit)
@@ -106,12 +90,6 @@ class BookmarkRepositoryImpl(
 
     override suspend fun toggleBookmark(sunnahId: String): Result<Boolean> {
         return try {
-            if (sunnahId.isBlank()) {
-                return Result.Error(
-                    IllegalArgumentException("Sunnah ID cannot be blank"),
-                    "Invalid sunnah ID"
-                )
-            }
 
             val isCurrentlyBookmarked = when (val result = isBookmarked(sunnahId)) {
                 is Result.Success -> result.data

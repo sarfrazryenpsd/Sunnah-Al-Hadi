@@ -1,40 +1,37 @@
 package com.ryen.sunnah_alhadi.platform.worker
 
 import android.Manifest
-import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
-import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdUseCase
+import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdIdUseCase
 import com.ryen.sunnah_alhadi.platform.notification.SotdNotificationHelper
-import com.ryen.sunnah_alhadi.util.Result
-import org.koin.core.context.GlobalContext
-import org.koin.mp.KoinPlatform.getKoin
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 
-class SotdNotificationWorker(
-    context: Context,
-    workerParams: WorkerParameters
+@HiltWorker
+class SotdNotificationWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted workerParams: WorkerParameters,
+    private val generateNewSotdIdUseCase: GenerateNewSotdIdUseCase,
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val notificationHelper: SotdNotificationHelper,
+    private val getSunnahByIdUseCase: GetSunnahByIdUseCase
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
         return try {
-            // Better DI approach - inject dependencies through constructor or use Application
-            val app = applicationContext as? Application
-            val koin = app?.let { getKoin() } ?: return Result.failure()
 
-            val generateSotdIdUseCase = koin.get<GenerateNewSotdUseCase>()
-            val userPrefsRepository = koin.get<UserPreferencesRepository>()
-            val notificationHelper = koin.get<SotdNotificationHelper>()
-            val getSunnahByIdUseCase = koin.get<GetSunnahByIdUseCase>()
 
             // Early exit if notifications are disabled
-            val userPrefs = userPrefsRepository.getUserPreferences()
+            val userPrefs = userPreferencesRepository.getUserPreferences()
             if (!userPrefs.isSotdNotificationEnabled) {
                 Log.d("SotdWorker", "SOTD notifications disabled")
                 return Result.success()
@@ -54,14 +51,14 @@ class SotdNotificationWorker(
             }
 
             // Check if we need to generate new SOTD
-            val shouldGenerate = userPrefsRepository.shouldGenerateNewSotd()
+            val shouldGenerate = userPreferencesRepository.shouldGenerateNewSotd()
             if (!shouldGenerate) {
                 Log.d("SotdWorker", "SOTD already generated for today")
                 return Result.success()
             }
 
             // Generate new SOTD
-            val newSotdId = generateSotdIdUseCase()
+            val newSotdId = generateNewSotdIdUseCase()
             if (newSotdId == null) {
                 Log.e("SotdWorker", "Failed to generate new SOTD ID")
                 return Result.retry()

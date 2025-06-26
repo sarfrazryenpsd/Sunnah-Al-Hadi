@@ -1,3 +1,7 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import com.google.protobuf.gradle.*
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.protobuf)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -34,13 +39,19 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+
+    tasks.withType<KotlinJvmCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+            freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+        }
     }
+    
     buildFeatures {
         compose = true
     }
 }
+
 
 protobuf {
     protoc {
@@ -68,11 +79,23 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     ksp(libs.androidx.room.compiler)
-    implementation (libs.bundles.koin)
+    implementation (libs.bundles.hilt)
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
+    // For WorkManager integration
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+
+    // Optional: For testing with Hilt
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.compiler)
 
     implementation(libs.protobuf.javalite)
     implementation(libs.datastore.proto)
     implementation(libs.datastore.core)
+    implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.androidx.work.runtime.ktx)
 

@@ -1,26 +1,19 @@
 package com.ryen.sunnah_alhadi
 
 import android.app.Application
-import com.ryen.sunnah_alhadi.di.databaseModule
-import com.ryen.sunnah_alhadi.di.sotdModule
-import com.ryen.sunnah_alhadi.di.useCaseModule
-import org.koin.android.ext.koin.androidContext
-import org.koin.android.ext.koin.androidLogger
-import org.koin.core.context.startKoin
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
+import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
-class SunnahApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
+@HiltAndroidApp
+class SunnahApplication : Application(), Configuration.Provider {
 
-        startKoin {
-            androidLogger()
-            androidContext(this@SunnahApplication)
-            modules(
-                databaseModule,
-                useCaseModule,
-                sotdModule
-                // Add other modules here
-            )
-        }
-    }
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 }

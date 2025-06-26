@@ -5,7 +5,7 @@ import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.domain.useCase.NoParamUseCase
 import com.ryen.sunnah_alhadi.util.Result
 
-class GenerateNewSotdUseCase(
+class GenerateNewSotdIdUseCase(
     private val sunnahRepository: SunnahRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : NoParamUseCase<String?>() {
