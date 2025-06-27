@@ -3,8 +3,9 @@ package com.ryen.sunnah_alhadi.domain.useCase
 import com.ryen.sunnah_alhadi.util.Result
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
+import javax.inject.Inject
 
-class SearchSunnahsUseCase(
+class SearchSunnahsUseCase @Inject constructor(
     private val sunnahRepository: SunnahRepository
 ) : UseCase<SearchParams, List<Sunnah>>() {
 

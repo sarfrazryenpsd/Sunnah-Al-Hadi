@@ -4,8 +4,9 @@ import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.util.Result
+import javax.inject.Inject
 
-class GetHomeDataUseCase(
+class GetHomeDataUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : NoParamUseCase<Result<HomeData>>() {

@@ -4,8 +4,9 @@ import com.ryen.sunnah_alhadi.data.local.datasource.dao.CategoryDao
 import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
+import javax.inject.Inject
 
-class CategoryRepositoryImpl (
+class CategoryRepositoryImpl @Inject constructor(
     private val categoryDao: CategoryDao
 ) : CategoryRepository {
 

@@ -14,10 +14,10 @@ import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.platform.worker.SotdNotificationWorker
 import java.time.Duration
 import java.time.ZonedDateTime
-import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class SotdNotificationScheduler(private val context: Context) {
+class SotdNotificationScheduler @Inject constructor(private val context: Context) {
 
     companion object {
         private const val WORK_NAME = "sotd_notification_work"

@@ -4,8 +4,9 @@ import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.domain.useCase.NoParamUseCase
 import com.ryen.sunnah_alhadi.util.Result
+import javax.inject.Inject
 
-class GenerateNewSotdIdUseCase(
+class GenerateNewSotdIdUseCase @Inject constructor(
     private val sunnahRepository: SunnahRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : NoParamUseCase<String?>() {

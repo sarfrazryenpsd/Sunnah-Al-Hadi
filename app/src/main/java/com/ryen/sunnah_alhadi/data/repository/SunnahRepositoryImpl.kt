@@ -5,8 +5,9 @@ import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.util.Result
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
+import javax.inject.Inject
 
-class SunnahRepositoryImpl(
+class SunnahRepositoryImpl @Inject constructor(
     private val sunnahDao: SunnahDao,
 ) : SunnahRepository {
 

@@ -5,8 +5,9 @@ import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
+import javax.inject.Inject
 
-class GetTopicWithSunnahsUseCase(
+class GetTopicWithSunnahsUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val sunnahRepository: SunnahRepository
 ) : UseCase<Int, Result<TopicWithSunnahs>>() {

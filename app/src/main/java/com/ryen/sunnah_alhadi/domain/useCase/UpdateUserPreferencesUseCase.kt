@@ -2,8 +2,9 @@ package com.ryen.sunnah_alhadi.domain.useCase
 
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
+import javax.inject.Inject
 
-class UpdateUserPreferencesUseCase(
+class UpdateUserPreferencesUseCase @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : UseCase<UserPreferencesUpdate, Unit>() {
 

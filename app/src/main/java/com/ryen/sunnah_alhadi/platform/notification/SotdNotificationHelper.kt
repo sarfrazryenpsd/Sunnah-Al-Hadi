@@ -15,8 +15,9 @@ import androidx.core.content.ContextCompat
 import com.ryen.sunnah_alhadi.MainActivity
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
+import javax.inject.Inject
 
-class SotdNotificationHelper(private val context: Context) {
+class SotdNotificationHelper @Inject constructor(private val context: Context) {
 
     companion object {
         const val CHANNEL_ID = "sunnah_of_the_day"
@@ -32,20 +33,18 @@ class SotdNotificationHelper(private val context: Context) {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = "Daily Sunnah notifications to inspire your day"
-                enableVibration(true)
-                setShowBadge(true)
-            }
-
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = "Daily Sunnah notifications to inspire your day"
+            enableVibration(true)
+            setShowBadge(true)
         }
+
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 
     fun showSotdNotification(sunnah: Sunnah) {

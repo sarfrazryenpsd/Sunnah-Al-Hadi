@@ -4,8 +4,9 @@ import com.ryen.sunnah_alhadi.util.Result
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
+import javax.inject.Inject
 
-class GetSunnahOfTheDayUseCase(
+class GetSunnahOfTheDayUseCase @Inject constructor(
     private val sunnahRepository: SunnahRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : NoParamUseCase<Result<Sunnah?>>() {
