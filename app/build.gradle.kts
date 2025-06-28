@@ -77,6 +77,9 @@ dependencies {
     implementation(libs.bundles.room)
     implementation(libs.coil)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.core.testing)
 
     ksp(libs.androidx.room.compiler)
     implementation (libs.bundles.hilt)
@@ -114,7 +117,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test) // or match your kotlinx-coroutines version
 
 // Truth (optional, but better assertions)
-    testImplementation(libs.truth)
+    androidTestImplementation(libs.truth) // Or latest version
+
 
 // For testing with Hilt
     androidTestImplementation(libs.hilt.android.testing)
@@ -133,9 +137,11 @@ dependencies {
     testImplementation(libs.mockk) // use the latest
 
 // Turbine (Flow testing)
-    testImplementation(libs.turbine)
+    androidTestImplementation(libs.turbine)
 
 // AndroidX Test Core (context, lifecycle, etc.)
     testImplementation(libs.androidx.core)
+
+    testImplementation(libs.androidx.core.testing)
 
 }

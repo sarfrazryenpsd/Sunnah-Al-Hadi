@@ -1,6 +1,7 @@
 [versions]
 agp = "8.11.0"
 core = "1.6.1"
+coreTesting = "2.2.0"
 hilt = "2.56.2"
 hiltWork = "1.2.0"
 kotlin = "2.2.0"
@@ -25,10 +26,12 @@ runner = "1.6.2"
 truth = "1.4.4"
 turbine = "1.2.1"
 workRuntimeKtx = "2.10.2"
+junitKtx = "1.2.1"
 
 [libraries]
 androidx-core = { module = "androidx.test:core", version.ref = "core" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }
 androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
@@ -67,6 +70,7 @@ protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
