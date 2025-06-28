@@ -17,6 +17,10 @@ import kotlinx.coroutines.SupervisorJob
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ApplicationScope
+
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
@@ -42,9 +46,7 @@ object DatabaseModule {
     @Provides
     fun provideBookmarkDao(db: AppDatabase): BookmarkDao = db.bookmarkDao()
 
-    @Qualifier
-    @Retention(AnnotationRetention.RUNTIME)
-    annotation class ApplicationScope
+
 
     @Provides
     @Singleton

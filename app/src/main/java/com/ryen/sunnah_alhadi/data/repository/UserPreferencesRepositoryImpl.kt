@@ -6,7 +6,7 @@ import androidx.datastore.dataStore
 import com.ryen.sunnah_alhadi.data.local.proto.ProtoUserPreferencesSerializer
 import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.datastore.ProtoUserPreferences
-import com.ryen.sunnah_alhadi.di.DatabaseModule
+import com.ryen.sunnah_alhadi.di.ApplicationScope
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 class UserPreferencesRepositoryImpl @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    @param:DatabaseModule.ApplicationScope private val applicationScope: CoroutineScope
+    @param:ApplicationScope private val applicationScope: CoroutineScope
 ) : UserPreferencesRepository{
 
     private val Context.dataStore: DataStore<ProtoUserPreferences> by dataStore(

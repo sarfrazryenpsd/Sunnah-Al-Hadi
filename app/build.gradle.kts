@@ -88,8 +88,6 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     ksp(libs.androidx.hilt.compiler)
 
-    // Optional: For testing with Hilt
-    androidTestImplementation(libs.hilt.android.testing)
     kspAndroidTest(libs.hilt.compiler)
 
     implementation(libs.protobuf.javalite)
@@ -100,11 +98,44 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
 
     debugImplementation(libs.bundles.compose.debug)
-    testImplementation(libs.junit)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.ui.tooling)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // JUnit (Unit testing)
+    testImplementation(libs.junit)
+
+// Kotlin Coroutines test support
+    testImplementation(libs.kotlinx.coroutines.test) // or match your kotlinx-coroutines version
+
+// Truth (optional, but better assertions)
+    testImplementation(libs.truth)
+
+// For testing with Hilt
+    androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.androidx.runner)
+
+//Room testing
+    testImplementation(libs.androidx.room.testing)
+
+//Datastore testing
+    testImplementation(libs.androidx.datastore.preferences)
+    testImplementation(libs.datastore.core)
+    testImplementation(libs.datastore.proto)
+    testImplementation(libs.protobuf.javalite)
+
+// MockK (for mocking dependencies)
+    testImplementation(libs.mockk) // use the latest
+
+// Turbine (Flow testing)
+    testImplementation(libs.turbine)
+
+// AndroidX Test Core (context, lifecycle, etc.)
+    testImplementation(libs.androidx.core)
+
 }
