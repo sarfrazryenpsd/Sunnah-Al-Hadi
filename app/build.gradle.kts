@@ -1,6 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
-import com.google.protobuf.gradle.*
 
 plugins {
     alias(libs.plugins.android.application)
@@ -49,6 +48,15 @@ android {
     
     buildFeatures {
         compose = true
+    }
+
+    packaging {
+        resources {
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
+            excludes += "META-INF/androidx/room/room-compiler-processing/LICENSE.txt"
+            excludes += "META-INF/gradle/incremental.annotation.processors"
+        }
     }
 }
 
@@ -133,8 +141,14 @@ dependencies {
     testImplementation(libs.datastore.proto)
     testImplementation(libs.protobuf.javalite)
 
+//Robolectric for android unit test
+    testImplementation(libs.robolectric)
+    androidTestImplementation(libs.robolectric)
+
 // MockK (for mocking dependencies)
-    testImplementation(libs.mockk) // use the latest
+    testImplementation(libs.mockk.android) // use the latest
+    androidTestImplementation(libs.mockk.android) // use the latest
+    androidTestImplementation(libs.mockk.agent) // use the latest
 
 // Turbine (Flow testing)
     androidTestImplementation(libs.turbine)

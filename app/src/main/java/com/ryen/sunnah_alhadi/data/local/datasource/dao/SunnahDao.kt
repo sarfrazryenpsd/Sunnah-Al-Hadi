@@ -1,6 +1,8 @@
 package com.ryen.sunnah_alhadi.data.local.datasource.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahEntity
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahWithBookmark
@@ -10,6 +12,9 @@ import kotlinx.coroutines.flow.Flow
 interface SunnahDao {
     @Query("SELECT * FROM sunnahs")
     suspend fun getAllSunnahs(): List<SunnahEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSunnah(sunnah: SunnahEntity)
 
     @Query("SELECT * FROM sunnahs WHERE id = :id")
     suspend fun getSunnahById(id: String): SunnahEntity?

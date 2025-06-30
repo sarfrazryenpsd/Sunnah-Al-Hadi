@@ -7,6 +7,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import app.cash.turbine.test
+import com.google.common.truth.Truth.assertThat
 import com.ryen.sunnah_alhadi.data.local.datasource.AppDatabase
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.BookmarkEntity
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.CategoryEntity
@@ -14,8 +16,6 @@ import com.ryen.sunnah_alhadi.data.local.datasource.entity.ContentBlock
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.ContentType
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.EnglishSubtype
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahEntity
-import com.google.common.truth.Truth.assertThat
-import app.cash.turbine.test
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.runTest
@@ -77,10 +77,8 @@ class BookmarkDaoTest {
 
     private suspend fun setupTestData() {
         // Insert test category and sunnah first
-        val testSunnahDao = database.sunnahDao() as TestSunnahDao
-        val testCategoryDao = database.sunnahDao() as TestCategoryDao
-        testCategoryDao.insertCategory(testCategory)
-        testSunnahDao.insertSunnah(testSunnah)
+        categoryDao.insertCategory(testCategory)
+        sunnahDao.insertSunnah(testSunnah)
     }
 
     @Test
@@ -176,11 +174,10 @@ class BookmarkDaoTest {
     fun getAllBookmarks_multipleBookmarks_returnsOrderedByTime() = runTest {
         // Given
         setupTestData()
-        val testSunnahDao = database.sunnahDao() as TestSunnahDao
         val sunnah2 = testSunnah.copy(id = "01_02")
         val sunnah3 = testSunnah.copy(id = "01_03")
-        testSunnahDao.insertSunnah(sunnah2)
-        testSunnahDao.insertSunnah(sunnah3)
+        sunnahDao.insertSunnah(sunnah2)
+        sunnahDao.insertSunnah(sunnah3)
 
         val time1 = System.currentTimeMillis() - 2000L
         val time2 = System.currentTimeMillis() - 1000L
@@ -204,9 +201,8 @@ class BookmarkDaoTest {
     fun getBookmarkedSunnahs_withBookmarks_returnsSunnahsOrderedByBookmarkTime() = runTest {
         // Given
         setupTestData()
-        val testSunnahDao = database.sunnahDao() as TestSunnahDao
         val sunnah2 = testSunnah.copy(id = "01_02", title = "Second Sunnah")
-        testSunnahDao.insertSunnah(sunnah2)
+        sunnahDao.insertSunnah(sunnah2)
 
         val time1 = System.currentTimeMillis() - 1000L
         val time2 = System.currentTimeMillis()
