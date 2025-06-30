@@ -1,16 +1,17 @@
+package com.ryen.sunnah_alhadi.data.repository
+
 import android.database.SQLException
 import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteException
 import android.util.Log
 import app.cash.turbine.test
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.BookmarkDao
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.BookmarkEntity
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.ContentBlock
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.ContentType
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.EnglishSubtype
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahEntity
-import com.ryen.sunnah_alhadi.data.repository.BookmarkRepositoryImpl
 import com.ryen.sunnah_alhadi.util.Result
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
@@ -30,7 +31,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.IOException
 
 @RunWith(JUnit4::class)
 class BookmarkRepositoryTest {
@@ -86,10 +86,10 @@ class BookmarkRepositoryTest {
         val result = repository.getAllBookmarks()
 
         // Then
-        assertThat(result).isInstanceOf(Result.Success::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Success::class.java)
         val successResult = result as Result.Success
-        assertThat(successResult.data).hasSize(1)
-        assertThat(successResult.data[0].sunnahId).isEqualTo("01_01")
+        Truth.assertThat(successResult.data).hasSize(1)
+        Truth.assertThat(successResult.data[0].sunnahId).isEqualTo("01_01")
     }
 
     @Test
@@ -102,10 +102,10 @@ class BookmarkRepositoryTest {
         val result = repository.getAllBookmarks()
 
         // Then
-        assertThat(result).isInstanceOf(Result.Error::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Error::class.java)
         val errorResult = result as Result.Error
-        assertThat(errorResult.exception).isEqualTo(exception)
-        assertThat(errorResult.message).isEqualTo("Failed to load bookmarks")
+        Truth.assertThat(errorResult.exception).isEqualTo(exception)
+        Truth.assertThat(errorResult.message).isEqualTo("Failed to load bookmarks")
     }
 
 
@@ -118,9 +118,9 @@ class BookmarkRepositoryTest {
         val result = repository.getAllBookmarks()
 
         // Then
-        assertThat(result).isInstanceOf(Result.Success::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Success::class.java)
         val successResult = result as Result.Success
-        assertThat(successResult.data).isEmpty()
+        Truth.assertThat(successResult.data).isEmpty()
     }
 
     @Test
@@ -132,11 +132,11 @@ class BookmarkRepositoryTest {
         val result = repository.getBookmarkedSunnahs()
 
         // Then
-        assertThat(result).isInstanceOf(Result.Success::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Success::class.java)
         val successResult = result as Result.Success
-        assertThat(successResult.data).hasSize(1)
-        assertThat(successResult.data[0].id).isEqualTo("01_01")
-        assertThat(successResult.data[0].isBookmarked).isTrue()
+        Truth.assertThat(successResult.data).hasSize(1)
+        Truth.assertThat(successResult.data[0].id).isEqualTo("01_01")
+        Truth.assertThat(successResult.data[0].isBookmarked).isTrue()
     }
 
     @Test
@@ -149,10 +149,10 @@ class BookmarkRepositoryTest {
         val result = repository.getBookmarkedSunnahs()
 
         // Then
-        assertThat(result).isInstanceOf(Result.Error::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Error::class.java)
         val errorResult = result as Result.Error
-        assertThat(errorResult.exception).isEqualTo(exception)
-        assertThat(errorResult.message).isEqualTo("Failed to load bookmarked sunnahs")
+        Truth.assertThat(errorResult.exception).isEqualTo(exception)
+        Truth.assertThat(errorResult.message).isEqualTo("Failed to load bookmarked sunnahs")
     }
 
     @Test
@@ -164,10 +164,10 @@ class BookmarkRepositoryTest {
         // When & Then
         repository.getBookmarkedSunnahsFlow().test {
             val emission = awaitItem()
-            assertThat(emission).isInstanceOf(Result.Success::class.java)
+            Truth.assertThat(emission).isInstanceOf(Result.Success::class.java)
             val successResult = emission as Result.Success
-            assertThat(successResult.data).hasSize(1)
-            assertThat(successResult.data[0].isBookmarked).isTrue()
+            Truth.assertThat(successResult.data).hasSize(1)
+            Truth.assertThat(successResult.data[0].isBookmarked).isTrue()
             awaitComplete()
         }
     }
@@ -182,10 +182,10 @@ class BookmarkRepositoryTest {
         // When & Then
         repository.getBookmarkedSunnahsFlow().test {
             val emission = awaitItem()
-            assertThat(emission).isInstanceOf(Result.Error::class.java)
+            Truth.assertThat(emission).isInstanceOf(Result.Error::class.java)
             val errorResult = emission as Result.Error
-            assertThat(errorResult.exception).isEqualTo(exception)
-            assertThat(errorResult.message).isEqualTo("Database connection error")
+            Truth.assertThat(errorResult.exception).isEqualTo(exception)
+            Truth.assertThat(errorResult.message).isEqualTo("Database connection error")
             awaitComplete()
         }
     }
@@ -203,7 +203,7 @@ class BookmarkRepositoryTest {
             val emission = awaitItem()
             // The repository should handle mapping errors gracefully
             // This test verifies error handling in the flow transformation
-            assertThat(emission).isInstanceOf(Result.Success::class.java)
+            Truth.assertThat(emission).isInstanceOf(Result.Success::class.java)
             awaitComplete()
         }
     }
@@ -217,9 +217,9 @@ class BookmarkRepositoryTest {
         val result = repository.isBookmarked("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Success::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Success::class.java)
         val successResult = result as Result.Success
-        assertThat(successResult.data).isTrue()
+        Truth.assertThat(successResult.data).isTrue()
     }
 
     @Test
@@ -232,10 +232,10 @@ class BookmarkRepositoryTest {
         val result = repository.isBookmarked("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Error::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Error::class.java)
         val errorResult = result as Result.Error
-        assertThat(errorResult.exception).isEqualTo(exception)
-        assertThat(errorResult.message).isEqualTo("Failed to check bookmark status")
+        Truth.assertThat(errorResult.exception).isEqualTo(exception)
+        Truth.assertThat(errorResult.message).isEqualTo("Failed to check bookmark status")
     }
 
     @Test
@@ -247,7 +247,7 @@ class BookmarkRepositoryTest {
         val result = repository.addBookmark("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Success::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Success::class.java)
         coVerify { bookmarkDao.addBookmark(match { it.sunnahId == "01_01" }) }
     }
 
@@ -261,10 +261,10 @@ class BookmarkRepositoryTest {
         val result = repository.addBookmark("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Error::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Error::class.java)
         val errorResult = result as Result.Error
-        assertThat(errorResult.exception).isEqualTo(exception)
-        assertThat(errorResult.message).isEqualTo("Failed to add bookmark")
+        Truth.assertThat(errorResult.exception).isEqualTo(exception)
+        Truth.assertThat(errorResult.message).isEqualTo("Failed to add bookmark")
     }
 
     @Test
@@ -276,7 +276,7 @@ class BookmarkRepositoryTest {
         val result = repository.removeBookmark("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Success::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Success::class.java)
         coVerify { bookmarkDao.removeBookmark("01_01") }
     }
 
@@ -290,10 +290,10 @@ class BookmarkRepositoryTest {
         val result = repository.removeBookmark("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Error::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Error::class.java)
         val errorResult = result as Result.Error
-        assertThat(errorResult.exception).isEqualTo(exception)
-        assertThat(errorResult.message).isEqualTo("Failed to remove bookmark")
+        Truth.assertThat(errorResult.exception).isEqualTo(exception)
+        Truth.assertThat(errorResult.message).isEqualTo("Failed to remove bookmark")
     }
 
     @Test
@@ -306,9 +306,9 @@ class BookmarkRepositoryTest {
         val result = repository.toggleBookmark("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Success::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Success::class.java)
         val successResult = result as Result.Success
-        assertThat(successResult.data).isTrue()
+        Truth.assertThat(successResult.data).isTrue()
         coVerify { bookmarkDao.addBookmark(match { it.sunnahId == "01_01" }) }
     }
 
@@ -322,9 +322,9 @@ class BookmarkRepositoryTest {
         val result = repository.toggleBookmark("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Success::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Success::class.java)
         val successResult = result as Result.Success
-        assertThat(successResult.data).isFalse()
+        Truth.assertThat(successResult.data).isFalse()
         coVerify { bookmarkDao.removeBookmark("01_01") }
     }
 
@@ -338,10 +338,10 @@ class BookmarkRepositoryTest {
         val result = repository.toggleBookmark("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Error::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Error::class.java)
         val errorResult = result as Result.Error
-        assertThat(errorResult.exception).isEqualTo(exception)
-        assertThat(errorResult.message).isEqualTo("Failed to check bookmark status")
+        Truth.assertThat(errorResult.exception).isEqualTo(exception)
+        Truth.assertThat(errorResult.message).isEqualTo("Failed to check bookmark status")
     }
 
     @Test
@@ -355,10 +355,10 @@ class BookmarkRepositoryTest {
         val result = repository.toggleBookmark("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Error::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Error::class.java)
         val errorResult = result as Result.Error
-        assertThat(errorResult.exception).isEqualTo(exception)
-        assertThat(errorResult.message).isEqualTo("Failed to add bookmark")
+        Truth.assertThat(errorResult.exception).isEqualTo(exception)
+        Truth.assertThat(errorResult.message).isEqualTo("Failed to add bookmark")
     }
 
     @Test
@@ -372,10 +372,10 @@ class BookmarkRepositoryTest {
         val result = repository.toggleBookmark("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Error::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Error::class.java)
         val errorResult = result as Result.Error
-        assertThat(errorResult.exception).isEqualTo(exception)
-        assertThat(errorResult.message).isEqualTo("Failed to remove bookmark")
+        Truth.assertThat(errorResult.exception).isEqualTo(exception)
+        Truth.assertThat(errorResult.message).isEqualTo("Failed to remove bookmark")
     }
 
     @Test
@@ -388,10 +388,10 @@ class BookmarkRepositoryTest {
         val result = repository.toggleBookmark("01_01")
 
         // Then
-        assertThat(result).isInstanceOf(Result.Error::class.java)
+        Truth.assertThat(result).isInstanceOf(Result.Error::class.java)
         val errorResult = result as Result.Error
-        assertThat(errorResult.exception).isEqualTo(exception)
-        assertThat(errorResult.message).isEqualTo("Failed to toggle bookmark")
+        Truth.assertThat(errorResult.exception).isEqualTo(exception)
+        Truth.assertThat(errorResult.message).isEqualTo("Failed to toggle bookmark")
     }
 
     @Test
