@@ -37,6 +37,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 
     tasks.withType<KotlinJvmCompile>().configureEach {
@@ -117,6 +118,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // JUnit (Unit testing)
     testImplementation(libs.junit)
@@ -141,12 +143,9 @@ dependencies {
     testImplementation(libs.datastore.proto)
     testImplementation(libs.protobuf.javalite)
 
-//Robolectric for android unit test
-    testImplementation(libs.robolectric)
-    androidTestImplementation(libs.robolectric)
 
 // MockK (for mocking dependencies)
-    testImplementation(libs.mockk.android) // use the latest
+    testImplementation(libs.mockk) // use the latest
     androidTestImplementation(libs.mockk.android) // use the latest
     androidTestImplementation(libs.mockk.agent) // use the latest
 
