@@ -4,6 +4,7 @@ import com.ryen.sunnah_alhadi.datastore.ProtoUserPreferences
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 
+
 fun ProtoUserPreferences.toDomain(): UserPreferences {
     return UserPreferences(
         username = this.username,

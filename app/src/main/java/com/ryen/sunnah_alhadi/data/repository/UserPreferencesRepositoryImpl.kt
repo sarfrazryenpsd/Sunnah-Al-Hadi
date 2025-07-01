@@ -1,9 +1,6 @@
 package com.ryen.sunnah_alhadi.data.repository
 
-import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.dataStore
-import com.ryen.sunnah_alhadi.data.local.proto.ProtoUserPreferencesSerializer
 import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.datastore.ProtoUserPreferences
 import com.ryen.sunnah_alhadi.di.ApplicationScope
@@ -11,7 +8,6 @@ import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,21 +22,17 @@ import java.time.ZoneId
 import javax.inject.Inject
 
 class UserPreferencesRepositoryImpl @Inject constructor(
-    @param:ApplicationContext private val context: Context,
+    private val dataStore: DataStore<ProtoUserPreferences>,
     @param:ApplicationScope private val applicationScope: CoroutineScope
 ) : UserPreferencesRepository{
 
-    private val Context.dataStore: DataStore<ProtoUserPreferences> by dataStore(
-        fileName = "user_preferences.pb",
-        serializer = ProtoUserPreferencesSerializer
-    )
 
     // Cache frequently accessed data
-    private val _userPreferencesFlow = context.dataStore.data.map { it.toDomain() }
+    private val _userPreferencesFlow = dataStore.data.map { it.toDomain() }
         .stateIn(
             scope = applicationScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = null
+            initialValue = UserPreferences()
         )
 
     override suspend fun getUserPreferences(): UserPreferences {
@@ -48,7 +40,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateUsername(username: String) {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setUsername(username)
                 .build()
@@ -56,7 +48,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateThemeMode(themeMode: ThemeMode) {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setThemeMode(themeMode.ordinal)
                 .build()
@@ -64,7 +56,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateDynamicTheme(enabled: Boolean) {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setIsDynamicThemeEnabled(enabled)
                 .build()
@@ -72,7 +64,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateDailyReminder(enabled: Boolean) {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setIsDailyReminderEnabled(enabled)
                 .build()
@@ -80,7 +72,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun markOnboardingCompleted() {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setHasCompletedOnboarding(true)
                 .build()
@@ -88,7 +80,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun markDisclaimerSeen() {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setHasSeenDisclaimer(true)
                 .build()
@@ -96,12 +88,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getRecentlyViewedIds(): List<String> {
-        return context.dataStore.data.first().recentlyViewedSunnahIdsList.toList()
+        return dataStore.data.first().recentlyViewedSunnahIdsList.toList()
     }
 
     // Optimized recently viewed management
     override suspend fun addToRecentlyViewed(sunnahId: String) {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             val currentList = currentPrefs.recentlyViewedSunnahIdsList.toMutableList()
 
             // More efficient approach
@@ -123,7 +115,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateSotdNotificationTime(time: NotificationTime) {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setSotdNotificationTime(time.ordinal)
                 .build()
@@ -131,7 +123,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateSotdNotificationEnabled(enabled: Boolean) {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setIsSotdNotificationEnabled(enabled)
                 .build()
@@ -139,19 +131,19 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSotdNotificationTime(): NotificationTime {
-        val prefs = context.dataStore.data.first()
+        val prefs = dataStore.data.first()
         return NotificationTime.entries.getOrElse(prefs.sotdNotificationTime) {
             NotificationTime.MORNING
         }
     }
 
     override suspend fun isSotdNotificationEnabled(): Boolean {
-        return context.dataStore.data.first().isSotdNotificationEnabled
+        return dataStore.data.first().isSotdNotificationEnabled
     }
 
     // FIXED: Simplified and optimized SOTD update
     override suspend fun updateCurrentSotd(sotdId: String, generatedDate: Long) {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             val currentList = currentPrefs.recentlyViewedSunnahIdsList.toMutableList()
 
             // Add previous SOTD to recently viewed if it exists and is not empty
@@ -175,7 +167,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun markSotdAsSeen() {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setIsSotdSeen(true)
                 .build()
@@ -183,7 +175,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun markSotdAsUnseen() {
-        context.dataStore.updateData { currentPrefs ->
+        dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setIsSotdSeen(false)
                 .build()
@@ -191,16 +183,16 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun isSotdSeen(): Boolean {
-        return context.dataStore.data.first().isSotdSeen
+        return dataStore.data.first().isSotdSeen
     }
 
     override suspend fun getSotdGeneratedDate(): Long {
-        return context.dataStore.data.first().sotdGeneratedDate
+        return dataStore.data.first().sotdGeneratedDate
     }
 
     // OPTIMIZED: Use more efficient date comparison
     override suspend fun shouldGenerateNewSotd(): Boolean {
-        val prefs = context.dataStore.data.first()
+        val prefs = dataStore.data.first()
         val generatedDate = prefs.sotdGeneratedDate
 
         if (generatedDate == 0L) return true // First time
@@ -215,11 +207,11 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 
     // Flow versions with caching
     override fun getCurrentSotdFlow(): Flow<String> {
-        return context.dataStore.data.map { it.currentSotdId }.distinctUntilChanged()
+        return dataStore.data.map { it.currentSotdId }.distinctUntilChanged()
     }
 
     override fun isSotdSeenFlow(): Flow<Boolean> {
-        return context.dataStore.data.map { it.isSotdSeen }.distinctUntilChanged()
+        return dataStore.data.map { it.isSotdSeen }.distinctUntilChanged()
     }
 
     override fun getUserPreferencesFlow(): Flow<UserPreferences> {

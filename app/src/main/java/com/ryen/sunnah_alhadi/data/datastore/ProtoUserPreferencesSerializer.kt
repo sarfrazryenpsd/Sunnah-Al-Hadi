@@ -1,5 +1,4 @@
-
-package com.ryen.sunnah_alhadi.data.local.proto
+package com.ryen.sunnah_alhadi.data.datastore
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
@@ -7,7 +6,6 @@ import com.google.protobuf.InvalidProtocolBufferException
 import com.ryen.sunnah_alhadi.datastore.ProtoUserPreferences
 import java.io.InputStream
 import java.io.OutputStream
-
 
 // Serializer for Proto DataStore
 object ProtoUserPreferencesSerializer : Serializer<ProtoUserPreferences> {
@@ -25,5 +23,3 @@ object ProtoUserPreferencesSerializer : Serializer<ProtoUserPreferences> {
         t.writeTo(output)
     }
 }
-
-
