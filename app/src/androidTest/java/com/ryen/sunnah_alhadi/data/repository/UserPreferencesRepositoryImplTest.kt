@@ -9,6 +9,7 @@ import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,7 +35,7 @@ class UserPreferencesRepositoryImplTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-
+    @MockK
     private lateinit var repository: UserPreferencesRepositoryImpl
     private lateinit var mockDataStore: DataStore<ProtoUserPreferences>
     private val testScope = TestScope()
@@ -80,8 +81,16 @@ class UserPreferencesRepositoryImplTest {
 
         // When & Then
         repository.getUserPreferencesFlow().test {
-            assertThat(awaitItem().username).isEqualTo("User1")
-            assertThat(awaitItem().username).isEqualTo("User2")
+            // Skip the initial default value if present
+            var item = awaitItem()
+            if (item.username.isEmpty()) {
+                item = awaitItem() // Get the first real value
+            }
+            assertThat(item.username).isEqualTo("User1")
+
+            val secondItem = awaitItem()
+            assertThat(secondItem.username).isEqualTo("User2")
+
             awaitComplete()
         }
     }
@@ -91,7 +100,6 @@ class UserPreferencesRepositoryImplTest {
         // Given
         val newUsername = "NewUser"
         val currentPrefs = createTestProtoPreferences()
-        val updatedPrefs = currentPrefs.toBuilder().setUsername(newUsername).build()
 
         coEvery {
             mockDataStore.updateData(any<suspend (ProtoUserPreferences) -> ProtoUserPreferences>())
@@ -287,6 +295,9 @@ class UserPreferencesRepositoryImplTest {
         val expectedSotdId = "05_05"
         val protoPrefs = createTestProtoPreferences(currentSotdId = expectedSotdId)
         every { mockDataStore.data } returns flowOf(protoPrefs)
+
+        // Allow stateIn to collect
+        testScope.advanceUntilIdle()
 
         // When
         val result = repository.getCurrentSotd()
@@ -589,6 +600,8 @@ class UserPreferencesRepositoryImplTest {
             assertThat(e.message).isEqualTo("DataStore failure")
         }
     }
+
+
 
     @Test
     fun updateUsername_handles_dataStore_update_failure() = runTest {

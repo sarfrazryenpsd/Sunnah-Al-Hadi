@@ -5,19 +5,13 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="getBookmarkedSunnahs_daoThrowsException_returnsErrorResult()">
+      <SelectionState runConfigName="getUserPreferences_returns_correct_preferences()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="toggleBookmark_unexpectedException_returnsErrorResult()">
+      <SelectionState runConfigName="SotdNotificationHelperTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="CategoryRepositoryImplTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="SunnahRepositoryImplTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="UserPreferencesRepositoryImplTest">
+      <SelectionState runConfigName="createNotificationChannel_creates_channel_on_Android_O_and_above()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

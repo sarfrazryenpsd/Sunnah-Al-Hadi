@@ -11,6 +11,7 @@ import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -28,11 +29,11 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 
 
     // Cache frequently accessed data
-    private val _userPreferencesFlow = dataStore.data.map { it.toDomain() }
+    private val _userPreferencesFlow: StateFlow<UserPreferences?> = dataStore.data.map { it.toDomain() }
         .stateIn(
             scope = applicationScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = UserPreferences()
+            initialValue = null
         )
 
     override suspend fun getUserPreferences(): UserPreferences {

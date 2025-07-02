@@ -26,7 +26,7 @@ class SotdNotificationScheduler @Inject constructor(private val context: Context
 
     private val workManager: WorkManager = WorkManager.getInstance(context)
 
-    private fun scheduleNotification(notificationTime: NotificationTime) {
+    fun scheduleNotification(notificationTime: NotificationTime) {
         // Cancel existing work first
         cancelNotification()
 
@@ -83,13 +83,13 @@ class SotdNotificationScheduler @Inject constructor(private val context: Context
         return maxOf(delayMillis, 0L) // Ensure non-negative delay
     }
 
-    private fun cancelNotification() {
+    fun cancelNotification() {
         workManager.cancelUniqueWork(WORK_NAME)
         workManager.cancelAllWorkByTag(TAG_SOTD)
         Log.d("SotdScheduler", "Cancelled SOTD notifications")
     }
 
-    private fun isNotificationScheduled(): Boolean {
+    fun isNotificationScheduled(): Boolean {
         return try {
             val workInfos = workManager.getWorkInfosForUniqueWork(WORK_NAME).get()
             workInfos.any {

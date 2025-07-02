@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.testImplementation
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
@@ -127,7 +128,11 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test) // or match your kotlinx-coroutines version
 
 // Truth (optional, but better assertions)
-    androidTestImplementation(libs.truth) // Or latest version
+    androidTestImplementation(libs.truth)
+    testImplementation(libs.truth)
+
+//for testing workManager
+    testImplementation(libs.androidx.work.testing)
 
 
 // For testing with Hilt
@@ -151,6 +156,10 @@ dependencies {
 
 // Turbine (Flow testing)
     androidTestImplementation(libs.turbine)
+
+    //Robolectric
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.junit)
 
 // AndroidX Test Core (context, lifecycle, etc.)
     testImplementation(libs.androidx.core)
