@@ -102,6 +102,7 @@ dependencies {
     ksp(libs.androidx.hilt.compiler)
 
     kspAndroidTest(libs.hilt.compiler)
+    kspTest(libs.hilt.compiler)
 
     implementation(libs.protobuf.javalite)
     implementation(libs.datastore.proto)
@@ -137,6 +138,7 @@ dependencies {
 
 // For testing with Hilt
     androidTestImplementation(libs.hilt.android.testing)
+    testImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.androidx.runner)
 
 //Room testing

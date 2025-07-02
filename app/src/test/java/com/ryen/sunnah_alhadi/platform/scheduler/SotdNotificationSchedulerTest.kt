@@ -54,7 +54,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `scheduleNotification should schedule work with correct timing for morning`() {
+    fun scheduleNotification_should_schedule_work_with_correct_timing_for_morning() {
         // Given
         val notificationTime = NotificationTime.MORNING
 
@@ -71,7 +71,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `scheduleNotification should schedule work with correct timing for evening`() {
+    fun scheduleNotification_should_schedule_work_with_correct_timing_for_evening() {
         // Given
         val notificationTime = NotificationTime.EVENING
 
@@ -88,7 +88,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `scheduleNotification should schedule work with correct timing for night`() {
+    fun scheduleNotification_should_schedule_work_with_correct_timing_for_night() {
         // Given
         val notificationTime = NotificationTime.NIGHT
 
@@ -105,7 +105,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `scheduleNotification should cancel existing work before scheduling new one`() {
+    fun scheduleNotification_should_cancel_existing_work_before_scheduling_new_one() {
         // Given - schedule first notification
         scheduler.scheduleNotification(NotificationTime.MORNING)
         val firstWorkInfos = workManager.getWorkInfosForUniqueWork("sotd_notification_work").get()
@@ -121,7 +121,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `scheduleNotification should set correct constraints`() {
+    fun scheduleNotification_should_set_correct_constraints() {
         // Given
         val notificationTime = NotificationTime.MORNING
 
@@ -138,7 +138,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `cancelNotification should cancel all scheduled work`() {
+    fun cancelNotification_should_cancel_all_scheduled_work() {
         // Given - schedule notification first
         scheduler.scheduleNotification(NotificationTime.MORNING)
         val initialWorkInfos = workManager.getWorkInfosForUniqueWork("sotd_notification_work").get()
@@ -156,7 +156,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `cancelNotification should cancel work by tag`() {
+    fun cancelNotification_should_cancel_work_by_tag() {
         // Given - schedule notification first
         scheduler.scheduleNotification(NotificationTime.MORNING)
 
@@ -172,7 +172,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `isNotificationScheduled should return true when work is enqueued`() {
+    fun isNotificationScheduled_should_return_true_when_work_is_enqueued() {
         // Given
         scheduler.scheduleNotification(NotificationTime.MORNING)
 
@@ -184,7 +184,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `isNotificationScheduled should return false when no work is scheduled`() {
+    fun isNotificationScheduled_should_return_false_when_no_work_is_scheduled() {
         // Given - no work scheduled
 
         // When
@@ -195,7 +195,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `isNotificationScheduled should return false when work is cancelled`() {
+    fun isNotificationScheduled_should_return_false_when_work_is_cancelled() {
         // Given
         scheduler.scheduleNotification(NotificationTime.MORNING)
         scheduler.cancelNotification()
@@ -208,7 +208,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `getScheduledNotificationInfo should return work info when scheduled`() {
+    fun getScheduledNotificationInfo_should_return_work_info_when_scheduled() {
         // Given
         scheduler.scheduleNotification(NotificationTime.MORNING)
 
@@ -221,7 +221,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `getScheduledNotificationInfo should return null when no work is scheduled`() {
+    fun getScheduledNotificationInfo_should_return_null_when_no_work_is_scheduled() {
         // Given - no work scheduled
 
         // When
@@ -232,7 +232,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `rescheduleOnTimezoneChange should reschedule only when already scheduled`() {
+    fun rescheduleOnTimezoneChange_should_reschedule_only_when_already_scheduled() {
         // Given - no initial schedule
         val initiallyScheduled = scheduler.isNotificationScheduled()
         Truth.assertThat(initiallyScheduled).isFalse()
@@ -246,7 +246,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `rescheduleOnTimezoneChange should reschedule when already scheduled`() {
+    fun rescheduleOnTimezoneChange_should_reschedule_when_already_scheduled() {
         // Given - initial schedule
         scheduler.scheduleNotification(NotificationTime.MORNING)
         val initialWorkInfos = workManager.getWorkInfosForUniqueWork("sotd_notification_work").get()
@@ -262,7 +262,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `calculateInitialDelay should return positive delay for future time`() {
+    fun calculateInitialDelay_should_return_positive_delay_for_future_time() {
         // This test verifies the private method behavior through public API
         // Given - schedule for a future time
         scheduler.scheduleNotification(NotificationTime.MORNING)
@@ -289,7 +289,7 @@ class SotdNotificationSchedulerTest {
 
 
     @Test
-    fun `multiple schedule calls should replace previous work correctly`() {
+    fun multiple_schedule_calls_should_replace_previous_work_correctly() {
         // Given
         val times = listOf(NotificationTime.MORNING, NotificationTime.EVENING, NotificationTime.NIGHT)
 
@@ -305,7 +305,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `work should be periodic with correct interval`() {
+    fun work_should_be_periodic_with_correct_interval() {
         // Given
         scheduler.scheduleNotification(NotificationTime.MORNING)
 
@@ -319,7 +319,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun `work should have correct backoff policy`() {
+    fun work_should_have_correct_backoff_policy() {
         // Given
         scheduler.scheduleNotification(NotificationTime.MORNING)
 

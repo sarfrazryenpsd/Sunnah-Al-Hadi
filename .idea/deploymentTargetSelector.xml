@@ -5,13 +5,7 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="getUserPreferences_returns_correct_preferences()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="SotdNotificationHelperTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="createNotificationChannel_creates_channel_on_Android_O_and_above()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

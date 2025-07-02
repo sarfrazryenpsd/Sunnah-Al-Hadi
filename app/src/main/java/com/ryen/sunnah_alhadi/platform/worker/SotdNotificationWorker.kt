@@ -71,15 +71,16 @@ class SotdNotificationWorker @AssistedInject constructor(
                     return Result.retry()
                 }
                 is com.ryen.sunnah_alhadi.util.Result.Success -> {
-                    sunnah.let {
-                        sunnah.data?.let { it1 -> notificationHelper.showSotdNotification(it1) }
+                    if (sunnah.data == null) {
+                        Log.e("SotdWorker", "Sunnah data is null for ID: $newSotdId")
+                        return Result.retry()
                     }
+
+                    notificationHelper.showSotdNotification(sunnah.data)
                     Log.d("SotdWorker", "SOTD notification sent successfully")
-                    Result.success()
+                    return Result.success()
                 }
             }
-
-            Result.success()
 
         } catch (e: SecurityException) {
             Log.e("SotdWorker", "Security exception: ${e.message}")
