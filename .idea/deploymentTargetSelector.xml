@@ -5,16 +5,13 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="DatabaseCorruptionTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="HiltDiTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="simple_injection_test()">
+      <SelectionState runConfigName="given_use_cases_are_injected_when_executing_then_should_delegate_to_repositories()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="given_dependency_graph_when_checking_scopes_then_should_respect_singleton_annotations()">
+      <SelectionState runConfigName="given_test_modules_replace_production_modules_when_injecting_then_should_use_test_implementations()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

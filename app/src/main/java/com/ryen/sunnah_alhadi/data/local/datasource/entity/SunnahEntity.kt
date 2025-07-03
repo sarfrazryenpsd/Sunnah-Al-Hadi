@@ -42,6 +42,7 @@ data class SunnahWithBookmark(
     @ColumnInfo(name = "bookmarkedAt") val bookmarkedAt: Long? = null
 )
 
+// Fixed SubtypeSerializer
 object SubtypeSerializer : KSerializer<Any> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Subtype", PrimitiveKind.STRING)
 
@@ -56,14 +57,17 @@ object SubtypeSerializer : KSerializer<Any> {
 
     override fun deserialize(decoder: Decoder): Any {
         val value = decoder.decodeString()
-        // Try to parse as enums, fallback to string
+        // Try to parse as enums first by name, then by SerialName
         return try {
             ArabicSubtype.valueOf(value)
         } catch (e: IllegalArgumentException) {
             try {
                 EnglishSubtype.valueOf(value)
             } catch (e: IllegalArgumentException) {
-                value // Fallback to raw string
+                // Try to match by SerialName
+                ArabicSubtype.entries.find { it.name.lowercase() == value.lowercase() }
+                    ?: EnglishSubtype.entries.find { it.name.lowercase() == value.lowercase() }
+                    ?: value // Fallback to raw string
             }
         }
     }
