@@ -7,8 +7,8 @@ import javax.inject.Inject
 
 class GetAllSunnahsUseCase @Inject constructor (
     private val sunnahRepository: SunnahRepository
-): UseCase<Unit, Result<List<Sunnah>>>() {
-    override suspend fun execute(parameters: Unit): Result<List<Sunnah>> {
+): NoParamUseCase<Result<List<Sunnah>>>() {
+    override suspend fun execute(): Result<List<Sunnah>> {
         return sunnahRepository.getAllSunnahs()
     }
 }

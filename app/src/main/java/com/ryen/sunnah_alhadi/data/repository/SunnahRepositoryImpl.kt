@@ -8,7 +8,7 @@ import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import javax.inject.Inject
 
 class SunnahRepositoryImpl @Inject constructor(
-    private val sunnahDao: SunnahDao,
+    val sunnahDao: SunnahDao,
 ) : SunnahRepository {
 
     override suspend fun getAllSunnahs(): Result<List<Sunnah>> = try {

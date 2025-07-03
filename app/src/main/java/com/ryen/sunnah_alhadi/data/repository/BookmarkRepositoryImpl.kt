@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class BookmarkRepositoryImpl @Inject constructor(
-    private val bookmarkDao: BookmarkDao
+    val bookmarkDao: BookmarkDao
 ) : BookmarkRepository {
 
     override suspend fun getAllBookmarks(): Result<List<SunnahBookmarked>> {
