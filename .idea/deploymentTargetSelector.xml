@@ -5,10 +5,10 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="HiltDiTest">
+      <SelectionState runConfigName="BookmarkDaoTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="given_test_modules_replace_production_modules_when_injecting_then_should_use_test_implementations()">
+      <SelectionState runConfigName="SunnahDaoTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
