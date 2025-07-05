@@ -1,4 +1,4 @@
-package com.ryen.sunnah_alhadi.presentation.mapper
+package com.ryen.sunnah_alhadi.presentation.util
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,8 +25,6 @@ import com.ryen.sunnah_alhadi.data.local.datasource.entity.EnglishSubtype
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.ExtraContent
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.ExtraContentType
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.Reference
-import com.ryen.sunnah_alhadi.presentation.util.DynamicArabicTypography
-import com.ryen.sunnah_alhadi.presentation.util.DynamicContentTypography
 
 
 /**
