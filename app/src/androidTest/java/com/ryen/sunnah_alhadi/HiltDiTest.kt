@@ -23,7 +23,6 @@ import com.ryen.sunnah_alhadi.data.repository.BookmarkRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.CategoryRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.SunnahRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.UserPreferencesRepositoryImpl
-import com.ryen.sunnah_alhadi.data.util.Converters
 import com.ryen.sunnah_alhadi.di.ApplicationScope
 import com.ryen.sunnah_alhadi.di.DatabaseModule
 import com.ryen.sunnah_alhadi.di.RepositoryModule
@@ -41,7 +40,6 @@ import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahOfTheDayUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetTopicWithSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
-import com.ryen.sunnah_alhadi.domain.useCase.ScheduleDailyReminderUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.SearchSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.ToggleBookmarkUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.UpdateUserPreferencesUseCase
@@ -412,8 +410,7 @@ object TestUseCaseModule {
         userPreferencesRepository: UserPreferencesRepository
     ) = GetSunnahOfTheDayUseCase(sunnahRepository, userPreferencesRepository)
 
-    @Provides
-    fun provideScheduleDailyReminderUseCase() = ScheduleDailyReminderUseCase()
+
 
     @Provides
     fun provideExportSunnahAsImageUseCase() = ExportSunnahAsImageUseCase()
