@@ -1,8 +1,16 @@
 package com.ryen.sunnah_alhadi.ui.theme
 
 import android.os.Build
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MotionScheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -10,11 +18,14 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ryen.sunnah_alhadi.presentation.util.DynamicTypographyProvider
 
@@ -190,7 +201,13 @@ fun createDynamicTypography(windowSizeClass: WindowSizeClass): Typography {
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
+val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope> {
+    throw IllegalStateException("No SharedTransitionScope provided")
+}
+
 // Main Theme Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun SunnahAlHadiTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
@@ -224,18 +241,26 @@ fun SunnahAlHadiTheme(
     // Create dynamic typography
     val typography = createDynamicTypography(windowSizeClass)
 
-
+    val shapes = Shapes(
+        extraSmall = RoundedCornerShape(50),
+        large = RoundedCornerShape(size = 30.dp),
+    )
 
     // Provide the theme with both color scheme and typography
-    MaterialTheme(
+    MaterialExpressiveTheme(
         colorScheme = colorScheme,
         typography = typography,
-        content = {
-            // Provide dynamic typography context for content-specific typography
-            DynamicTypographyProvider(windowSizeClass = windowSizeClass) {
-                content()
+        shapes = shapes,
+        motionScheme = MotionScheme.expressive()
+    ) {
+        SharedTransitionLayout {
+            CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+                DynamicTypographyProvider(windowSizeClass) {
+                    content()
+                }
             }
         }
-    )
+    }
+
 }
 
