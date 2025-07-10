@@ -72,7 +72,7 @@ class DatabaseCorruptionTest {
         assertThat(exception).isNotNull()
         corruptedDb.close()
     }
-    //FAILED
+
     @Test
     fun given_database_file_corruption_when_accessing_sunnahs_then_should_return_error_result() {
         // Given
