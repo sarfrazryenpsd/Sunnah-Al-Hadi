@@ -14,7 +14,7 @@ import com.ryen.sunnah_alhadi.ui.theme.DynamicTextConfig
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicLineHeightConfig
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicTextConfig
 import com.ryen.sunnah_alhadi.ui.theme.amiri
-import com.ryen.sunnah_alhadi.ui.theme.cinzel_decorative
+import com.ryen.sunnah_alhadi.ui.theme.lora
 import com.ryen.sunnah_alhadi.ui.theme.cormorant_garamond
 import com.ryen.sunnah_alhadi.ui.theme.figtree
 import com.ryen.sunnah_alhadi.ui.theme.getScaleFactors
@@ -267,7 +267,7 @@ object DynamicContentTypography {
         val textConfig = LocalDynamicTextConfig.current
         val lineHeightConfig = LocalDynamicLineHeightConfig.current
         return TextStyle(
-            fontFamily = cinzel_decorative,
+            fontFamily = lora,
             fontWeight = FontWeight.Black,
             fontSize = textConfig.topicHeading,
             lineHeight = lineHeightConfig.topicHeading,

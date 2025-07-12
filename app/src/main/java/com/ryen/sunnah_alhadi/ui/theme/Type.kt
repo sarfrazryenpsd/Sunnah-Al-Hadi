@@ -18,10 +18,10 @@ import com.ryen.sunnah_alhadi.R
     Font(R.font.amiri_bold_italic, FontWeight.Bold, FontStyle.Italic)
 )
 
- val cinzel_decorative = FontFamily(
-    Font(R.font.cinzel_decorative_regular, FontWeight.Normal),
-    Font(R.font.cinzel_decorative_bold, FontWeight.Bold),
-    Font(R.font.cinzel_decorative_black, FontWeight.Black)
+ val lora = FontFamily(
+    Font(R.font.lora_regular, FontWeight.Normal),
+    Font(R.font.lora_bold, FontWeight.Bold),
+    Font(R.font.lora_medium, FontWeight.Medium)
 )
 
  val cormorant_garamond = FontFamily(
