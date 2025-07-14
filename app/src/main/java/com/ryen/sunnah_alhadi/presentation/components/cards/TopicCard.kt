@@ -17,7 +17,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -67,7 +70,7 @@ fun TopicCard(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .background(Color(0xFFB0D6FF), RoundedCornerShape(6.dp))
+                        .background(Color(0xFFB0D6FF), CircleShape)
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(
@@ -77,12 +80,21 @@ fun TopicCard(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = stringResource(id = R.string.sunnah_and_manner),
-                    style = DynamicAppTypography.labelSmall()
+                    text = stringResource(id = R.string.sunnah_and_manner_of),
+                    style = DynamicAppTypography.labelSmall().copy(
+                        fontSize = DynamicAppTypography.labelSmall().fontSize * 0.9
+                    )
                 )
-                Text(
+                BasicText(
                     text = categoryName,
-                    style = DynamicContentTypography.topicHeading()
+                    style = DynamicContentTypography.topicHeading().copy(
+                        lineHeight = DynamicContentTypography.topicHeading().lineHeight * 0.7
+                    ),
+                    maxLines = 2,
+                    autoSize = TextAutoSize.StepBased(
+                        minFontSize = DynamicContentTypography.topicHeading().fontSize * .6,
+                        maxFontSize = DynamicContentTypography.topicHeading().fontSize
+                    )
                 )
             }
 
