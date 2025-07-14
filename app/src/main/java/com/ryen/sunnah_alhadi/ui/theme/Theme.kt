@@ -82,8 +82,7 @@ private val DarkColorScheme = darkColorScheme(
 
 // Dynamic Typography that works with MaterialTheme
 @Composable
-fun createDynamicTypography(windowSizeClass: WindowSizeClass): Typography {
-    val screenSize = remember(windowSizeClass) { windowSizeClass.toScreenSize() }
+fun createDynamicTypography(windowSizeClass: WindowSizeClass, screenSize: ScreenSize): Typography {
     val scaleFactors = remember(screenSize) { screenSize.getScaleFactors() }
     val textConfig = remember(screenSize, scaleFactors) {
         DynamicTextConfig(screenSize, scaleFactors)
@@ -206,6 +205,8 @@ val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope> {
     throw IllegalStateException("No SharedTransitionScope provided")
 }
 
+
+
 // Main Theme Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -214,7 +215,7 @@ fun SunnahAlHadiTheme(
     windowSizeClass: WindowSizeClass,
     content: @Composable () -> Unit
 ) {
-    val context = LocalContext.current
+
     val isSystemDark = isSystemInDarkTheme()
 
     // Determine if we should use dark theme
@@ -228,6 +229,7 @@ fun SunnahAlHadiTheme(
     // Determine color scheme
     val colorScheme = when {
         themeMode == ThemeMode.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
             if (useDarkTheme) {
                 dynamicDarkColorScheme(context)
             } else {
@@ -237,14 +239,21 @@ fun SunnahAlHadiTheme(
         useDarkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+    val screenSize = remember(windowSizeClass) { windowSizeClass.toScreenSize() }
 
     // Create dynamic typography
-    val typography = createDynamicTypography(windowSizeClass)
+    val typography = createDynamicTypography(windowSizeClass, screenSize)
+
+    val dimensions = remember(screenSize) {
+        screenSize.toDynamicDimensions()
+    }
 
     val shapes = Shapes(
         extraSmall = RoundedCornerShape(50),
         large = RoundedCornerShape(size = 30.dp),
     )
+
+
 
     // Provide the theme with both color scheme and typography
     MaterialExpressiveTheme(
@@ -254,7 +263,10 @@ fun SunnahAlHadiTheme(
         motionScheme = MotionScheme.expressive()
     ) {
         SharedTransitionLayout {
-            CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+            CompositionLocalProvider(
+                LocalSharedTransitionScope provides this,
+                LocalDynamicDimensions provides dimensions
+                ) {
                 DynamicTypographyProvider(windowSizeClass) {
                     content()
                 }

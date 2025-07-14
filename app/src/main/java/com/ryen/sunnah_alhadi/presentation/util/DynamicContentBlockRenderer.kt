@@ -599,15 +599,15 @@ fun DynamicContentPreviewWrapper(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        DynamicReferenceRenderer(
-            references = references,
+        DynamicExtraContentRenderer(
+            extraContent = extraContent,
             windowSizeClass = windowSizeClass
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        DynamicExtraContentRenderer(
-            extraContent = extraContent,
+        DynamicReferenceRenderer(
+            references = references,
             windowSizeClass = windowSizeClass
         )
     }
