@@ -33,8 +33,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.ryen.sunnah_alhadi.R
-import com.ryen.sunnah_alhadi.presentation.common.states.PreviewWrapper
-import com.ryen.sunnah_alhadi.presentation.common.states.SunnahPreview
+import com.ryen.sunnah_alhadi.presentation.common.PreviewWrapper
+import com.ryen.sunnah_alhadi.presentation.common.SunnahPreview
 import com.ryen.sunnah_alhadi.presentation.util.DynamicAppTypography
 import com.ryen.sunnah_alhadi.presentation.util.DynamicContentTypography
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicDimensions

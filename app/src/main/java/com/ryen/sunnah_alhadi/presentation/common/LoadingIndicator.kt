@@ -1,4 +1,4 @@
-package com.ryen.sunnah_alhadi.presentation.common.states
+package com.ryen.sunnah_alhadi.presentation.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

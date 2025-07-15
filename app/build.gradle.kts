@@ -89,13 +89,18 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.junit.ktx)
     implementation(libs.androidx.runner)
+    implementation(libs.kotlinx.serialization.core)
     androidTestImplementation(libs.androidx.core.testing)
+
 
     ksp(libs.androidx.room.compiler)
     implementation (libs.bundles.hilt)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    //Navigation3
+    implementation(libs.bundles.navigation3)
 
     // For WorkManager integration
     implementation(libs.androidx.hilt.work)

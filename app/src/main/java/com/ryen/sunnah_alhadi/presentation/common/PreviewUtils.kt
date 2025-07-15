@@ -1,4 +1,4 @@
-package com.ryen.sunnah_alhadi.presentation.common.states
+package com.ryen.sunnah_alhadi.presentation.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
