@@ -16,6 +16,7 @@ lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
 composeBom = "2025.06.01"
 material3 = "1.4.0-alpha17"
+materialIconsExtended = "1.7.8"
 mockk = "1.14.4"
 robolectric = "4.15.1"
 roomRuntime = "2.7.2"
@@ -40,6 +41,7 @@ androidx-core-testing = { module = "androidx.arch.core:core-testing", version.re
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }
 androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
+androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-material3-window-size-class1 = { module = "androidx.compose.material3:material3-window-size-class" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "roomTesting" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }

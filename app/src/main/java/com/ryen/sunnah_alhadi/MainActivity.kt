@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import com.ryen.sunnah_alhadi.presentation.navigation.MainNavigation
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
             SunnahAlHadiTheme(
                 windowSizeClass = windowSizeClass
             ) {
-
+                MainNavigation()
             }
         }
     }
