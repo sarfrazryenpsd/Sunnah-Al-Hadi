@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.Scene
 import androidx.navigation3.ui.SceneStrategy
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 
 // --- TwoPaneScene ---
@@ -61,8 +62,8 @@ class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
         val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 
         // Condition 1: Only return a Scene if the window is sufficiently wide to render two panes.
-        // We use isWidthAtLeastBreakpoint with WIDTH_DP_MEDIUM_LOWER_BOUND (600dp).
-        if (!windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+        // We use isWidthAtLeastBreakpoint with WIDTH_DP_EXPANDED_LOWER_BOUND (840dp).
+        if (!windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)) {
             return null
         }
 
