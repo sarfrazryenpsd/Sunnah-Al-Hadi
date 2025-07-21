@@ -68,7 +68,6 @@ import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
-import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -95,8 +94,6 @@ fun MainNavigation() {
 
     // Material 3 Expressive vibrant colors for the toolbar/rail
     val toolbarColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
-
-    val motionScheme = MaterialTheme.motionScheme
 
     // Shared NavDisplay composable to avoid duplication
     @Composable

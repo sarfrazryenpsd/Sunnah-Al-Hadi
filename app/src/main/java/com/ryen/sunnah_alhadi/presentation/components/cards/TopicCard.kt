@@ -21,6 +21,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,8 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.room.util.TableInfo
 import coil3.compose.rememberAsyncImagePainter
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.presentation.common.PreviewWrapper
@@ -53,67 +57,75 @@ fun TopicCard(
         modifier = modifier
             .width(dimensions.topicCardWidth)
             .height(dimensions.topicCardHeight)
-            .clip(RoundedCornerShape(25))
+            .clip(RoundedCornerShape(24.dp))
             .background(Color.Yellow)
     ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+
         ) {
-            Column(
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.Start,
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .padding(dimensions.cardPadding)
-                    .weight(1f)
+                    .size(32.dp)
+                    .padding(top = 8.dp, start = 8.dp)
+                    .background(Color(0xFFB0D6FF), CircleShape)
             ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .background(Color(0xFFB0D6FF), CircleShape)
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                ) {
-                    Text(
-                        text = "$numberOfSunnah",
-                        style = DynamicAppTypography.labelSmall()
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = stringResource(id = R.string.sunnah_and_manner_of),
-                    style = DynamicAppTypography.labelSmall().copy(
-                        fontSize = DynamicAppTypography.labelSmall().fontSize * 0.9
-                    )
-                )
-                BasicText(
-                    text = categoryName,
-                    style = DynamicContentTypography.topicHeading().copy(
-                        lineHeight = DynamicContentTypography.topicHeading().lineHeight * 0.7
-                    ),
-                    maxLines = 2,
-                    autoSize = TextAutoSize.StepBased(
-                        minFontSize = DynamicContentTypography.topicHeading().fontSize * .6,
-                        maxFontSize = DynamicContentTypography.topicHeading().fontSize
-                    )
+                    text = "$numberOfSunnah",
+                    style = DynamicAppTypography.labelSmall()
                 )
             }
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier
+                        .padding(dimensions.cardPadding)
+                        .weight(1f)
+                ) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.sunnah_and_manner_of),
+                        style = DynamicAppTypography.labelSmall().copy(
+                            fontSize = DynamicAppTypography.labelSmall().fontSize * 0.9
+                        )
+                    )
+                    BasicText(
+                        text = categoryName,
+                        style = DynamicContentTypography.topicHeading().copy(
+                            lineHeight = DynamicContentTypography.topicHeading().lineHeight * 0.7
+                        ),
+                        maxLines = 2,
+                        autoSize = TextAutoSize.StepBased(
+                            minFontSize = DynamicContentTypography.topicHeading().fontSize * .6,
+                            maxFontSize = DynamicContentTypography.topicHeading().fontSize
+                        )
+                    )
+                }
 
-            Image(
-                painter = rememberAsyncImagePainter(model = topicSImage),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .size(dimensions.imageSize)
+                Image(
+                    painter = rememberAsyncImagePainter(model = topicSImage),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .size(dimensions.imageSize)
 
-            )
+                )
+            }
         }
     }
 }
 
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun TopicScreen(topics: List<TopicUiModel>) {
+fun TopicScreen(topics: List<TopicUiModel>, userName: String) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFFFAFAFA)
@@ -125,15 +137,29 @@ fun TopicScreen(topics: List<TopicUiModel>) {
                 .padding(vertical = 24.dp)
         ) {
             Text(
+                text = "Assalamualaikum",
+                style = DynamicAppTypography.bodySmall(),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Text(
+                text = userName,
+                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
                 text = "Explore Topics",
-                style = DynamicContentTypography.topicHeading(),
+                style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
+                contentPadding = PaddingValues(horizontal = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 items(topics) { topic ->
@@ -153,37 +179,23 @@ fun TopicScreen(topics: List<TopicUiModel>) {
 @Composable
 fun TopicScreenPreview() {
     PreviewWrapper(widthDp = 360) {
-        TopicScreen(topics = previewDummyTopics())
+        TopicScreen(topics = previewDummyTopics(), userName = "Sarfraz")
     }
     PreviewWrapper(widthDp = 600) {
-        TopicScreen(topics = previewDummyTopics())
+        TopicScreen(topics = previewDummyTopics(), userName = "Sarfraz")
     }
     PreviewWrapper(widthDp = 840) {
-        TopicScreen(topics = previewDummyTopics())
+        TopicScreen(topics = previewDummyTopics(), userName = "Sarfraz")
     }
 }
 
 
 fun previewDummyTopics() = listOf(
-    TopicUiModel("Visiting Graveyard", 12, R.drawable.ic_launcher_background),
-    TopicUiModel("Speaking", 8, R.drawable.ic_launcher_background),
-    TopicUiModel("Greeting", 10, R.drawable.ic_launcher_background),
+    TopicUiModel("Applying Oil and Combing Hair", 12, R.drawable.ic_launcher_background),
+    TopicUiModel("Treating Relatives With Kindness", 8, R.drawable.ic_launcher_background),
+    TopicUiModel("Waking Up and Sleeping", 10, R.drawable.ic_launcher_background),
     TopicUiModel("Helping", 6, R.drawable.ic_launcher_background)
 )
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun TopicCardPreview() {
-    PreviewWrapper(widthDp = 360) {
-        TopicCard(
-            categoryName = "Walking",
-            numberOfSunnah = 12,
-            topicSImage = R.drawable.ic_launcher_background
-        )
-    }
-}
 
 
 
