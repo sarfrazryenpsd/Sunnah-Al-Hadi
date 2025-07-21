@@ -4,6 +4,9 @@ package com.ryen.sunnah_alhadi.presentation.navigation
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -125,6 +128,20 @@ fun MainNavigation() {
                     rememberSavedStateNavEntryDecorator()
                 ),
                 sceneStrategy = twoPaneStrategy,
+                transitionSpec = {
+                    slideInHorizontally(initialOffsetX = { it }) togetherWith
+                            slideOutHorizontally(targetOffsetX = { -it })
+                },
+                popTransitionSpec = {
+                    // Slide in from left when navigating back
+                    slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                            slideOutHorizontally(targetOffsetX = { it })
+                },
+                predictivePopTransitionSpec = {
+                    // Slide in from left when navigating back
+                    slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                            slideOutHorizontally(targetOffsetX = { it })
+                },
                 entryProvider = entryProvider {
                     entry<Home>(
                         metadata = TwoPaneScene.twoPane()
