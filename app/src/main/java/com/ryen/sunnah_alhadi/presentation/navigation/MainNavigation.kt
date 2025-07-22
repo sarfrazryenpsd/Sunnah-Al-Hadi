@@ -68,6 +68,7 @@ import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
+import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
 
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -223,7 +224,16 @@ fun MainNavigation() {
 
     if (isCompact) {
         // Compact screen: Use HorizontalFloatingToolbar in content slot
-        Scaffold { innerPadding ->
+        Scaffold(
+            topBar = {
+                CustomTopBar(
+                    isTopLevel = backStack.lastOrNull() in topLevelDestinations,
+                    onNavigateBack = { backStack.removeLastOrNull() },
+                    onOrbClick = {  },
+                    onInfoClick = {  }
+                )
+            }
+        ) { innerPadding ->
             Box(
                 Modifier
                     .fillMaxSize()
