@@ -294,7 +294,7 @@ fun MainNavigation() {
             }
         }
     } else {
-        // Medium/large screen: Use NavigationRail
+        // large screen: Use NavigationRail
         Row(Modifier.fillMaxSize()) {
             NavigationRail(
                 modifier = Modifier

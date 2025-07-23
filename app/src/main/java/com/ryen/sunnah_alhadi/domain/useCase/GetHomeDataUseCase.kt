@@ -17,7 +17,7 @@ class GetHomeDataUseCase @Inject constructor(
             val userPrefs = userPreferencesRepository.getUserPreferences()
 
             Result.Success(HomeData(
-                greeting = userPrefs.username.ifBlank { "Brother/Sister" },
+                userName = userPrefs.username.ifBlank { "Brother/Sister" },
                 featuredCategories = featuredCategories
             ))
         } catch (e: Exception) {
@@ -27,6 +27,6 @@ class GetHomeDataUseCase @Inject constructor(
 }
 
 data class HomeData(
-    val greeting: String,
+    val userName: String,
     val featuredCategories: List<Category>
 )
