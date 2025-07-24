@@ -212,6 +212,7 @@ val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope> {
 @Composable
 fun SunnahAlHadiTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
+    isDynamicColorEnabled: Boolean = false,
     windowSizeClass: WindowSizeClass,
     content: @Composable () -> Unit
 ) {
