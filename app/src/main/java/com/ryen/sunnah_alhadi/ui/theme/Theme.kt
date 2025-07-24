@@ -31,7 +31,7 @@ import com.ryen.sunnah_alhadi.presentation.util.DynamicTypographyProvider
 
 // Theme preferences
 enum class ThemeMode {
-    LIGHT, DARK, SYSTEM, DYNAMIC
+    LIGHT, DARK, SYSTEM
 }
 
 // Create light color scheme
@@ -219,27 +219,24 @@ fun SunnahAlHadiTheme(
 
     val isSystemDark = isSystemInDarkTheme()
 
-    // Determine if we should use dark theme
     val useDarkTheme = when (themeMode) {
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
         ThemeMode.SYSTEM -> isSystemDark
-        ThemeMode.DYNAMIC -> isSystemDark
     }
 
-    // Determine color scheme
+    val dynamicColorAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
     val colorScheme = when {
-        themeMode == ThemeMode.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        isDynamicColorEnabled && dynamicColorAvailable -> {
             val context = LocalContext.current
-            if (useDarkTheme) {
-                dynamicDarkColorScheme(context)
-            } else {
-                dynamicLightColorScheme(context)
-            }
+            if (useDarkTheme) dynamicDarkColorScheme(context)
+            else dynamicLightColorScheme(context)
         }
         useDarkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+
     val screenSize = remember(windowSizeClass) { windowSizeClass.toScreenSize() }
 
     // Create dynamic typography
