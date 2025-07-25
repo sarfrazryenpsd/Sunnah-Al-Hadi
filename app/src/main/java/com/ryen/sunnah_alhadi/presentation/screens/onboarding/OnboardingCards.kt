@@ -4,7 +4,14 @@ package com.ryen.sunnah_alhadi.presentation.screens.onboarding
 
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,16 +22,27 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -39,13 +57,15 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
-import com.ryen.sunnah_alhadi.presentation.common.PreviewWrapper
 import com.ryen.sunnah_alhadi.presentation.util.getUsernameCharacterCount
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
@@ -168,6 +188,7 @@ private fun UsernameCard(
             },
             isError = usernameError != null,
             singleLine = true,
+            shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -178,81 +199,67 @@ private fun ThemeCard(
     selectedTheme: ThemeMode,
     isDynamicThemeEnabled: Boolean,
     onThemeSelect: (ThemeMode) -> Unit,
-    onDynamicThemeToggle: (Boolean) -> Unit
+    onDynamicThemeToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Icon(
-            imageVector = Icons.Default.Palette,
-            contentDescription = null,
-            modifier = Modifier.size(48.dp),
-            tint = MaterialTheme.colorScheme.primary
+        // Header
+        OnboardingCardHeader(
+            title = "Choose Your Theme",
+            subtitle = "Customize the app's appearance to your preference"
         )
 
-        Text(
-            text = "Choose Your Theme",
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        Text(
-            text = "Select your preferred appearance for the app",
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
+        // Theme selection radio buttons
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ThemeMode.entries.forEach { theme ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = selectedTheme == theme,
-                            onClick = { onThemeSelect(theme) }
-                        )
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = selectedTheme == theme,
-                        onClick = { onThemeSelect(theme) }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = when (theme) {
-                            ThemeMode.LIGHT -> "Light Mode"
-                            ThemeMode.DARK -> "Dark Mode"
-                            else -> "System Default"
-                        },
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            }
+            ThemeOption(
+                title = "System Default",
+                subtitle = "Follow device theme settings",
+                isSelected = selectedTheme == ThemeMode.SYSTEM,
+                onClick = { onThemeSelect(ThemeMode.SYSTEM) },
+                icon = Icons.Outlined.Settings
+            )
+
+            ThemeOption(
+                title = "Light Mode",
+                subtitle = "Always use light theme",
+                isSelected = selectedTheme == ThemeMode.LIGHT,
+                onClick = { onThemeSelect(ThemeMode.LIGHT) },
+                icon = Icons.Outlined.LightMode
+            )
+
+            ThemeOption(
+                title = "Dark Mode",
+                subtitle = "Always use dark theme",
+                isSelected = selectedTheme == ThemeMode.DARK,
+                onClick = { onThemeSelect(ThemeMode.DARK) },
+                icon = Icons.Outlined.DarkMode
+            )
         }
 
-        // Dynamic Theme toggle
+        // Dynamic theme toggle (only on Android 12+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = 8.dp),
-                thickness = DividerDefaults.Thickness,
-                color = DividerDefaults.color
+                Modifier, DividerDefaults.Thickness, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onDynamicThemeToggle(!isDynamicThemeEnabled) }
+                    .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Dynamic Colors",
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "Use colors from your wallpaper",
@@ -260,6 +267,7 @@ private fun ThemeCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
                 Switch(
                     checked = isDynamicThemeEnabled,
                     onCheckedChange = onDynamicThemeToggle
@@ -270,88 +278,161 @@ private fun ThemeCard(
 }
 
 @Composable
+private fun OnboardingCardHeader(
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun ThemeOption(
+    title: String,
+    subtitle: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    icon: ImageVector,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = isSelected,
+            onClick = onClick
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = if (isSelected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            modifier = Modifier.size(24.dp)
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                }
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
 private fun NotificationCard(
     isNotificationEnabled: Boolean,
     selectedTime: NotificationTime,
     onNotificationToggle: (Boolean) -> Unit,
-    onTimeSelect: (NotificationTime) -> Unit
+    onTimeSelect: (NotificationTime) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Icon(
-            imageVector = Icons.Default.Notifications,
-            contentDescription = null,
-            modifier = Modifier.size(48.dp),
-            tint = MaterialTheme.colorScheme.primary
+        // Header
+        OnboardingCardHeader(
+            title = "Daily Reminders",
+            subtitle = "Get reminded to read a daily Sunnah"
         )
 
-        Text(
-            text = "Daily Reminders",
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        Text(
-            text = "Get gentle reminders to read a Sunnah daily",
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
+        // Notification toggle
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onNotificationToggle(!isNotificationEnabled) }
+                .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Enable Daily Reminders",
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Enable Daily Reminders",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Receive gentle reminders to stay connected with the Sunnah",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
             Switch(
                 checked = isNotificationEnabled,
                 onCheckedChange = onNotificationToggle
             )
         }
 
-        // Time selection (only shown when notifications are enabled)
-        AnimatedVisibility(visible = isNotificationEnabled) {
+        // Time selection (only visible when notifications enabled)
+        AnimatedVisibility(
+            visible = isNotificationEnabled,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                Divider(
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                )
+
                 Text(
                     text = "Preferred Time",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 8.dp)
                 )
 
                 NotificationTime.entries.forEach { time ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = selectedTime == time,
-                                onClick = { onTimeSelect(time) }
-                            )
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = selectedTime == time,
-                            onClick = { onTimeSelect(time) }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = when (time) {
-                                NotificationTime.MORNING -> "Morning (8:00 AM)"
-                                NotificationTime.EVENING -> "Evening (6:00 PM)"
-                                NotificationTime.NIGHT -> "Night (9:00 PM)"
-                            },
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
+                    NotificationTimeOption(
+                        time = time,
+                        isSelected = selectedTime == time,
+                        onClick = { onTimeSelect(time) }
+                    )
                 }
             }
         }
@@ -359,67 +440,157 @@ private fun NotificationCard(
 }
 
 @Composable
+private fun NotificationTimeOption(
+    time: NotificationTime,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val (timeText, descriptionText) = when (time) {
+        NotificationTime.MORNING -> "Morning (8:00 AM)" to "Start your day with a Sunnah"
+        NotificationTime.EVENING -> "Evening (6:00 PM)" to "Wind down with reflection"
+        NotificationTime.NIGHT -> "Night (9:00 PM)" to "End your day peacefully"
+    }
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { onClick() }
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = isSelected,
+            onClick = onClick
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = timeText,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                }
+            )
+            Text(
+                text = descriptionText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
 private fun WelcomeCard(
-    username: String
+    username: String,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Welcome illustration or icon
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.AutoAwesome,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
+
+        // Welcome message
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "Welcome, ${username}!",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+
+            Text(
+                text = "You're all set to begin your journey with the beautiful Sunnahs of Prophet Muhammad ﷺ",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                lineHeight = 24.sp
+            )
+        }
+
+        // Features preview
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            WelcomeFeatureItem(
+                icon = Icons.AutoMirrored.Default.MenuBook,
+                title = "500+ Authentic Sunnahs",
+                description = "Explore a comprehensive collection"
+            )
+
+            WelcomeFeatureItem(
+                icon = Icons.Outlined.Bookmark,
+                title = "Personal Bookmarks",
+                description = "Save your favorite Sunnahs"
+            )
+
+            WelcomeFeatureItem(
+                icon = Icons.Outlined.Schedule,
+                title = "Daily Reminders",
+                description = "Stay connected every day"
+            )
+        }
+    }
+}
+
+@Composable
+private fun WelcomeFeatureItem(
+    icon: ImageVector,
+    title: String,
+    description: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = Icons.Default.CheckCircle,
+            imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(64.dp),
+            modifier = Modifier.size(20.dp),
             tint = MaterialTheme.colorScheme.primary
         )
 
-        Text(
-            text = "Welcome, $username!",
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Spacer(modifier = Modifier.width(12.dp))
 
-        Text(
-            text = "Your app is ready! Explore 500+ authentic Sunnahs with beautiful Arabic texts, English translations, and reliable references.",
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+        Column {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
             )
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "✨ Features you'll love:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                val features = listOf(
-                    "Daily Sunnah of the Day",
-                    "Search and bookmark your favorites",
-                    "Beautiful Arabic calligraphy",
-                    "Authentic references included",
-                    "Works completely offline"
-                )
-
-                features.forEach { feature ->
-                    Text(
-                        text = "• $feature",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
