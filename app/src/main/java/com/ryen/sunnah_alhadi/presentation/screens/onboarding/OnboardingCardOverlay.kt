@@ -26,22 +26,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -268,89 +262,8 @@ private fun StepDot(
     )
 }
 
-@Composable
-fun OnboardingNavigationButtons(
-    canGoToPrevious: Boolean,
-    canProceedToNext: Boolean,
-    isLastStep: Boolean,
-    onPrevious: () -> Unit,
-    onNext: () -> Unit,
-    onComplete: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = if (canGoToPrevious) {
-            Arrangement.SpaceBetween
-        } else {
-            Arrangement.End
-        }
-    ) {
-        // Previous button (only show if not first step)
-        if (canGoToPrevious) {
-            OutlinedButton(
-                onClick = onPrevious,
-                modifier = Modifier.height(48.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Previous")
-            }
-        }
 
-        // Next/Complete button
-        if (isLastStep) {
-            Button(
-                onClick = onComplete,
-                modifier = Modifier.height(48.dp)
-            ) {
-                Text("Get Started")
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        } else {
-            Button(
-                onClick = onNext,
-                enabled = canProceedToNext,
-                modifier = Modifier.height(48.dp)
-            ) {
-                Text("Next")
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        }
-    }
-}
 
-@Preview
-@Composable
-private fun OBPrevButtons() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp)),
-    ) {
-        OnboardingNavigationButtons(
-            canGoToPrevious = false,
-            canProceedToNext = true,
-            isLastStep = false,
-            onPrevious = {},
-            onNext = {},
-            onComplete = {}
-        )
-
-    }
-}
 @Preview
 @Composable
 private fun OBPrevStepDots() {

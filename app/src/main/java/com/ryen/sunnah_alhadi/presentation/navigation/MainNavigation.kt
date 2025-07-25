@@ -57,6 +57,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
@@ -69,282 +70,372 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
+import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingCardOverlay
 
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun MainNavigation() {
-    // Determine screen size class
+fun MainNavigation(showOnboarding: Boolean) {
+
+    // Screen size detection
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val isCompact = !windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
 
-    // State for navigation rail expansion and toolbar expansion
-    var isNavRailExpanded by rememberSaveable { mutableStateOf(false) }
-    var isToolbarExpanded by rememberSaveable { mutableStateOf(true) }
-
-    // Navigation back stack for all destinations
+    // Navigation state
     val backStack = rememberNavBackStack(Home)
-
-    // Current top-level destination (derived from back stack)
-    val currentNavKey = backStack.lastOrNull()
-
-    val twoPaneStrategy = remember { TwoPaneSceneStrategy<Any>() }
-
-    // Define top-level destinations for the toolbar/navigation rail
     val topLevelDestinations = listOf(Home, Browse, Preferences)
 
-    // Material 3 Expressive vibrant colors for the toolbar/rail
-    val toolbarColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
-
-    // Shared NavDisplay composable to avoid duplication
-    @Composable
-    fun NavigationContent(modifier: Modifier = Modifier) {
-        SharedTransitionLayout {
-            // Create the decorator INSIDE SharedTransitionLayout where the scope is available
-            val sharedEntryInSceneNavEntryDecorator = navEntryDecorator<NavKey> { entry ->
-                if (isCompact) {
-                    entry.Content()
-                } else {
-                    Box(
-                        Modifier.sharedElement(
-                            rememberSharedContentState(entry.contentKey),
-                            animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                        ),
-                    ) {
-                        entry.Content()
-                    }
-                }
-            }
-
-            NavDisplay(
-                modifier = modifier,
+    // Onboarding integration with backdrop overlay
+    OnboardingCardOverlay(
+        showOnboarding = showOnboarding,
+        onDismiss = {
+            // Handle onboarding dismissal - mark as completed
+            // This will be handled by OnboardingViewModel internally
+        }
+    ) {
+        // Main app content underneath onboarding overlay
+        if (isCompact) {
+            CompactScreenLayout(
                 backStack = backStack,
-                onBack = { keysToRemove -> repeat(keysToRemove) { backStack.removeLastOrNull() } },
-                entryDecorators = listOf(
-                    sharedEntryInSceneNavEntryDecorator,
-                    rememberSceneSetupNavEntryDecorator(),
-                    rememberSavedStateNavEntryDecorator()
-                ),
-                sceneStrategy = twoPaneStrategy,
-                transitionSpec = {
-                    slideInHorizontally(initialOffsetX = { it }) togetherWith
-                            slideOutHorizontally(targetOffsetX = { -it })
-                },
-                popTransitionSpec = {
-                    // Slide in from left when navigating back
-                    slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                            slideOutHorizontally(targetOffsetX = { it })
-                },
-                predictivePopTransitionSpec = {
-                    // Slide in from left when navigating back
-                    slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                            slideOutHorizontally(targetOffsetX = { it })
-                },
-                entryProvider = entryProvider {
-                    entry<Home>(
-                        metadata = TwoPaneScene.twoPane()
-                    ) {
-                        ContentRed("Welcome to Nav3") {
-                            Button(onClick = { backStack.addTopicRoute(1) }) {
-                                Text("View the first topic")
-                            }
-                        }
-                    }
-                    entry<Topic>(
-                        metadata = TwoPaneScene.twoPane()
-                    ) { topic ->
-                        ContentBase(
-                            "Topic: ${topic.categoryId}",
-                            Modifier.background(Color.Blue.copy(alpha = 0.1f))
-                        ) {
-                            Text("This is topic ${topic.categoryId}")
-                            Button(onClick = { backStack.removeLastOrNull() }) {
-                                Text("Go Back")
-                            }
-                        }
-                    }
-                    entry<AllTopic>(
-                        metadata = TwoPaneScene.twoPane()
-                    ) {
-                        ContentBase(
-                            "All Topics",
-                            Modifier.background(Color.Cyan)
-                        ) {
-                            LazyColumn(
-                                state = rememberLazyListState(),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                val list = (0..75).map { it.toString() }
-                                items(list) { item ->
-                                    Text(
-                                        text = "Topic $item",
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 16.dp)
-                                            .clickable { backStack.addTopicRoute(item.toInt()) }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    entry<Browse> {
-                        ContentBase(
-                            "Browse",
-                            Modifier.background(Color.Yellow)
-                        ) {
-                            LazyColumn(
-                                state = rememberLazyListState(),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                val list = (0..75).map { it.toString() }
-                                items(list) { item ->
-                                    Text(
-                                        text = "Browse Item $item",
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 16.dp)
-                                            .clickable { backStack.addTopicRoute(item.toInt()) }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    entry<Saved> {
-                        ContentGreen("Saved Topics")
-                    }
-                    entry<Preferences> {
-                        ContentGreen("Preferences (single pane only)")
-                    }
-                }
+                topLevelDestinations = topLevelDestinations
+            )
+        } else {
+            ExpandedScreenLayout(
+                backStack = backStack,
+                topLevelDestinations = topLevelDestinations
             )
         }
     }
+}
 
-    if (isCompact) {
-        // Compact screen: Use HorizontalFloatingToolbar in content slot
-        Scaffold(
-            topBar = {
-                CustomTopBar(
-                    isTopLevel = backStack.lastOrNull() in topLevelDestinations,
-                    onNavigateBack = { backStack.removeLastOrNull() },
-                    onOrbClick = {  },
-                    onInfoClick = {  }
-                )
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun CompactScreenLayout(
+    backStack: SnapshotStateList<NavKey>,
+    topLevelDestinations: List<NavKey>
+) {
+    // State for toolbar expansion
+    var isToolbarExpanded by rememberSaveable { mutableStateOf(true) }
+
+    Scaffold(
+        topBar = {
+            AppTopBar(
+                isTopLevel = backStack.lastOrNull() in topLevelDestinations,
+                onNavigateBack = { backStack.removeLastOrNull() }
+            )
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            // Main navigation content
+            NavigationContent(
+                backStack = backStack,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            // Bottom floating toolbar
+            BottomFloatingToolbar(
+                expanded = isToolbarExpanded,
+                topLevelDestinations = topLevelDestinations,
+                backStack = backStack,
+                onItemSelected = { isToolbarExpanded = true },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ExpandedScreenLayout(
+    backStack: SnapshotStateList<NavKey>,
+    topLevelDestinations: List<NavKey>
+) {
+    // State for navigation rail expansion
+    var isNavRailExpanded by rememberSaveable { mutableStateOf(false) }
+
+    Row(modifier = Modifier.fillMaxSize()) {
+        SideNavigationRail(
+            expanded = isNavRailExpanded,
+            topLevelDestinations = topLevelDestinations,
+            currentDestination = backStack.lastOrNull(),
+            onToggleExpansion = { isNavRailExpanded = !isNavRailExpanded },
+            onDestinationSelected = { destination ->
+                backStack.clear()
+                backStack.add(destination)
             }
-        ) { innerPadding ->
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                NavigationContent(Modifier.fillMaxSize())
-                HorizontalFloatingToolbar(
-                    expanded = isToolbarExpanded,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp),
+        )
 
-                    colors = toolbarColors,
-                    content = {
-                        AppBarRow(
-                            overflowIndicator = { menuState ->
-                                IconButton(
-                                    onClick = {
-                                        if (menuState.isExpanded) {
-                                            menuState.dismiss()
-                                        } else {
-                                            menuState.show()
-                                        }
-                                    },
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.MoreVert,
-                                        contentDescription = "More options",
-                                    )
-                                }
-                            },
-                        ) {
-                            topLevelDestinations.forEach { destination ->
-                                clickableItem(
-                                    onClick = {
-                                        // Clear back stack and add the selected destination
-                                        backStack.clear()
-                                        backStack.add(destination)
-                                        isToolbarExpanded = true // Expand toolbar on selection
-                                    },
-                                    icon = {
-                                        Icon(
-                                            imageVector = when (destination) {
-                                                is Home -> Icons.Filled.Home
-                                                is Browse -> Icons.AutoMirrored.Filled.List
-                                                is Preferences -> Icons.Filled.Person
-                                                else -> Icons.Filled.Info
-                                            },
-                                            contentDescription = destination.toString()
-                                        )
-                                    },
-                                    label = destination.toString()
-                                )
-                            }
-                        }
-                    }
-                )
+        NavigationContent(
+            backStack = backStack,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
+private fun NavigationContent(
+    backStack: SnapshotStateList<NavKey>,
+    modifier: Modifier = Modifier
+) {
+    val twoPaneStrategy = remember { TwoPaneSceneStrategy<NavKey>() }
+
+    SharedTransitionLayout {
+        // Shared transition decorator for smooth animations
+        val sharedEntryDecorator = navEntryDecorator<NavKey> { entry ->
+            val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+            val isCompact = !windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
+
+            if (isCompact) {
+                entry.Content()
+            } else {
+                Box(
+                    Modifier.sharedElement(
+                        rememberSharedContentState(entry.contentKey),
+                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                    )
+                ) {
+                    entry.Content()
+                }
             }
         }
-    } else {
-        // large screen: Use NavigationRail
-        Row(Modifier.fillMaxSize()) {
-            NavigationRail(
-                modifier = Modifier
-                    .width(if (isNavRailExpanded) 240.dp else 80.dp)
-                    .fillMaxHeight(),
-                header = {
-                    FilledIconButton(
-                        onClick = { isNavRailExpanded = !isNavRailExpanded },
-                        modifier = Modifier.padding(8.dp)
+
+        NavDisplay(
+            modifier = modifier,
+            backStack = backStack,
+            onBack = { keysToRemove -> repeat(keysToRemove) { backStack.removeLastOrNull() } },
+            entryDecorators = listOf(
+                sharedEntryDecorator,
+                rememberSceneSetupNavEntryDecorator(),
+                rememberSavedStateNavEntryDecorator()
+            ),
+            sceneStrategy = twoPaneStrategy,
+            transitionSpec = {
+                slideInHorizontally(initialOffsetX = { it }) togetherWith
+                        slideOutHorizontally(targetOffsetX = { -it })
+            },
+            popTransitionSpec = {
+                slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                        slideOutHorizontally(targetOffsetX = { it })
+            },
+            predictivePopTransitionSpec = {
+                slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                        slideOutHorizontally(targetOffsetX = { it })
+            },
+            entryProvider = createEntryProvider(backStack)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun BottomFloatingToolbar(
+    expanded: Boolean,
+    topLevelDestinations: List<NavKey>,
+    backStack: SnapshotStateList<NavKey>,
+    onItemSelected: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val toolbarColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
+
+    HorizontalFloatingToolbar(
+        expanded = expanded,
+        modifier = modifier,
+        colors = toolbarColors,
+        content = {
+            AppBarRow(
+                overflowIndicator = { menuState ->
+                    IconButton(
+                        onClick = {
+                            if (menuState.isExpanded) {
+                                menuState.dismiss()
+                            } else {
+                                menuState.show()
+                            }
+                        }
                     ) {
                         Icon(
-                            imageVector = if (isNavRailExpanded) Icons.AutoMirrored.Filled.MenuOpen else Icons.Filled.Menu,
-                            contentDescription = "Toggle Navigation Rail"
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "More options"
                         )
                     }
                 }
             ) {
                 topLevelDestinations.forEach { destination ->
-                    val selected = currentNavKey == destination
-                    NavigationRailItem(
-                        selected = selected,
+                    clickableItem(
                         onClick = {
-                            // Clear back stack and add the selected destination
                             backStack.clear()
                             backStack.add(destination)
+                            onItemSelected()
                         },
                         icon = {
                             Icon(
-                                imageVector = when (destination) {
-                                    is Home -> Icons.Filled.Home
-                                    is Browse -> Icons.AutoMirrored.Filled.List
-                                    is Preferences -> Icons.Filled.Person
-                                    else -> Icons.Filled.Info
-                                },
+                                imageVector = getDestinationIcon(destination),
                                 contentDescription = destination.toString()
                             )
                         },
-                        label = if (isNavRailExpanded) {
-                            { Text(destination.toString()) }
-                        } else {
-                            null
-                        }
+                        label = destination.toString()
                     )
                 }
             }
-            NavigationContent(Modifier.fillMaxSize())
+        }
+    )
+}
+
+@Composable
+private fun SideNavigationRail(
+    expanded: Boolean,
+    topLevelDestinations: List<NavKey>,
+    currentDestination: NavKey?,
+    onToggleExpansion: () -> Unit,
+    onDestinationSelected: (NavKey) -> Unit
+) {
+    NavigationRail(
+        modifier = Modifier
+            .width(if (expanded) 240.dp else 80.dp)
+            .fillMaxHeight(),
+        header = {
+            FilledIconButton(
+                onClick = onToggleExpansion,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Icon(
+                    imageVector = if (expanded) Icons.AutoMirrored.Filled.MenuOpen else Icons.Filled.Menu,
+                    contentDescription = "Toggle Navigation Rail"
+                )
+            }
+        }
+    ) {
+        topLevelDestinations.forEach { destination ->
+            val selected = currentDestination == destination
+            NavigationRailItem(
+                selected = selected,
+                onClick = { onDestinationSelected(destination) },
+                icon = {
+                    Icon(
+                        imageVector = getDestinationIcon(destination),
+                        contentDescription = destination.toString()
+                    )
+                },
+                label = if (expanded) {
+                    { Text(destination.toString()) }
+                } else {
+                    null
+                }
+            )
         }
     }
 }
 
+@Composable
+private fun AppTopBar(
+    isTopLevel: Boolean,
+    onNavigateBack: () -> Unit
+) {
+    CustomTopBar(
+        isTopLevel = isTopLevel,
+        onNavigateBack = onNavigateBack,
+        onOrbClick = { },
+        onInfoClick = { }
+    )
+}
+
+// Helper function to get destination icons
+private fun getDestinationIcon(destination: NavKey): ImageVector {
+    return when (destination) {
+        is Home -> Icons.Filled.Home
+        is Browse -> Icons.AutoMirrored.Filled.List
+        is Preferences -> Icons.Filled.Person
+        else -> Icons.Filled.Info
+    }
+}
+
+// Entry provider factory function
+private fun createEntryProvider(backStack: SnapshotStateList<NavKey>) = entryProvider<NavKey> {
+    entry<Home>(
+        metadata = TwoPaneScene.twoPane()
+    ) {
+        ContentRed("Welcome to Nav3") {
+            Button(onClick = { backStack.addTopicRoute(1) }) {
+                Text("View the first topic")
+            }
+        }
+    }
+
+    entry<Topic>(
+        metadata = TwoPaneScene.twoPane()
+    ) { topic ->
+        ContentBase(
+            "Topic: ${topic.categoryId}",
+            Modifier.background(Color.Blue.copy(alpha = 0.1f))
+        ) {
+            Text("This is topic ${topic.categoryId}")
+            Button(onClick = { backStack.removeLastOrNull() }) {
+                Text("Go Back")
+            }
+        }
+    }
+
+    entry<AllTopic>(
+        metadata = TwoPaneScene.twoPane()
+    ) {
+        ContentBase(
+            "All Topics",
+            Modifier.background(Color.Cyan)
+        ) {
+            LazyColumn(
+                state = rememberLazyListState(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val list = (0..75).map { it.toString() }
+                items(list) { item ->
+                    Text(
+                        text = "Topic $item",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .clickable { backStack.addTopicRoute(item.toInt()) }
+                    )
+                }
+            }
+        }
+    }
+
+    entry<Browse> {
+        ContentBase(
+            "Browse",
+            Modifier.background(Color.Yellow)
+        ) {
+            LazyColumn(
+                state = rememberLazyListState(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val list = (0..75).map { it.toString() }
+                items(list) { item ->
+                    Text(
+                        text = "Browse Item $item",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .clickable { backStack.addTopicRoute(item.toInt()) }
+                    )
+                }
+            }
+        }
+    }
+
+    entry<Preferences> {
+        ContentGreen("Preferences (single pane only)")
+    }
+}
+
+// Extension function for adding topic routes
 private fun SnapshotStateList<NavKey>.addTopicRoute(topicId: Int) {
     val topicRoute = Topic("$topicId")
     if (!contains(topicRoute)) {
