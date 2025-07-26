@@ -21,17 +21,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.automirrored.outlined.MenuBook
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Bookmark
@@ -59,13 +56,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
+import com.ryen.sunnah_alhadi.presentation.util.DynamicAppTypography
 import com.ryen.sunnah_alhadi.presentation.util.getUsernameCharacterCount
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
@@ -521,6 +518,7 @@ private fun WelcomeCard(
         ) {
             Text(
                 text = "Welcome, ${username}!",
+                maxLines = 2,
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
@@ -628,7 +626,17 @@ private fun OnboardingNavigationButtons(
                 onClick = onComplete,
                 modifier = Modifier.fillMaxWidth(if (canGoToPrevious) 0.6f else 1f)
             ) {
-                Text("Get Started")
+                BasicText(
+                    text = "Get Started",
+                    style = DynamicAppTypography.bodyMedium().copy(
+                        color = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    maxLines = 2,
+                    autoSize = TextAutoSize.StepBased(
+                        minFontSize = DynamicAppTypography.bodyMedium().fontSize * .5,
+                        maxFontSize = DynamicAppTypography.bodyMedium().fontSize
+                    )
+                )
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowForward,
@@ -661,8 +669,8 @@ fun OnboardingNavigationButtonPrev() {
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp)),
     ) {
         OnboardingNavigationButtons(
-            currentStep = OnboardingStep.THEME,
-            canProceedToNext = true,
+            currentStep = OnboardingStep.WELCOME,
+            canProceedToNext = false,
             canGoToPrevious = true,
             onNext = {},
             onPrevious = {},
@@ -671,18 +679,18 @@ fun OnboardingNavigationButtonPrev() {
     }
 }
 
-@Preview
+@Preview(widthDp = 240)
 @Composable
 fun OnboardingCardsPrev() {
     SunnahAlHadiTheme(
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp)),
     ) {
         OnboardingCard(
-            step = OnboardingStep.USERNAME,
-            uiState = OnboardingUiState(),
+            step = OnboardingStep.WELCOME,
+            uiState = OnboardingUiState(username = "Sarfraz"),
             onEvent = {},
             canProceedToNext = true,
-            canGoToPrevious = false
+            canGoToPrevious = true
         )
     }
 }

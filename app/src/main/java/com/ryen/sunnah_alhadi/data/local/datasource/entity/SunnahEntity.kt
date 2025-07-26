@@ -32,8 +32,8 @@ data class SunnahEntity(
     val categoryId: Int,
     val title: String,
     val body: List<ContentBlock>,
-    val references: List<Reference>?,  // optional
-    val extra: List<ExtraContent>?     // optional
+    val references: List<Reference>?,
+    val extra: List<ExtraContent>?
 )
 
 data class SunnahWithBookmark(
@@ -42,7 +42,6 @@ data class SunnahWithBookmark(
     @ColumnInfo(name = "bookmarkedAt") val bookmarkedAt: Long? = null
 )
 
-// Fixed SubtypeSerializer
 object SubtypeSerializer : KSerializer<Any> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Subtype", PrimitiveKind.STRING)
 
