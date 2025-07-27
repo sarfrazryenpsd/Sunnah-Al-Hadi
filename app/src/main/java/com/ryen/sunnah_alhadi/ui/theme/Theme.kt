@@ -27,7 +27,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ryen.sunnah_alhadi.presentation.util.DefaultCategoryGradientProvider
 import com.ryen.sunnah_alhadi.presentation.util.DynamicTypographyProvider
+import com.ryen.sunnah_alhadi.presentation.util.LocalCategoryGradients
 
 // Theme preferences
 enum class ThemeMode {
@@ -263,7 +265,8 @@ fun SunnahAlHadiTheme(
         SharedTransitionLayout {
             CompositionLocalProvider(
                 LocalSharedTransitionScope provides this,
-                LocalDynamicDimensions provides dimensions
+                LocalDynamicDimensions provides dimensions,
+                LocalCategoryGradients provides DefaultCategoryGradientProvider
                 ) {
                 DynamicTypographyProvider(windowSizeClass) {
                     content()
