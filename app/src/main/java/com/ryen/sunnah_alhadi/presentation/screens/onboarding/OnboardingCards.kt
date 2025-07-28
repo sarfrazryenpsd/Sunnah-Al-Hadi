@@ -62,7 +62,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
-import com.ryen.sunnah_alhadi.presentation.util.DynamicAppTypography
 import com.ryen.sunnah_alhadi.presentation.util.getUsernameCharacterCount
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
@@ -628,13 +627,13 @@ private fun OnboardingNavigationButtons(
             ) {
                 BasicText(
                     text = "Get Started",
-                    style = DynamicAppTypography.bodyMedium().copy(
+                    style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onPrimary
                     ),
                     maxLines = 2,
                     autoSize = TextAutoSize.StepBased(
-                        minFontSize = DynamicAppTypography.bodyMedium().fontSize * .5,
-                        maxFontSize = DynamicAppTypography.bodyMedium().fontSize
+                        minFontSize = MaterialTheme.typography.bodyMedium.fontSize * .5,
+                        maxFontSize = MaterialTheme.typography.bodyMedium.fontSize
                     )
                 )
                 Spacer(modifier = Modifier.width(4.dp))

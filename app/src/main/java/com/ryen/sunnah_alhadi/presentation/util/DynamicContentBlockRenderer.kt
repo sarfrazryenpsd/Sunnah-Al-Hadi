@@ -16,8 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +30,6 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.ContentBlock
@@ -44,6 +41,7 @@ import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicTextConfig
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
+import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
 /**
  * Dynamic Content Style Resolver that adapts to different screen sizes
@@ -61,20 +59,20 @@ object DynamicContentStyleResolver {
     @Composable
     private fun getArabicStyle(subtype: Any): TextStyle {
         return when (subtype) {
-            ArabicSubtype.VERSE -> DynamicArabicTypography.quranicVerse()
-            ArabicSubtype.SUPPLICATION -> DynamicArabicTypography.supplication()
-            ArabicSubtype.HONORIFIC -> DynamicArabicTypography.honorific()
-            ArabicSubtype.OTHER -> DynamicArabicTypography.other()
-            else -> DynamicArabicTypography.other() // Fallback for string subtypes
+            ArabicSubtype.VERSE -> MaterialTheme.appTypography.arabicVerse
+            ArabicSubtype.SUPPLICATION -> MaterialTheme.appTypography.arabicSupplication
+            ArabicSubtype.HONORIFIC -> MaterialTheme.appTypography.arabicHonorific
+            ArabicSubtype.OTHER -> MaterialTheme.appTypography.arabicOther
+            else -> MaterialTheme.appTypography.arabicOther // Fallback for string subtypes
         }
     }
 
     @Composable
     private fun getEnglishStyle(subtype: Any): TextStyle {
         return when (subtype) {
-            EnglishSubtype.NORMAL -> DynamicContentTypography.englishBodyNormal()
-            EnglishSubtype.TRANSLATION -> DynamicContentTypography.englishBodyTranslation()
-            else -> DynamicContentTypography.englishBodyNormal() // Fallback for string subtypes
+            EnglishSubtype.NORMAL -> MaterialTheme.appTypography.englishBodyNormal
+            EnglishSubtype.TRANSLATION -> MaterialTheme.appTypography.englishBodyTranslation
+            else -> MaterialTheme.appTypography.englishBodyNormal // Fallback for string subtypes
         }
     }
 
@@ -122,10 +120,9 @@ object DynamicContentStyleResolver {
 @Composable
 fun DynamicContentBlockRenderer(
     contentBlocks: List<ContentBlock>,
-    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
-    DynamicTypographyProvider(windowSizeClass = windowSizeClass) {
+
         val blockSpacing = DynamicContentStyleResolver.getBlockSpacing()
 
         Column(
@@ -139,7 +136,6 @@ fun DynamicContentBlockRenderer(
                 )
             }
         }
-    }
 }
 
 @Composable
@@ -275,9 +271,9 @@ private fun DynamicMixedContentRenderer(
 @Composable
 private fun determineDynamicArabicStyle(arabicText: String, commonPhrases: List<String>): TextStyle {
     return when {
-        commonPhrases.any { arabicText.contains(it) } -> DynamicArabicTypography.honorific()
-        arabicText.length > 50 -> DynamicArabicTypography.quranicVerse() // Likely a verse
-        else -> DynamicArabicTypography.supplication()
+        commonPhrases.any { arabicText.contains(it) } -> MaterialTheme.appTypography.arabicHonorific
+        arabicText.length > 50 -> MaterialTheme.appTypography.arabicVerse // Likely a verse
+        else -> MaterialTheme.appTypography.arabicSupplication
     }
 }
 
@@ -310,11 +306,10 @@ private fun containsMixedLanguages(content: String): Boolean {
 @Composable
 fun DynamicReferenceRenderer(
     references: List<Reference>,
-    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
     if (references.isNotEmpty()) {
-        DynamicTypographyProvider(windowSizeClass = windowSizeClass) {
+
             val screenSize = LocalDynamicTextConfig.current.screenSize
             val topPadding = when (screenSize) {
                 ScreenSize.COMPACT -> 16.dp
@@ -333,7 +328,7 @@ fun DynamicReferenceRenderer(
             ) {
                 Text(
                     text = "References:",
-                    style = DynamicContentTypography.reference().copy(
+                    style = MaterialTheme.appTypography.reference.copy(
                         fontStyle = FontStyle.Italic
                     ),
                     color = MaterialTheme.colorScheme.outline
@@ -342,14 +337,14 @@ fun DynamicReferenceRenderer(
                 references.forEach { reference ->
                     Text(
                         text = "• ${reference.source}",
-                        style = DynamicContentTypography.reference(),
+                        style = MaterialTheme.appTypography.reference,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
             }
         }
-    }
+
 }
 
 /**
@@ -358,11 +353,9 @@ fun DynamicReferenceRenderer(
 @Composable
 fun DynamicExtraContentRenderer(
     extraContent: List<ExtraContent>,
-    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
     if (extraContent.isNotEmpty()) {
-        DynamicTypographyProvider(windowSizeClass = windowSizeClass) {
             val screenSize = LocalDynamicTextConfig.current.screenSize
             val topPadding = when (screenSize) {
                 ScreenSize.COMPACT -> 16.dp
@@ -382,19 +375,16 @@ fun DynamicExtraContentRenderer(
                 extraContent.forEach { extra ->
                     DynamicExtraContentSection(
                         extraContent = extra,
-                        windowSizeClass = windowSizeClass,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
-        }
     }
 }
 
 @Composable
 private fun DynamicExtraContentSection(
     extraContent: ExtraContent,
-    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
     val screenSize = LocalDynamicTextConfig.current.screenSize
@@ -428,14 +418,13 @@ private fun DynamicExtraContentSection(
             // Section header
             Text(
                 text = getExtraContentTitle(extraContent.type),
-                style = DynamicAppTypography.titleSmall(),
+                style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary
             )
 
             // Section content
             DynamicContentBlockRenderer(
                 contentBlocks = extraContent.content,
-                windowSizeClass = windowSizeClass,
                 modifier = Modifier.padding(start = contentPadding)
             )
         }
@@ -572,17 +561,8 @@ object PreviewData {
     )
 }
 
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Composable
-fun previewWindowSizeClass(screenWidthDp: Int, screenHeightDp: Int): WindowSizeClass {
-    val size = DpSize(screenWidthDp.dp, screenHeightDp.dp)
-    return WindowSizeClass.calculateFromSize(size)
-}
-
 @Composable
 fun DynamicContentPreviewWrapper(
-    windowSizeClass: WindowSizeClass,
     contentBlocks: List<ContentBlock>,
     references: List<Reference> = emptyList(),
     extraContent: List<ExtraContent> = emptyList()
@@ -594,21 +574,18 @@ fun DynamicContentPreviewWrapper(
     ) {
         DynamicContentBlockRenderer(
             contentBlocks = contentBlocks,
-            windowSizeClass = windowSizeClass
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         DynamicExtraContentRenderer(
             extraContent = extraContent,
-            windowSizeClass = windowSizeClass
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         DynamicReferenceRenderer(
             references = references,
-            windowSizeClass = windowSizeClass
         )
     }
 }
@@ -617,7 +594,6 @@ fun DynamicContentPreviewWrapper(
 @Composable
 fun PreviewMixedCompact() {
     DynamicContentPreviewWrapper(
-        windowSizeClass = previewWindowSizeClass(400, 640),
         contentBlocks = PreviewData.mixedContentBlocks,
         references = PreviewData.sampleReferences,
         extraContent = PreviewData.sampleExtraContent
@@ -628,7 +604,6 @@ fun PreviewMixedCompact() {
 @Composable
 fun PreviewMixedMedium() {
     DynamicContentPreviewWrapper(
-        windowSizeClass = previewWindowSizeClass(600, 800),
         contentBlocks = PreviewData.mixedContentBlocks,
         references = PreviewData.sampleReferences,
         extraContent = PreviewData.sampleExtraContent
@@ -639,7 +614,6 @@ fun PreviewMixedMedium() {
 @Composable
 fun PreviewMixedExpanded() {
     DynamicContentPreviewWrapper(
-        windowSizeClass = previewWindowSizeClass(840, 1024),
         contentBlocks = PreviewData.mixedContentBlocks,
         references = PreviewData.sampleReferences,
         extraContent = PreviewData.sampleExtraContent
@@ -650,7 +624,6 @@ fun PreviewMixedExpanded() {
 @Composable
 fun PreviewArabicMedium() {
     DynamicContentPreviewWrapper(
-        windowSizeClass = previewWindowSizeClass(600, 800),
         contentBlocks = PreviewData.pureArabicBlocks
     )
 }
@@ -659,7 +632,6 @@ fun PreviewArabicMedium() {
 @Composable
 fun PreviewEnglishCompact() {
     DynamicContentPreviewWrapper(
-        windowSizeClass = previewWindowSizeClass(400, 640),
         contentBlocks = PreviewData.englishBlocks
     )
 }

@@ -32,16 +32,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.room.util.TableInfo
 import coil3.compose.rememberAsyncImagePainter
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.presentation.common.PreviewWrapper
 import com.ryen.sunnah_alhadi.presentation.common.SunnahPreview
-import com.ryen.sunnah_alhadi.presentation.util.DynamicAppTypography
-import com.ryen.sunnah_alhadi.presentation.util.DynamicContentTypography
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicDimensions
+import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
 
 @Composable
@@ -74,7 +71,7 @@ fun TopicCard(
             ) {
                 Text(
                     text = "$numberOfSunnah",
-                    style = DynamicAppTypography.labelSmall()
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
             Row(
@@ -91,19 +88,19 @@ fun TopicCard(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(id = R.string.sunnah_and_manner_of),
-                        style = DynamicAppTypography.labelSmall().copy(
-                            fontSize = DynamicAppTypography.labelSmall().fontSize * 0.9
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.9
                         )
                     )
                     BasicText(
                         text = categoryName,
-                        style = DynamicContentTypography.topicHeading().copy(
-                            lineHeight = DynamicContentTypography.topicHeading().lineHeight * 0.7
+                        style = MaterialTheme.appTypography.topicHeading.copy(
+                            lineHeight = MaterialTheme.appTypography.topicHeading.lineHeight * 0.7
                         ),
                         maxLines = 2,
                         autoSize = TextAutoSize.StepBased(
-                            minFontSize = DynamicContentTypography.topicHeading().fontSize * .6,
-                            maxFontSize = DynamicContentTypography.topicHeading().fontSize
+                            minFontSize = MaterialTheme.appTypography.topicHeading.fontSize * .6,
+                            maxFontSize = MaterialTheme.appTypography.topicHeading.fontSize
                         )
                     )
                 }
@@ -138,7 +135,7 @@ fun TopicScreen(topics: List<TopicUiModel>, userName: String) {
         ) {
             Text(
                 text = "Assalamualaikum",
-                style = DynamicAppTypography.bodySmall(),
+                style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
