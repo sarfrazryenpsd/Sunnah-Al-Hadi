@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.ryen.sunnah_alhadi.R
-import com.ryen.sunnah_alhadi.presentation.common.PreviewWrapper
+import com.ryen.sunnah_alhadi.presentation.common.PreviewWrapperWithFullTheme
 import com.ryen.sunnah_alhadi.presentation.common.SunnahPreview
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicDimensions
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
@@ -171,18 +171,22 @@ fun TopicScreen(topics: List<TopicUiModel>, userName: String) {
     }
 }
 
+@Composable
+fun PreviewSizes(
+    content: @Composable (Int) -> Unit
+) {
+    listOf(360, 600, 840).forEach { width ->
+        content(width)
+    }
+}
 
 @SunnahPreview
 @Composable
-fun TopicScreenPreview() {
-    PreviewWrapper(widthDp = 360) {
-        TopicScreen(topics = previewDummyTopics(), userName = "Sarfraz")
-    }
-    PreviewWrapper(widthDp = 600) {
-        TopicScreen(topics = previewDummyTopics(), userName = "Sarfraz")
-    }
-    PreviewWrapper(widthDp = 840) {
-        TopicScreen(topics = previewDummyTopics(), userName = "Sarfraz")
+fun TopicScreenCleanPreview() {
+    PreviewSizes { width ->
+        PreviewWrapperWithFullTheme(widthDp = width) {
+            TopicScreen(topics = previewDummyTopics(), userName = "Sarfraz")
+        }
     }
 }
 
@@ -201,6 +205,6 @@ fun previewDummyTopics() = listOf(
 data class TopicUiModel(
     val name: String,
     val count: Int,
-    @DrawableRes val imageRes: Int
+    @param:DrawableRes val imageRes: Int
 )
 

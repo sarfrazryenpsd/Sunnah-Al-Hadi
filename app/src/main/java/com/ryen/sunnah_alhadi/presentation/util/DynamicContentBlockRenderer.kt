@@ -39,7 +39,7 @@ import com.ryen.sunnah_alhadi.domain.model.ExtraContent
 import com.ryen.sunnah_alhadi.domain.model.ExtraContentType
 import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
-import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicTextConfig
+import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
@@ -94,7 +94,7 @@ object DynamicContentStyleResolver {
 
     @Composable
     fun getContentPadding(): PaddingValues {
-        val screenSize = LocalDynamicTextConfig.current.screenSize
+        val screenSize = LocalScreenSize.current
         return when (screenSize) {
             ScreenSize.COMPACT -> PaddingValues(horizontal = 4.dp, vertical = 8.dp)
             ScreenSize.MEDIUM -> PaddingValues(horizontal = 6.dp, vertical = 10.dp)
@@ -104,7 +104,7 @@ object DynamicContentStyleResolver {
 
     @Composable
     fun getBlockSpacing(): Dp {
-        val screenSize = LocalDynamicTextConfig.current.screenSize
+        val screenSize = LocalScreenSize.current
         return when (screenSize) {
             ScreenSize.COMPACT -> 12.dp
             ScreenSize.MEDIUM -> 14.dp
@@ -310,7 +310,7 @@ fun DynamicReferenceRenderer(
 ) {
     if (references.isNotEmpty()) {
 
-            val screenSize = LocalDynamicTextConfig.current.screenSize
+        val screenSize = LocalScreenSize.current
             val topPadding = when (screenSize) {
                 ScreenSize.COMPACT -> 16.dp
                 ScreenSize.MEDIUM -> 18.dp
@@ -356,7 +356,7 @@ fun DynamicExtraContentRenderer(
     modifier: Modifier = Modifier
 ) {
     if (extraContent.isNotEmpty()) {
-            val screenSize = LocalDynamicTextConfig.current.screenSize
+            val screenSize = LocalScreenSize.current
             val topPadding = when (screenSize) {
                 ScreenSize.COMPACT -> 16.dp
                 ScreenSize.MEDIUM -> 18.dp
@@ -387,7 +387,7 @@ private fun DynamicExtraContentSection(
     extraContent: ExtraContent,
     modifier: Modifier = Modifier
 ) {
-    val screenSize = LocalDynamicTextConfig.current.screenSize
+    val screenSize = LocalScreenSize.current
     val cornerRadius = when (screenSize) {
         ScreenSize.COMPACT -> 4.dp
         ScreenSize.MEDIUM -> 6.dp

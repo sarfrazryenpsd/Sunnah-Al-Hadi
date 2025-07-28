@@ -1,17 +1,14 @@
 package com.ryen.sunnah_alhadi.presentation.common
 
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
-import com.ryen.sunnah_alhadi.ui.theme.DynamicLineHeightConfig
-import com.ryen.sunnah_alhadi.ui.theme.DynamicTextConfig
-import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicDimensions
-import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicLineHeightConfig
-import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicTextConfig
+import androidx.compose.ui.unit.dp
+import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
-import com.ryen.sunnah_alhadi.ui.theme.getScaleFactors
-import com.ryen.sunnah_alhadi.ui.theme.toDynamicDimensions
+import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
+import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
@@ -21,9 +18,11 @@ import com.ryen.sunnah_alhadi.ui.theme.toDynamicDimensions
 annotation class SunnahPreview
 
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-fun PreviewWrapper(
+fun PreviewWrapperWithFullTheme(
     widthDp: Int = 360,
+    useDarkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val screenSize = when {
@@ -32,23 +31,23 @@ fun PreviewWrapper(
         else -> ScreenSize.EXPANDED
     }
 
-    val scaleFactors = remember(screenSize) { screenSize.getScaleFactors() }
-    val textConfig = remember(screenSize, scaleFactors) {
-        DynamicTextConfig(screenSize, scaleFactors)
-    }
-    val lineHeightConfig = remember(scaleFactors) {
-        DynamicLineHeightConfig(scaleFactors)
-    }
-    val dimensions = remember(screenSize) {
-        screenSize.toDynamicDimensions()
-    }
+    // Mock WindowSizeClass for preview
+    val mockWindowSizeClass = androidx.compose.material3.windowsizeclass.WindowSizeClass.calculateFromSize(
+        size = androidx.compose.ui.unit.DpSize(
+            width = widthDp.dp,
+            height = 800.dp // Default height for preview
+        )
+    )
 
-    CompositionLocalProvider(
-        LocalDynamicTextConfig provides textConfig,
-        LocalDynamicLineHeightConfig provides lineHeightConfig,
-        LocalDynamicDimensions provides dimensions
+    SunnahAlHadiTheme(
+        themeMode = if (useDarkTheme) ThemeMode.DARK else ThemeMode.LIGHT,
+        windowSizeClass = mockWindowSizeClass
     ) {
-        content()
+        CompositionLocalProvider(
+            LocalScreenSize provides screenSize
+        ) {
+            content()
+        }
     }
 }
 
