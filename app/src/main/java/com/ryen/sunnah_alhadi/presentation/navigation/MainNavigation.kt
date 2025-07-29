@@ -72,7 +72,7 @@ import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_L
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
 import com.ryen.sunnah_alhadi.presentation.components.cards.TopicScreen
 import com.ryen.sunnah_alhadi.presentation.components.cards.previewDummyTopics
-import com.ryen.sunnah_alhadi.presentation.components.cards.OnboardingCardOverlay
+import com.ryen.sunnah_alhadi.presentation.components.overlay.OnboardingCardOverlay
 
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
