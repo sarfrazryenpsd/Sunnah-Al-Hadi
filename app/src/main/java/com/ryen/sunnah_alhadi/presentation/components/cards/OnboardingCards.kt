@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 
-package com.ryen.sunnah_alhadi.presentation.screens.onboarding
+package com.ryen.sunnah_alhadi.presentation.components.cards
 
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
@@ -62,6 +62,9 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
+import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingEvent
+import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingStep
+import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingUiState
 import com.ryen.sunnah_alhadi.presentation.util.getUsernameCharacterCount
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
