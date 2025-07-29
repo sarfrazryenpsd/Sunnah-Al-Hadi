@@ -108,8 +108,8 @@ fun SotdCard(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
 
+            Spacer(modifier = Modifier.height(12.dp))
             // Sunnah Content Preview (first few lines)
             DynamicContentBlockRenderer(
                 contentBlocks = sunnah.body, // Show only first 2 blocks
