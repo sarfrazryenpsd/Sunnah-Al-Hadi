@@ -89,7 +89,7 @@ fun TopicCard(
                     Text(
                         text = stringResource(id = R.string.sunnah_and_manner_of),
                         style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.9
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7
                         )
                     )
                     BasicText(

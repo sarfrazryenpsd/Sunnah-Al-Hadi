@@ -7,6 +7,7 @@ interface SunnahRepository {
 
     suspend fun getAllSunnahs(): Result<List<Sunnah>>
     suspend fun getSunnahById(id: String): Result<Sunnah?>
+    suspend fun getSunnahsByIds(sunnahIds: List<String>): List<Sunnah>
     suspend fun getSunnahsByCategory(categoryId: Int): Result<List<Sunnah>>
     suspend fun getRandomSunnahs(): Result<List<Sunnah>>
     suspend fun searchSunnahs(query: String): Result<List<Sunnah>>

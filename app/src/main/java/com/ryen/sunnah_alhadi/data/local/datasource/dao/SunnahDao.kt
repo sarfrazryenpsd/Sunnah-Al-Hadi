@@ -119,4 +119,8 @@ interface SunnahDao {
     """)
     suspend fun getRandomSunnahIdForSotd(excludeIds: List<String>): String
 
+    @Query("SELECT * FROM sunnahs WHERE id IN (:sunnahIds)")
+    suspend fun getSunnahsByIds(sunnahIds: List<String>): List<SunnahEntity>
+
+
 }

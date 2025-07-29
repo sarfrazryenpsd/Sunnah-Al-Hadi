@@ -70,6 +70,8 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
+import com.ryen.sunnah_alhadi.presentation.components.cards.TopicScreen
+import com.ryen.sunnah_alhadi.presentation.components.cards.previewDummyTopics
 import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingCardOverlay
 
 
@@ -359,11 +361,15 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>) = entryPro
     entry<Home>(
         metadata = TwoPaneScene.twoPane()
     ) {
-        ContentRed("Welcome to Nav3") {
+        TopicScreen(
+            topics = previewDummyTopics(),
+            userName = "Sarfraz"
+        )
+        /*ContentRed("Welcome to Nav3") {
             Button(onClick = { backStack.addTopicRoute(1) }) {
                 Text("View the first topic")
             }
-        }
+        }*/
     }
 
     entry<Topic>(

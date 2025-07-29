@@ -276,7 +276,7 @@ object TypographyFactory {
         )
     }
 
-    fun createMaterialTypography(sizes: DynamicSizes): androidx.compose.material3.Typography {
+    fun createMaterialTypography(sizes: DynamicSizes): Typography {
         return Typography(
             displayLarge = createTextStyle(TypographyConfig.TypographyVariant.DisplayLarge, sizes),
             displayMedium = createTextStyle(
