@@ -73,6 +73,7 @@ import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
 import com.ryen.sunnah_alhadi.presentation.components.cards.TopicScreen
 import com.ryen.sunnah_alhadi.presentation.components.cards.previewDummyTopics
 import com.ryen.sunnah_alhadi.presentation.components.overlay.OnboardingCardOverlay
+import com.ryen.sunnah_alhadi.presentation.screens.home.HomeScreen
 
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -361,15 +362,9 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>) = entryPro
     entry<Home>(
         metadata = TwoPaneScene.twoPane()
     ) {
-        TopicScreen(
-            topics = previewDummyTopics(),
-            userName = "Sarfraz"
+        HomeScreen(
+            modifier = Modifier.fillMaxSize()
         )
-        /*ContentRed("Welcome to Nav3") {
-            Button(onClick = { backStack.addTopicRoute(1) }) {
-                Text("View the first topic")
-            }
-        }*/
     }
 
     entry<Topic>(

@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
-import com.ryen.sunnah_alhadi.presentation.screens.home.homeSunnah
+import com.ryen.sunnah_alhadi.presentation.screens.home.homeSunnahConst
 import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRenderer
 import com.ryen.sunnah_alhadi.presentation.util.DynamicReferenceRenderer
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
@@ -86,7 +86,7 @@ private fun HomeSunnahPrev() {
         SunnahAlHadiTheme(
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp)),
         ) {
-            HomeSunnahCard(sunnah = homeSunnah)
+            HomeSunnahCard(sunnah = homeSunnahConst)
         }
     }
 }

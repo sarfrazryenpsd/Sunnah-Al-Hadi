@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.presentation.screens.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryen.sunnah_alhadi.domain.useCase.GetHomeDataUseCase
@@ -97,8 +98,9 @@ class HomeViewModel @Inject constructor(
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            error = homeDataResult.exception.message ?: "Failed to load home data"
+                            error = homeDataResult.exception.message ?: "Failed to load home data",
                         )
+                        Log.d("HOMEVIEWMODEL", "Error loading home data: ${homeDataResult.exception.message}")
                     }
                 }
             } catch (e: Exception) {

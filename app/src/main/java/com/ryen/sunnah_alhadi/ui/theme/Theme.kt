@@ -151,7 +151,8 @@ fun SunnahAlHadiTheme(
                 LocalSharedTransitionScope provides this,
                 LocalDynamicDimensions provides dimensions,
                 LocalCategoryGradients provides DefaultCategoryGradientProvider,
-                LocalAppTypography provides appTypography
+                LocalAppTypography provides appTypography,
+                LocalScreenSize provides screenSize
             ) {
                 content()
             }

@@ -55,9 +55,6 @@ import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 
 @Composable
 fun HomeScreen(
-    /*onNavigateToTopic: (Int) -> Unit,
-    onNavigateToAllTopics: () -> Unit,
-    onOpenSunnah: (String) -> Unit,*/
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {

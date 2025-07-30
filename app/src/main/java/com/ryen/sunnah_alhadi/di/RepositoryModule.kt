@@ -1,7 +1,9 @@
 package com.ryen.sunnah_alhadi.di
 
+import com.ryen.sunnah_alhadi.data.repository.CategoryRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.SunnahRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.UserPreferencesRepositoryImpl
+import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import dagger.Binds
@@ -25,4 +27,10 @@ abstract class RepositoryModule {
     abstract fun bindSunnahRepository(
         impl: SunnahRepositoryImpl
     ): SunnahRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCategoryRepository(
+        impl: CategoryRepositoryImpl
+    ): CategoryRepository
 }

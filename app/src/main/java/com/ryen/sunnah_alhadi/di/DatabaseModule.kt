@@ -34,6 +34,7 @@ object DatabaseModule {
             "sunnah_database.db"
         )
             .createFromAsset("database/sunnah_database.db")
+            .fallbackToDestructiveMigration(false)
             .build()
     }
 
