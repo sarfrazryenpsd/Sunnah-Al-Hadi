@@ -9,6 +9,7 @@ import com.ryen.sunnah_alhadi.domain.useCase.GetAllSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetBookmarkedSunnahsFlowUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetHomeDataUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
+import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahCountsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahOfTheDayUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetTopicWithSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
@@ -52,6 +53,10 @@ object UseCaseModule {
     @Provides fun provideGetBookmarkedSunnahsFlowUseCase(
         repository: BookmarkRepository
     ) = GetBookmarkedSunnahsFlowUseCase(repository)
+
+    @Provides fun provideGetSunnahCountsUseCase(
+        sunnahRepository: SunnahRepository
+    ) = GetSunnahCountsUseCase(sunnahRepository)
 
     @Provides fun provideUpdateUserPreferencesUseCase(
         repository: UserPreferencesRepository

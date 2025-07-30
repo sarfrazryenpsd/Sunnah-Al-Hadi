@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.CategoryEntity
+import com.ryen.sunnah_alhadi.domain.model.CategorySunnahCount
 
 @Dao
 interface CategoryDao {

@@ -16,12 +16,14 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 
 @Composable
@@ -48,7 +50,7 @@ fun DisclaimerDialog(
         text = {
             Column {
                 Text(
-                    text = "Sunnahs and manners regarding different topics are being presented. Do not consider every Madani pearl presented to be a Sunnah. There is a possibility that these Madani pearls may contain sayings of pious predecessors besides Sunnahs. Remember the ruling that no deed can be declared ‘Sunnah of the beloved Prophet’ unless it is known for sure.",
+                    text = stringResource(R.string.disclaimer),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -13,6 +13,18 @@ class SunnahRepositoryImpl @Inject constructor(
     val sunnahDao: SunnahDao,
 ) : SunnahRepository {
 
+    private var sunnahCountCache: Map<Int, Int>? = null
+
+    override suspend fun getSunnahCounts(categoryIds: List<Int>): Map<Int, Int> {
+        if (sunnahCountCache != null) {
+            return sunnahCountCache!!
+        }
+
+        val counts = sunnahDao.getSunnahCountByCategoryIds(categoryIds.toSet())
+        sunnahCountCache = counts.associate { it.categoryId to it.sunnahCount }
+        return sunnahCountCache!!
+    }
+
     override suspend fun getAllSunnahs(): Result<List<Sunnah>> = try {
         val sunnahs = sunnahDao.getAllSunnahsWithBookmarkStatus()
         Result.Success(sunnahs.map { it.toDomain() })

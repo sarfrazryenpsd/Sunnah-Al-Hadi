@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahEntity
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahWithBookmark
+import com.ryen.sunnah_alhadi.domain.model.CategorySunnahCount
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -35,6 +36,14 @@ interface SunnahDao {
         ORDER BY s.title ASC
     """)
     suspend fun getAllSunnahsWithBookmarkStatus(): List<SunnahWithBookmark>
+
+    @Query("""
+    SELECT categoryId, COUNT(*) as sunnahCount
+    FROM sunnahs
+    WHERE categoryId IN (:ids)
+    GROUP BY categoryId
+    """)
+    suspend fun getSunnahCountByCategoryIds(ids: Set<Int>): List<CategorySunnahCount>
 
     @Query("""
         SELECT s.*, 

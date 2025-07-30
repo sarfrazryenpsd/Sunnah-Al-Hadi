@@ -10,6 +10,8 @@ interface SunnahRepository {
     suspend fun getSunnahsByIds(sunnahIds: List<String>): List<Sunnah>
     suspend fun getSunnahsByCategory(categoryId: Int): Result<List<Sunnah>>
     suspend fun getRandomSunnahs(): Result<List<Sunnah>>
+
+    suspend fun getSunnahCounts(categoryIds: List<Int>): Map<Int, Int>
     suspend fun searchSunnahs(query: String): Result<List<Sunnah>>
     suspend fun getBookmarkedSunnahs(): Result<List<Sunnah>>
     suspend fun getAllSunnahsWithBookmarkStatus(): Result<List<Sunnah>>
