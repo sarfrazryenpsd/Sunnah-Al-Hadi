@@ -35,13 +35,3 @@ fun getUsernameCharacterCount(username: String): String {
     val remaining = 20 - username.length
     return "${username.length}/20"
 }
-
-fun getUsernameHelperText(username: String, validationResult: ValidationResult): String? {
-    return if (validationResult.isValid && username.isNotEmpty()) {
-        null // No helper text when valid
-    } else if (username.isEmpty()) {
-        "Enter your preferred name for the app"
-    } else {
-        validationResult.errorMessage
-    }
-}

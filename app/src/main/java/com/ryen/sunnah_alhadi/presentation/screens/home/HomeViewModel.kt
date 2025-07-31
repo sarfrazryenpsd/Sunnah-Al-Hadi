@@ -36,6 +36,8 @@ class HomeViewModel @Inject constructor(
 
     init {
         loadHomeData()
+        val categoryIds = (0..29).toList()
+        loadCounts(categoryIds)
     }
 
     fun loadCounts(categoryIds: List<Int>) {

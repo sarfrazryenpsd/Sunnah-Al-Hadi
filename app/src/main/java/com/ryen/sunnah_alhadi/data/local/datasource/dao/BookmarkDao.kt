@@ -14,6 +14,9 @@ interface BookmarkDao {
     @Query("SELECT * FROM bookmarks ORDER BY bookmarkedAt DESC")
     suspend fun getAllBookmarks(): List<BookmarkEntity>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(bookmarks: List<BookmarkEntity>)
+
     @Query("""
         SELECT s.* FROM sunnahs s 
         INNER JOIN bookmarks b ON s.id = b.sunnahId 
