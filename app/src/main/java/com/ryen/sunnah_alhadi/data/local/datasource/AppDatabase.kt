@@ -17,7 +17,7 @@ import com.ryen.sunnah_alhadi.data.util.Converters
         SunnahEntity::class,
         BookmarkEntity::class
     ],
-    version = 2,
+    version = 1,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

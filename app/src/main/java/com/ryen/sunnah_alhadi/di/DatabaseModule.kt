@@ -1,7 +1,10 @@
 package com.ryen.sunnah_alhadi.di
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.ryen.sunnah_alhadi.data.local.datasource.AppDatabase
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.BookmarkDao
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.CategoryDao
@@ -34,9 +37,10 @@ object DatabaseModule {
             "sunnah_database.db"
         )
             .createFromAsset("database/sunnah_database.db")
-            .fallbackToDestructiveMigration(true)
             .build()
     }
+
+
 
     @Provides
     fun provideCategoryDao(db: AppDatabase): CategoryDao = db.categoryDao()
