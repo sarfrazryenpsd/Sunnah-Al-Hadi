@@ -1,6 +1,6 @@
 package com.ryen.sunnah_alhadi
 
-import android.util.Log
+/*import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryen.sunnah_alhadi.data.local.datasource.AppDatabase
@@ -94,4 +94,4 @@ class DbSeederViewModel @Inject constructor(
             }
         }
     }
-}
+}*/

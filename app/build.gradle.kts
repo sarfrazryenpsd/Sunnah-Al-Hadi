@@ -10,6 +10,8 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.protobuf)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -59,6 +61,12 @@ android {
             excludes += "META-INF/androidx/room/room-compiler-processing/LICENSE.txt"
             excludes += "META-INF/gradle/incremental.annotation.processors"
         }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("com.google.protobuf:protobuf-javalite:3.24.4") // ✅ Compatible with Firebase
     }
 }
 
@@ -114,6 +122,12 @@ dependencies {
     implementation(libs.datastore.proto)
     implementation(libs.datastore.core)
     implementation(libs.androidx.datastore.preferences)
+
+    implementation (platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.firestore)
+
 
     implementation(libs.androidx.work.runtime.ktx)
 
