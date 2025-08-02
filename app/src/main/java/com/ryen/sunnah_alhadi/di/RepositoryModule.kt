@@ -1,8 +1,10 @@
 package com.ryen.sunnah_alhadi.di
 
+import com.ryen.sunnah_alhadi.data.repository.BugReportRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.CategoryRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.SunnahRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.UserPreferencesRepositoryImpl
+import com.ryen.sunnah_alhadi.domain.repository.BugReportRepository
 import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
@@ -33,4 +35,9 @@ abstract class RepositoryModule {
     abstract fun bindCategoryRepository(
         impl: CategoryRepositoryImpl
     ): CategoryRepository
+
+    @Binds
+    abstract fun bindBugReportRepository(
+        bugReportRepositoryImpl: BugReportRepositoryImpl
+    ): BugReportRepository
 }

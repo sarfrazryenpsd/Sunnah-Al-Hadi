@@ -64,11 +64,11 @@ android {
     }
 }
 
-configurations.all {
+/*configurations.all {
     resolutionStrategy {
         force("com.google.protobuf:protobuf-javalite:3.24.4") // ✅ Compatible with Firebase
     }
-}
+}*/
 
 
 protobuf {

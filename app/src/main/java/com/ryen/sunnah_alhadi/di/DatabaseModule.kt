@@ -6,7 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.ryen.sunnah_alhadi.data.local.datasource.AppDatabase
+import com.ryen.sunnah_alhadi.data.local.datasource.BugReportDatabase
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.BookmarkDao
+import com.ryen.sunnah_alhadi.data.local.datasource.dao.BugReportDao
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.CategoryDao
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.SunnahDao
 import dagger.Module
@@ -40,7 +42,16 @@ object DatabaseModule {
             .build()
     }
 
-
+    @Provides
+    @Singleton
+    fun provideBugReportDatabase(@ApplicationContext context: Context): BugReportDatabase {
+        return Room.databaseBuilder(
+            context,
+            BugReportDatabase::class.java,
+            "bug_reports_database" // Separate database
+        )
+            .build()
+    }
 
     @Provides
     fun provideCategoryDao(db: AppDatabase): CategoryDao = db.categoryDao()
@@ -50,6 +61,11 @@ object DatabaseModule {
 
     @Provides
     fun provideBookmarkDao(db: AppDatabase): BookmarkDao = db.bookmarkDao()
+
+    @Provides
+    fun provideBugReportDao(database: BugReportDatabase): BugReportDao {
+        return database.bugReportDao()
+    }
 
 
 

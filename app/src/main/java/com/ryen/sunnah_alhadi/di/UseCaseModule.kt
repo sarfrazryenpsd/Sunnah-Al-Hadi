@@ -1,6 +1,7 @@
 package com.ryen.sunnah_alhadi.di
 
 import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
+import com.ryen.sunnah_alhadi.domain.repository.BugReportRepository
 import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
@@ -17,6 +18,9 @@ import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.SearchSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.ToggleBookmarkUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.UpdateUserPreferencesUseCase
+import com.ryen.sunnah_alhadi.domain.useCase.bugReport.GetPendingBugReportsCountUseCase
+import com.ryen.sunnah_alhadi.domain.useCase.bugReport.SubmitBugReportUseCase
+import com.ryen.sunnah_alhadi.domain.useCase.bugReport.SyncBugReportsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -82,4 +86,25 @@ object UseCaseModule {
     fun provideGetSunnahByIdUseCase(
         sunnahRepository: SunnahRepository,
     ) = GetSunnahByIdUseCase(sunnahRepository)
+
+    @Provides
+    fun provideSubmitBugReportUseCase(
+        repository: BugReportRepository
+    ): SubmitBugReportUseCase {
+        return SubmitBugReportUseCase(repository)
+    }
+
+    @Provides
+    fun provideSyncBugReportsUseCase(
+        repository: BugReportRepository
+    ): SyncBugReportsUseCase {
+        return SyncBugReportsUseCase(repository)
+    }
+
+    @Provides
+    fun provideGetPendingBugReportsCountUseCase(
+        repository: BugReportRepository
+    ): GetPendingBugReportsCountUseCase {
+        return GetPendingBugReportsCountUseCase(repository)
+    }
 }
