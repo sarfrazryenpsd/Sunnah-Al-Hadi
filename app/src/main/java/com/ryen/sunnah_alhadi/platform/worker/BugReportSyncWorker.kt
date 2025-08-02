@@ -4,8 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.ryen.sunnah_alhadi.domain.repository.BugReportRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -15,24 +14,25 @@ import java.io.IOException
 class BugReportSyncWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
+    private val crashlytics: FirebaseCrashlytics,
     private val bugReportRepository: BugReportRepository
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
         return try {
-            Firebase.crashlytics.log("Starting background bug report sync")
+            crashlytics.log("Starting background bug report sync")
 
             val pendingCount = bugReportRepository.getPendingReportsCount()
             if (pendingCount > 0) {
                 bugReportRepository.syncPendingReports()
-                Firebase.crashlytics.log("Background bug report sync completed. Synced $pendingCount reports")
+                crashlytics.log("Background bug report sync completed. Synced $pendingCount reports")
             } else {
-                Firebase.crashlytics.log("No pending bug reports to sync")
+                crashlytics.log("No pending bug reports to sync")
             }
 
             Result.success()
         } catch (e: Exception) {
-            Firebase.crashlytics.recordException(
+            crashlytics.recordException(
                 Exception("Background bug report sync failed: ${e.message}")
             )
 

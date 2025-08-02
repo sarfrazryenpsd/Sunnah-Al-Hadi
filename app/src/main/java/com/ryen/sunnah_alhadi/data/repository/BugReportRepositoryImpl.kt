@@ -1,13 +1,11 @@
 package com.ryen.sunnah_alhadi.data.repository
 
-import android.content.Context
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.BugReportDao
 import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.data.model.toEntity
 import com.ryen.sunnah_alhadi.domain.model.BugReport
 import com.ryen.sunnah_alhadi.domain.repository.BugReportRepository
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,7 +13,6 @@ import javax.inject.Singleton
 class BugReportRepositoryImpl @Inject constructor(
     private val bugReportDao: BugReportDao,
     private val crashlytics: FirebaseCrashlytics,
-    @param:ApplicationContext private val context: Context
 ) : BugReportRepository {
 
     override suspend fun saveBugReport(report: BugReport) {
@@ -26,6 +23,8 @@ class BugReportRepositoryImpl @Inject constructor(
             // Send to Crashlytics immediately
             sendToCrashlytics(report)
             markReportAsSynced(report.id)
+
+            crashlytics.log("Bug report ${report.id} submitted and synced successfully")
 
         } catch (e: Exception) {
             throw Exception("Failed to save bug report: ${e.message}")
@@ -75,8 +74,14 @@ class BugReportRepositoryImpl @Inject constructor(
             val pendingReports = getPendingReports()
 
             for (report in pendingReports) {
-                sendToCrashlytics(report)
-                markReportAsSynced(report.id)
+                try {
+                    sendToCrashlytics(report)
+                    markReportAsSynced(report.id)
+                } catch (e: Exception) {
+                    crashlytics.recordException(
+                        Exception("Failed to sync individual report: ${report.id}: ${e.message}")
+                    )
+                }
             }
 
             // Clean up old reports
@@ -101,7 +106,7 @@ class BugReportException(
     val reportId: String
 ) : Exception(message) {
 
-    override fun toString(): String {
+    fun toFormattedString(): String {
         return buildString {
             appendLine("BugReportException: $message")
             appendLine("Report ID: $reportId")

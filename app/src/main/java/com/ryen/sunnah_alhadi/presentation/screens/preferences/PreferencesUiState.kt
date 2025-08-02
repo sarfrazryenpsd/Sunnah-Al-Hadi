@@ -5,15 +5,19 @@ import com.ryen.sunnah_alhadi.presentation.util.ValidationResult
 
 data class PreferencesUiState(
     val userPreferences: UserPreferences? = null,
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val error: String? = null,
-    val usernameValidation: ValidationResult = ValidationResult(true),
+    val successMessage: String? = null,
     val hasNotificationPermission: Boolean = false,
     val showPermissionDialog: Boolean = false,
     val showBugReportDialog: Boolean = false,
+    val isBugReportSubmitting: Boolean = false,
+    val bugReportDescription: String = "",
+    val bugReportEmail: String = "",
     val showPrivacyPolicyDialog: Boolean = false,
     val showTermsOfServiceDialog: Boolean = false,
     val showAboutDialog: Boolean = false,
     val appVersion: String = "",
-    val buildNumber: String = ""
+    val buildNumber: String = "",
+    val usernameValidation: ValidationResult = ValidationResult(true, null)
 )

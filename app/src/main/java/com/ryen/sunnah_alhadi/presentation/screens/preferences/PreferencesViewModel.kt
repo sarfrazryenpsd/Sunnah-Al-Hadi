@@ -1,26 +1,30 @@
 package com.ryen.sunnah_alhadi.presentation.screens.preferences
-/*
 
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.UpdateUserPreferencesUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.UserPreferencesUpdate
+import com.ryen.sunnah_alhadi.domain.useCase.bugReport.SubmitBugReportUseCase
+import com.ryen.sunnah_alhadi.platform.scheduler.SotdNotificationScheduler
 import com.ryen.sunnah_alhadi.presentation.util.validateUsername
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
-import com.ryen.sunnah_alhadi.ui.theme.ThemeViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,15 +33,13 @@ import javax.inject.Inject
 class PreferencesViewModel @Inject constructor(
     private val getUserPreferencesFlowUseCase: GetUserPreferencesFlowUseCase,
     private val updateUserPreferencesUseCase: UpdateUserPreferencesUseCase,
-    private val themeViewModel: ThemeViewModel,
-    private val bugReportRepository: BugReportRepository,
-    private val context: Context
+    private val submitBugReportUseCase: SubmitBugReportUseCase,
+    private val sotdNotificationScheduler: SotdNotificationScheduler, // Add this injection
+    @param:ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PreferencesUiState())
     val uiState: StateFlow<PreferencesUiState> = _uiState.asStateFlow()
-
-    private val notificationPermissionLauncher = MutableStateFlow<ActivityResultLauncher<String>?>(null)
 
     init {
         observeUserPreferences()
@@ -86,7 +88,12 @@ class PreferencesViewModel @Inject constructor(
         try {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
             val versionName = packageInfo.versionName ?: "Unknown"
-            val versionCode = PreferenceActions.getAppVersionCode(context).toString()
+            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo.longVersionCode.toString()
+            } else {
+                @Suppress("DEPRECATION")
+                packageInfo.versionCode.toString()
+            }
 
             _uiState.update {
                 it.copy(
@@ -125,6 +132,7 @@ class PreferencesViewModel @Inject constructor(
             PreferencesEvent.RateApp -> handleRateApp()
             PreferencesEvent.ShareApp -> handleShareApp()
             PreferencesEvent.ContactDeveloper -> handleContactDeveloper()
+            PreferencesEvent.ClearError -> clearError()
         }
     }
 
@@ -138,6 +146,7 @@ class PreferencesViewModel @Inject constructor(
                     updateUserPreferencesUseCase(
                         UserPreferencesUpdate(username = username.trim())
                     )
+                    showSuccessMessage("Username updated successfully")
                 } catch (e: Exception) {
                     _uiState.update {
                         it.copy(error = "Failed to update username: ${e.localizedMessage}")
@@ -147,16 +156,15 @@ class PreferencesViewModel @Inject constructor(
         }
     }
 
+    // ✅ CLEAN ARCHITECTURE: Only update preferences, ThemeViewModel handles UI automatically
     private fun updateDynamicTheme(enabled: Boolean) {
-        // Direct update to ThemeViewModel for immediate UI response
-        themeViewModel.updateDynamicTheme(enabled)
-
-        // Also persist to preferences
         viewModelScope.launch {
             try {
                 updateUserPreferencesUseCase(
                     UserPreferencesUpdate(isDynamicThemeEnabled = enabled)
                 )
+                // ✅ ThemeViewModel will automatically observe this change and update UI
+                showSuccessMessage("Dynamic theme ${if (enabled) "enabled" else "disabled"}")
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(error = "Failed to update dynamic theme: ${e.localizedMessage}")
@@ -165,16 +173,15 @@ class PreferencesViewModel @Inject constructor(
         }
     }
 
+    // ✅ CLEAN ARCHITECTURE: Only update preferences, ThemeViewModel handles UI automatically
     private fun updateThemeMode(themeMode: ThemeMode) {
-        // Direct update to ThemeViewModel for immediate UI response
-        themeViewModel.updateThemeMode(themeMode)
-
-        // Also persist to preferences
         viewModelScope.launch {
             try {
                 updateUserPreferencesUseCase(
                     UserPreferencesUpdate(themeMode = themeMode)
                 )
+                // ✅ ThemeViewModel will automatically observe this change and update UI
+                showSuccessMessage("Theme changed to ${themeMode.name.lowercase()}")
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(error = "Failed to update theme mode: ${e.localizedMessage}")
@@ -200,10 +207,13 @@ class PreferencesViewModel @Inject constructor(
 
                 // Schedule or cancel notifications based on the setting
                 if (enabled) {
-                    scheduleNotifications()
+                    val currentPrefs = getUserPreferencesFlowUseCase().first()
+                    sotdNotificationScheduler.scheduleNotification(currentPrefs.sotdNotificationTime)
                 } else {
-                    cancelNotifications()
+                    sotdNotificationScheduler.cancelNotification()
                 }
+
+                showSuccessMessage("Notifications ${if (enabled) "enabled" else "disabled"}")
 
             } catch (e: Exception) {
                 _uiState.update {
@@ -221,11 +231,12 @@ class PreferencesViewModel @Inject constructor(
                 )
 
                 // Reschedule notifications with new time if notifications are enabled
-                _uiState.value.userPreferences?.let { preferences ->
-                    if (preferences.isSotdNotificationEnabled) {
-                        scheduleNotifications()
-                    }
+                val currentPrefs = getUserPreferencesFlowUseCase().first()
+                if (currentPrefs.isSotdNotificationEnabled) {
+                    sotdNotificationScheduler.scheduleNotification(time)
                 }
+
+                showSuccessMessage("Notification time updated to ${time.displayName}")
 
             } catch (e: Exception) {
                 _uiState.update {
@@ -262,93 +273,81 @@ class PreferencesViewModel @Inject constructor(
         }
     }
 
-    private fun scheduleNotifications() {
-        // Implementation depends on your notification scheduling system
-        // This would typically interact with WorkManager or AlarmManager
-        try {
-            // NotificationScheduler.scheduleDaily(context, time)
-            // Log success
-        } catch (e: Exception) {
-            _uiState.update {
-                it.copy(error = "Failed to schedule notifications: ${e.localizedMessage}")
-            }
-        }
-    }
-
-    private fun cancelNotifications() {
-        try {
-            // NotificationScheduler.cancelAll(context)
-            // Log cancellation
-        } catch (e: Exception) {
-            _uiState.update {
-                it.copy(error = "Failed to cancel notifications: ${e.localizedMessage}")
-            }
-        }
-    }
-
     private fun showBugReportDialog() {
         _uiState.update { it.copy(showBugReportDialog = true) }
     }
 
     private fun dismissBugReportDialog() {
-        _uiState.update { it.copy(showBugReportDialog = false) }
+        _uiState.update {
+            it.copy(
+                showBugReportDialog = false,
+                bugReportDescription = "",
+                bugReportEmail = ""
+            )
+        }
+    }
+
+    fun updateBugReportField(field: BugReportField, value: String) {
+        when (field) {
+            BugReportField.DESCRIPTION -> {
+                _uiState.update { it.copy(bugReportDescription = value) }
+            }
+            BugReportField.EMAIL -> {
+                _uiState.update { it.copy(bugReportEmail = value) }
+            }
+        }
     }
 
     private fun submitBugReport(description: String, email: String) {
-        if (description.isBlank()) {
-            _uiState.update {
-                it.copy(error = "Please provide a description of the issue")
-            }
-            return
-        }
-
         viewModelScope.launch {
             try {
-                _uiState.update { it.copy(isLoading = true) }
+                _uiState.update { it.copy(isBugReportSubmitting = true) }
 
-                val report = BugReport(
-                    description = description.trim(),
-                    userEmail = email.trim(),
+                val deviceInfo = "${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE})"
+
+                val result = submitBugReportUseCase(
+                    description = description,
+                    userEmail = email,
                     appVersion = _uiState.value.appVersion,
-                    deviceInfo = "${Build.MODEL} (Android ${Build.VERSION.RELEASE})",
-                    timestamp = System.currentTimeMillis()
+                    deviceInfo = deviceInfo
                 )
 
-                // Save bug report locally first
-                bugReportRepository.saveBugReport(report)
+                result.fold(
+                    onSuccess = { reportId ->
 
-                // Log to Firebase Crashlytics with privacy-safe information
-                Firebase.crashlytics.log("Bug report submitted")
-                Firebase.crashlytics.setCustomKey("report_id", report.id)
-                Firebase.crashlytics.setCustomKey("app_version", report.appVersion)
-                Firebase.crashlytics.setCustomKey("device_info", report.deviceInfo)
-                Firebase.crashlytics.setCustomKey("has_email", email.isNotBlank())
+                        _uiState.update {
+                            it.copy(
+                                isBugReportSubmitting = false,
+                                showBugReportDialog = false,
+                                bugReportDescription = "",
+                                bugReportEmail = "",
+                                error = null
+                            )
+                        }
 
-                // Try to sync immediately if online
-                try {
-                    bugReportRepository.syncPendingReports()
-                } catch (syncException) {
-                    // Sync failed, but report is saved locally - that's okay
-                }
-
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        showBugReportDialog = false,
-                        error = null
-                    )
-                }
-
-                // Show success message (you might want to use SnackBar or Toast)
-                showSuccessMessage("جزاك الله خيراً! Bug report submitted successfully.")
+                        showSuccessMessage("جزاك الله خيراً! Bug report submitted successfully.")
+                    },
+                    onFailure = { exception ->
+                        _uiState.update {
+                            it.copy(
+                                isBugReportSubmitting = false,
+                                error = exception.message ?: "Failed to submit bug report. Please try again."
+                            )
+                        }
+                    }
+                )
 
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
-                        isLoading = false,
-                        error = "Failed to submit bug report. Your report has been saved and will be sent when connection is available."
+                        isBugReportSubmitting = false,
+                        error = "An unexpected error occurred. Please try again later."
                     )
                 }
+
+                Firebase.crashlytics.recordException(
+                    Exception("ViewModel bug report submission failed: ${e.message}", e)
+                )
             }
         }
     }
@@ -408,17 +407,30 @@ class PreferencesViewModel @Inject constructor(
     }
 
     private fun showSuccessMessage(message: String) {
-        // This could be implemented as a SnackBar or Toast
-        // For now, we'll clear any existing error and rely on UI feedback
-        _uiState.update { it.copy(error = null) }
+        _uiState.update {
+            it.copy(
+                successMessage = message,
+                error = null
+            )
+        }
+
+        // Clear success message after 3 seconds
+        viewModelScope.launch {
+            delay(3000)
+            _uiState.update { it.copy(successMessage = null) }
+        }
     }
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        // Clean up any resources if needed
+    fun clearSuccessMessage() {
+        _uiState.update { it.copy(successMessage = null) }
     }
-}*/
+
+}
+
+enum class BugReportField {
+    DESCRIPTION, EMAIL
+}

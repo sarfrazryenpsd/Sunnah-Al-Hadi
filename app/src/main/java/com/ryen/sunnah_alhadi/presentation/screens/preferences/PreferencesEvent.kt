@@ -23,4 +23,6 @@ sealed class PreferencesEvent {
     data object RateApp : PreferencesEvent()
     data object ShareApp : PreferencesEvent()
     data object ContactDeveloper : PreferencesEvent()
+
+    data object ClearError: PreferencesEvent()
 }
