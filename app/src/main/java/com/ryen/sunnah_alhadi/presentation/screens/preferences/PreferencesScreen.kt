@@ -1,0 +1,545 @@
+package com.ryen.sunnah_alhadi.presentation.screens.preferences
+
+import android.Manifest
+import android.content.Context
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.ColorLens
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Policy
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ryen.sunnah_alhadi.presentation.components.BugReportDialog
+import com.ryen.sunnah_alhadi.presentation.components.ContentDisplayDialog
+import com.ryen.sunnah_alhadi.presentation.components.NotificationPermissionDialog
+import com.ryen.sunnah_alhadi.presentation.components.NotificationTimeDropdown
+import com.ryen.sunnah_alhadi.presentation.components.PreferenceItem
+import com.ryen.sunnah_alhadi.presentation.components.PreferenceSection
+import com.ryen.sunnah_alhadi.presentation.components.PreferenceSwitch
+import com.ryen.sunnah_alhadi.presentation.components.PreferenceTextField
+import com.ryen.sunnah_alhadi.presentation.components.ThemeSegmentedButton
+import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
+
+@Composable
+fun PreferencesScreen(
+    viewModel: PreferencesViewModel = hiltViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    // Permission launcher for notifications
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        viewModel.handlePermissionResult(isGranted)
+    }
+
+    // Handle permission requests
+    LaunchedEffect(uiState.showPermissionDialog) {
+        if (uiState.showPermissionDialog && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            viewModel.onEvent(PreferencesEvent.DismissPermissionDialog)
+        }
+    }
+
+    // Show success messages
+    uiState.successMessage?.let { message ->
+        LaunchedEffect(message) {
+            // Auto-dismiss success message after 3 seconds
+            kotlinx.coroutines.delay(3000)
+            viewModel.clearSuccessMessage()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            PreferencesTopBar(
+                successMessage = uiState.successMessage
+            )
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Account Section
+            item {
+                AccountSection(
+                    uiState = uiState,
+                    onEvent = viewModel::onEvent
+                )
+            }
+
+            // Appearance Section
+            item {
+                AppearanceSection(
+                    uiState = uiState,
+                    onEvent = viewModel::onEvent
+                )
+            }
+
+            // Notifications Section
+            item {
+                NotificationsSection(
+                    uiState = uiState,
+                    onEvent = viewModel::onEvent
+                )
+            }
+
+            // About Section
+            item {
+                AboutSection(
+                    uiState = uiState,
+                    onEvent = viewModel::onEvent
+                )
+            }
+
+            // Support & Feedback Section
+            item {
+                SupportSection(
+                    uiState = uiState,
+                    onEvent = viewModel::onEvent,
+                    context = context
+                )
+            }
+
+            // Bottom spacing
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+        }
+
+        // Handle error display
+        uiState.error?.let { error ->
+            LaunchedEffect(error) {
+                // Show error snackbar or handle error display
+                viewModel.onEvent(PreferencesEvent.ClearError)
+            }
+        }
+
+        // Dialogs
+        PreferencesDialogs(
+            uiState = uiState,
+            onEvent = viewModel::onEvent
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PreferencesTopBar(
+    successMessage: String?
+) {
+    TopAppBar(
+        title = {
+            Column {
+                Text(
+                    text = "Settings",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                // Show success message in subtitle
+                successMessage?.let { message ->
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.alpha(0.8f)
+                    )
+                }
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent
+        )
+    )
+}
+
+@Composable
+private fun AccountSection(
+    uiState: PreferencesUiState,
+    onEvent: (PreferencesEvent) -> Unit
+) {
+    PreferenceSection(title = "Account") {
+        uiState.userPreferences?.let { preferences ->
+            PreferenceTextField(
+                title = "Username",
+                value = preferences.username,
+                onValueChange = { onEvent(PreferencesEvent.UpdateUsername(it)) },
+                leadingIcon = Icons.Default.Person,
+                iconColor = MaterialTheme.colorScheme.primary,
+                validation = uiState.usernameValidation,
+                characterCount = getUsernameCharacterCount(preferences.username),
+                placeholder = "Enter your name"
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppearanceSection(
+    uiState: PreferencesUiState,
+    onEvent: (PreferencesEvent) -> Unit
+) {
+    PreferenceSection(title = "Appearance") {
+        uiState.userPreferences?.let { preferences ->
+            // Theme Mode Selection
+            PreferenceItem(
+                title = "Theme",
+                subtitle = "Choose your preferred theme",
+                leadingIcon = Icons.Default.Palette,
+                iconColor = Color(0xFF9C27B0), // Purple
+                trailingContent = {
+                    ThemeSegmentedButton(
+                        selectedTheme = ThemeMode.entries[preferences.themeMode],
+                        onThemeSelected = { onEvent(PreferencesEvent.UpdateThemeMode(it)) }
+                    )
+                }
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+
+            // Dynamic Colors Toggle
+            PreferenceSwitch(
+                title = "Dynamic Colors",
+                subtitle = "Use colors from your wallpaper",
+                checked = preferences.isDynamicThemeEnabled,
+                onCheckedChange = { onEvent(PreferencesEvent.UpdateDynamicTheme(it)) },
+                leadingIcon = Icons.Default.ColorLens,
+                iconColor = Color(0xFF4CAF50), // Green
+                enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+            )
+        }
+    }
+}
+
+@Composable
+private fun NotificationsSection(
+    uiState: PreferencesUiState,
+    onEvent: (PreferencesEvent) -> Unit
+) {
+    PreferenceSection(title = "Notifications") {
+        uiState.userPreferences?.let { preferences ->
+            // Sunnah of the Day Notifications
+            PreferenceSwitch(
+                title = "Daily Sunnah Reminders",
+                subtitle = "Get reminded about beautiful Sunnahs",
+                checked = preferences.isSotdNotificationEnabled,
+                onCheckedChange = {
+                    if (it && !uiState.hasNotificationPermission) {
+                        onEvent(PreferencesEvent.RequestNotificationPermission)
+                    } else {
+                        onEvent(PreferencesEvent.UpdateSotdNotification(it))
+                    }
+                },
+                leadingIcon = Icons.Default.NotificationsActive,
+                iconColor = Color(0xFFFF9800) // Orange
+            )
+
+            if (preferences.isSotdNotificationEnabled) {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                )
+
+                // Notification Time Selection
+                PreferenceItem(
+                    title = "Reminder Time",
+                    subtitle = "When to receive daily reminders",
+                    leadingIcon = Icons.Default.AccessTime,
+                    iconColor = Color(0xFFFFC107), // Amber
+                    trailingContent = {
+                        NotificationTimeDropdown(
+                            selectedTime = preferences.sotdNotificationTime,
+                            onTimeSelected = { onEvent(PreferencesEvent.UpdateNotificationTime(it)) },
+                            enabled = preferences.isSotdNotificationEnabled
+                        )
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AboutSection(
+    uiState: PreferencesUiState,
+    onEvent: (PreferencesEvent) -> Unit
+) {
+    PreferenceSection(title = "About") {
+        // App Version (Non-clickable)
+        PreferenceItem(
+            title = "App Version",
+            subtitle = "Version ${uiState.appVersion} (Build ${uiState.buildNumber})",
+            leadingIcon = Icons.Default.Info,
+            iconColor = Color(0xFF2196F3), // Blue
+            trailingContent = { }
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+
+        // About Sunnah Al-Hadi
+        PreferenceItem(
+            title = "About Sunnah Al-Hadi",
+            subtitle = "Learn more about this app",
+            leadingIcon = Icons.AutoMirrored.Default.MenuBook,
+            iconColor = Color(0xFF4CAF50), // Green
+            onClick = { onEvent(PreferencesEvent.ShowAboutDialog) },
+            trailingContent = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+
+        // Privacy Policy
+        PreferenceItem(
+            title = "Privacy Policy",
+            subtitle = "How we protect your privacy",
+            leadingIcon = Icons.Default.Policy,
+            iconColor = Color(0xFF9C27B0), // Purple
+            onClick = { onEvent(PreferencesEvent.ShowPrivacyPolicyDialog) },
+            trailingContent = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+
+        // Terms of Service
+        PreferenceItem(
+            title = "Terms of Service",
+            subtitle = "App usage terms and conditions",
+            leadingIcon = Icons.Default.Description,
+            iconColor = Color(0xFF009688), // Teal
+            onClick = { onEvent(PreferencesEvent.ShowTermsOfServiceDialog) },
+            trailingContent = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun SupportSection(
+    uiState: PreferencesUiState,
+    onEvent: (PreferencesEvent) -> Unit,
+    context: Context
+) {
+    PreferenceSection(title = "Support & Feedback") {
+        // Rate App
+        PreferenceItem(
+            title = "Rate App",
+            subtitle = "Help us improve by rating on Play Store",
+            leadingIcon = Icons.Default.Star,
+            iconColor = Color(0xFFFFC107), // Amber
+            onClick = {
+                PreferenceActions.openPlayStoreRating(context)
+                onEvent(PreferencesEvent.RateApp)
+            },
+            trailingContent = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+
+        // Report Bug
+        PreferenceItem(
+            title = "Report Bug",
+            subtitle = "Help us fix issues you encounter",
+            leadingIcon = Icons.Default.BugReport,
+            iconColor = Color(0xFFF44336), // Red
+            onClick = { onEvent(PreferencesEvent.ShowBugReportDialog) },
+            trailingContent = {
+                if (uiState.isBugReportSubmitting) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+
+        // Contact Developer
+        PreferenceItem(
+            title = "Contact Developer",
+            subtitle = "Send feedback or ask questions",
+            leadingIcon = Icons.Default.Email,
+            iconColor = Color(0xFF3F51B5), // Indigo
+            onClick = {
+                PreferenceActions.contactDeveloper(context)
+                onEvent(PreferencesEvent.ContactDeveloper)
+            },
+            trailingContent = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+
+        // Share App
+        PreferenceItem(
+            title = "Share App",
+            subtitle = "Invite others to this blessed app",
+            leadingIcon = Icons.Default.Share,
+            iconColor = Color(0xFF00BCD4), // Cyan
+            onClick = {
+                PreferenceActions.shareApp(context)
+                onEvent(PreferencesEvent.ShareApp)
+            },
+            trailingContent = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun PreferencesDialogs(
+    uiState: PreferencesUiState,
+    onEvent: (PreferencesEvent) -> Unit
+) {
+    // Permission Dialog
+    NotificationPermissionDialog(
+        showDialog = uiState.showPermissionDialog,
+        onDismiss = { onEvent(PreferencesEvent.DismissPermissionDialog) },
+        onConfirm = { onEvent(PreferencesEvent.RequestNotificationPermission) }
+    )
+
+    // Bug Report Dialog
+    BugReportDialog(
+        showDialog = uiState.showBugReportDialog,
+        onDismiss = { onEvent(PreferencesEvent.DismissBugReportDialog) },
+        onSubmit = { description, email ->
+            onEvent(PreferencesEvent.SubmitBugReport(description, email))
+        },
+        isLoading = uiState.isBugReportSubmitting
+    )
+
+    // About Dialog
+    ContentDisplayDialog(
+        title = "About Sunnah Al-Hadi",
+        content = PreferenceContent.aboutContent,
+        showDialog = uiState.showAboutDialog,
+        onDismiss = { onEvent(PreferencesEvent.DismissAboutDialog) }
+    )
+
+    // Privacy Policy Dialog
+    ContentDisplayDialog(
+        title = "Privacy Policy",
+        content = PreferenceContent.privacyPolicyContent,
+        showDialog = uiState.showPrivacyPolicyDialog,
+        onDismiss = { onEvent(PreferencesEvent.DismissPrivacyPolicyDialog) }
+    )
+
+    // Terms of Service Dialog
+    ContentDisplayDialog(
+        title = "Terms of Service",
+        content = PreferenceContent.termsOfServiceContent,
+        showDialog = uiState.showTermsOfServiceDialog,
+        onDismiss = { onEvent(PreferencesEvent.DismissTermsOfServiceDialog) }
+    )
+}
+
+// Helper function for username character count (reuse from validation)
+private fun getUsernameCharacterCount(username: String): String {
+    return "${username.length}/50"
+}

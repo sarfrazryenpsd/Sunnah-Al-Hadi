@@ -74,6 +74,7 @@ import com.ryen.sunnah_alhadi.presentation.components.cards.TopicScreen
 import com.ryen.sunnah_alhadi.presentation.components.cards.previewDummyTopics
 import com.ryen.sunnah_alhadi.presentation.components.overlay.OnboardingCardOverlay
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeScreen
+import com.ryen.sunnah_alhadi.presentation.screens.preferences.PreferencesScreen
 
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -432,7 +433,7 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>) = entryPro
     }
 
     entry<Preferences> {
-        ContentGreen("Preferences (single pane only)")
+        PreferencesScreen()
     }
 }
 
