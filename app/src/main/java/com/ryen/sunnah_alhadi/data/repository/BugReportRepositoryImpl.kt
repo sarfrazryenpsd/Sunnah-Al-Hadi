@@ -1,44 +1,64 @@
 package com.ryen.sunnah_alhadi.data.repository
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.crashlytics
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.BugReportDao
 import com.ryen.sunnah_alhadi.data.model.toDomain
-import com.ryen.sunnah_alhadi.data.model.toDto
 import com.ryen.sunnah_alhadi.data.model.toEntity
 import com.ryen.sunnah_alhadi.domain.model.BugReport
 import com.ryen.sunnah_alhadi.domain.repository.BugReportRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class BugReportRepositoryImpl @Inject constructor(
     private val bugReportDao: BugReportDao,
-    firestore: FirebaseFirestore,
+    private val crashlytics: FirebaseCrashlytics,
     @param:ApplicationContext private val context: Context
 ) : BugReportRepository {
-
-    private val bugReportsCollection = firestore.collection("bug_reports")
 
     override suspend fun saveBugReport(report: BugReport) {
         try {
             // Save locally first
             bugReportDao.insertBugReport(report.toEntity())
 
-            // Try immediate sync if online
-            if (isNetworkAvailable()) {
-                syncSingleReport(report)
-            }
+            // Send to Crashlytics immediately
+            sendToCrashlytics(report)
+            markReportAsSynced(report.id)
+
         } catch (e: Exception) {
-            // Local save failed - this is critical
-            throw Exception("Failed to save bug report locally: ${e.message}")
+            throw Exception("Failed to save bug report: ${e.message}")
         }
+    }
+
+    private fun sendToCrashlytics(report: BugReport) {
+        // Set custom keys for this bug report
+        crashlytics.setCustomKey("bug_report_id", report.id)
+        crashlytics.setCustomKey("user_email", report.userEmail)
+        crashlytics.setCustomKey("app_version", report.appVersion)
+        crashlytics.setCustomKey("device_info", report.deviceInfo)
+        crashlytics.setCustomKey("report_timestamp", report.timestamp)
+        crashlytics.setCustomKey("is_user_reported_bug", true)
+
+        // Create a custom exception with the bug description
+        val bugReportException = BugReportException(
+            message = "User-reported bug: ${report.description.take(100)}...",
+            fullDescription = report.description,
+            reportId = report.id
+        )
+
+        // Record the exception to Crashlytics
+        crashlytics.recordException(bugReportException)
+
+        // Log additional details
+        crashlytics.log("=== USER BUG REPORT ===")
+        crashlytics.log("Report ID: ${report.id}")
+        crashlytics.log("User Email: ${report.userEmail}")
+        crashlytics.log("Description: ${report.description}")
+        crashlytics.log("Device: ${report.deviceInfo}")
+        crashlytics.log("App Version: ${report.appVersion}")
+        crashlytics.log("========================")
     }
 
 
@@ -52,64 +72,40 @@ class BugReportRepositoryImpl @Inject constructor(
 
     override suspend fun syncPendingReports() {
         try {
-            if (!isNetworkAvailable()) {
-                return // No network, skip sync
-            }
-
             val pendingReports = getPendingReports()
 
             for (report in pendingReports) {
-                try {
-                    syncSingleReport(report)
-                } catch (e: Exception) {
-                    // Log individual sync failure but continue with others
-                    Firebase.crashlytics.recordException(
-                        Exception("Failed to sync bug report ${report.id}: ${e.message}")
-                    )
-                }
+                sendToCrashlytics(report)
+                markReportAsSynced(report.id)
             }
 
-            // Clean up old synced reports (older than 30 days)
+            // Clean up old reports
             val thirtyDaysAgo = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000L)
             bugReportDao.deleteSyncedOldReports(thirtyDaysAgo)
 
         } catch (e: Exception) {
-            // Sync process failed
-            Firebase.crashlytics.recordException(
-                Exception("Bug report sync process failed: ${e.message}")
+            crashlytics.recordException(
+                Exception("Bug report sync failed: ${e.message}")
             )
         }
     }
 
-    private suspend fun syncSingleReport(report: BugReport) {
-        try {
-            // Upload to Firestore
-            bugReportsCollection
-                .document(report.id)
-                .set(report.toDto())
-                .await()
-
-            // Mark as synced locally
-            markReportAsSynced(report.id)
-
-            // Log success to Crashlytics
-            Firebase.crashlytics.log("Bug report ${report.id} synced successfully")
-
-        } catch (e: Exception) {
-            // Sync failed for this report
-            throw Exception("Failed to sync report to Firestore: ${e.message}")
-        }
-    }
-
-    private fun isNetworkAvailable(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        val network = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
-
     override suspend fun getPendingReportsCount(): Int {
         return bugReportDao.getPendingReportsCount()
+    }
+}
+
+class BugReportException(
+    message: String,
+    val fullDescription: String,
+    val reportId: String
+) : Exception(message) {
+
+    override fun toString(): String {
+        return buildString {
+            appendLine("BugReportException: $message")
+            appendLine("Report ID: $reportId")
+            appendLine("Full Description: $fullDescription")
+        }
     }
 }
