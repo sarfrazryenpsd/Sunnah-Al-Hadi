@@ -17,6 +17,7 @@ import com.ryen.sunnah_alhadi.domain.useCase.bugReport.SubmitBugReportUseCase
 import com.ryen.sunnah_alhadi.platform.scheduler.SotdNotificationScheduler
 import com.ryen.sunnah_alhadi.presentation.util.validateUsername
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
+import com.ryen.sunnah_alhadi.util.NotificationPermissionUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
@@ -71,17 +72,8 @@ class PreferencesViewModel @Inject constructor(
     }
 
     private fun checkNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val hasPermission = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-
-            _uiState.update { it.copy(hasNotificationPermission = hasPermission) }
-        } else {
-            // Pre-Android 13 devices don't need notification permission
-            _uiState.update { it.copy(hasNotificationPermission = true) }
-        }
+        val hasPermission = NotificationPermissionUtils.hasNotificationPermission(context)
+        _uiState.update { it.copy(hasNotificationPermission = hasPermission) }
     }
 
     fun updatePermissionStatus(hasPermission: Boolean) {

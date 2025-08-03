@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+
 package com.ryen.sunnah_alhadi.presentation.screens.preferences
 
 import android.Manifest
@@ -39,6 +41,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,8 +51,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.presentation.components.BugReportDialog
 import com.ryen.sunnah_alhadi.presentation.components.ContentDisplayDialog
 import com.ryen.sunnah_alhadi.presentation.components.NotificationPermissionDialog
@@ -58,8 +65,8 @@ import com.ryen.sunnah_alhadi.presentation.components.PreferenceSection
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceSwitch
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceTextField
 import com.ryen.sunnah_alhadi.presentation.components.ThemeSegmentedButton
+import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
-import com.ryen.sunnah_alhadi.util.NotificationPermissionUtils
 import kotlinx.coroutines.delay
 
 @Composable
@@ -74,12 +81,6 @@ fun PreferencesScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         viewModel.handlePermissionResult(isGranted)
-    }
-
-    // Check notification permission status when screen loads
-    LaunchedEffect(Unit) {
-        val hasPermission = NotificationPermissionUtils.hasNotificationPermission(context)
-        viewModel.updatePermissionStatus(hasPermission)
     }
 
     // Handle permission requests
@@ -548,4 +549,70 @@ private fun PreferencesDialogs(
 // Helper function for username character count (reuse from validation)
 private fun getUsernameCharacterCount(username: String): String {
     return "${username.length}/50"
+}
+
+
+/*-----------------------------------------------------PREVIEWS----------------------------------------------------*/
+
+@Preview
+@Composable
+private fun NotificationSectionPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(width = 400.dp, height = 900.dp))
+    ) {
+        NotificationsSection(
+            uiState = PreferencesUiState(
+                isLoading = false,
+                userPreferences = UserPreferences(),
+                appVersion = "1.0.0",
+                buildNumber = "1",
+                hasNotificationPermission = false,
+                showPermissionDialog = false,
+                showBugReportDialog = false,
+                showAboutDialog = false,
+                showPrivacyPolicyDialog = false,
+                showTermsOfServiceDialog = false,
+                isBugReportSubmitting = false
+            ),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun AppearenceSectionPrev() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(width = 400.dp, height = 900.dp))
+    ) {
+
+        AppearanceSection(
+            uiState = PreferencesUiState(
+                isLoading = false,
+                userPreferences = UserPreferences(),
+                appVersion = "1.0.0",
+                buildNumber = "1",
+            ),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun AccountSectionPrev() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(width = 400.dp, height = 900.dp))
+    ) {
+
+        AccountSection(
+            uiState = PreferencesUiState(
+                isLoading = false,
+                userPreferences = UserPreferences(),
+                appVersion = "1.0.0",
+                buildNumber = "1",
+            ),
+            onEvent = {}
+        )
+    }
 }

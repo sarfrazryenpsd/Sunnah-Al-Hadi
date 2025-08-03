@@ -105,19 +105,12 @@ private fun OnboardingOverlayContent(
 ) {
     val onboardingViewModel: OnboardingViewModel = hiltViewModel()
     val uiState by onboardingViewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
     // Permission launcher for notifications
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         onboardingViewModel.handlePermissionResult(isGranted)
-    }
-
-    // Check notification permission status when onboarding loads
-    LaunchedEffect(Unit) {
-        val hasPermission = NotificationPermissionUtils.hasNotificationPermission(context)
-        onboardingViewModel.updatePermissionStatus(hasPermission)
     }
 
     // Handle permission requests

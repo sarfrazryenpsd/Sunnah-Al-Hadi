@@ -415,8 +415,8 @@ private fun NotificationCard(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Divider(
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                HorizontalDivider(
+                    Modifier, DividerDefaults.Thickness, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                 )
 
                 Text(

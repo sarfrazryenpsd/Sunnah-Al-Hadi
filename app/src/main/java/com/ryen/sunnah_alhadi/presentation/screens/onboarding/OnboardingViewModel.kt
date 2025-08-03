@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.presentation.screens.onboarding
 
+import android.content.Context
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +12,9 @@ import com.ryen.sunnah_alhadi.domain.useCase.UserPreferencesUpdate
 import com.ryen.sunnah_alhadi.platform.scheduler.SotdNotificationScheduler
 import com.ryen.sunnah_alhadi.presentation.util.validateUsername
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
+import com.ryen.sunnah_alhadi.util.NotificationPermissionUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +28,8 @@ class OnboardingViewModel @Inject constructor(
     private val updateUserPreferencesUseCase: UpdateUserPreferencesUseCase,
     private val getUserPreferencesUseCase: GetUserPreferencesUseCase,
     private val getUserPreferencesFlowUseCase: GetUserPreferencesFlowUseCase,
-    private val sotdNotificationScheduler: SotdNotificationScheduler
+    private val sotdNotificationScheduler: SotdNotificationScheduler,
+    @param:ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
@@ -33,6 +37,7 @@ class OnboardingViewModel @Inject constructor(
 
     init {
         observeUserPreferences()
+        checkNotificationPermission()
     }
 
     fun onEvent(event: OnboardingEvent) {
@@ -50,6 +55,11 @@ class OnboardingViewModel @Inject constructor(
             OnboardingEvent.DismissPermissionDialog -> dismissPermissionDialog()
             is OnboardingEvent.UpdatePermissionStatus -> updatePermissionStatus(event.hasPermission)
         }
+    }
+
+    private fun checkNotificationPermission() {
+        val hasPermission = NotificationPermissionUtils.hasNotificationPermission(context)
+        _uiState.update { it.copy(hasNotificationPermission = hasPermission) }
     }
 
     private fun updateUsername(username: String) {
