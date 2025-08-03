@@ -8,7 +8,7 @@ import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 
 data class HomeUiState(
-    val userName: String = "",
+    val username: String = "",
     val featuredCategories: List<Category> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -35,7 +34,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -61,6 +59,8 @@ import com.ryen.sunnah_alhadi.presentation.components.PreferenceSwitch
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceTextField
 import com.ryen.sunnah_alhadi.presentation.components.ThemeSegmentedButton
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
+import com.ryen.sunnah_alhadi.util.NotificationPermissionUtils
+import kotlinx.coroutines.delay
 
 @Composable
 fun PreferencesScreen(
@@ -76,6 +76,12 @@ fun PreferencesScreen(
         viewModel.handlePermissionResult(isGranted)
     }
 
+    // Check notification permission status when screen loads
+    LaunchedEffect(Unit) {
+        val hasPermission = NotificationPermissionUtils.hasNotificationPermission(context)
+        viewModel.updatePermissionStatus(hasPermission)
+    }
+
     // Handle permission requests
     LaunchedEffect(uiState.showPermissionDialog) {
         if (uiState.showPermissionDialog && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -88,7 +94,7 @@ fun PreferencesScreen(
     uiState.successMessage?.let { message ->
         LaunchedEffect(message) {
             // Auto-dismiss success message after 3 seconds
-            kotlinx.coroutines.delay(3000)
+            delay(3000)
             viewModel.clearSuccessMessage()
         }
     }

@@ -7,6 +7,7 @@ import com.ryen.sunnah_alhadi.domain.useCase.GetHomeDataUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetRecentlyViewedSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahCountsUseCase
+import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.GetCurrentSotdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.MarkSotdAsSeenUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.ShouldShowSotdCardUseCase
@@ -16,6 +17,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +26,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getHomeDataUseCase: GetHomeDataUseCase,
     private val getCurrentSotdUseCase: GetCurrentSotdUseCase,
+    private val getUserPreferencesFlowUseCase: GetUserPreferencesFlowUseCase,
     private val getSunnahByIdUseCase: GetSunnahByIdUseCase,
     private val getSunnahCountsUseCase: GetSunnahCountsUseCase,
     private val getRecentlyViewedSunnahsUseCase: GetRecentlyViewedSunnahsUseCase,
@@ -61,6 +65,28 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun observeUserPreferences() {
+        viewModelScope.launch {
+            getUserPreferencesFlowUseCase()
+                .catch { exception ->
+                    _uiState.update {
+                        it.copy(
+                            error = "Failed to load preferences: ${exception.localizedMessage}",
+                            isLoading = false
+                        )
+                    }
+                }
+                .collect { preferences ->
+                    _uiState.update {
+                        it.copy(
+                            username = preferences.username,
+                            error = null
+                        )
+                    }
+                }
+        }
+    }
+
     private fun loadHomeData() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
@@ -90,7 +116,7 @@ class HomeViewModel @Inject constructor(
 
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            userName = homeData.userName,
+                            username = homeData.userName,
                             featuredCategories = homeData.featuredCategories,
                             recentSotd = recentSotd,
                             sotd = sotdState.currentSotd,

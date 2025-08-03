@@ -84,6 +84,10 @@ class PreferencesViewModel @Inject constructor(
         }
     }
 
+    fun updatePermissionStatus(hasPermission: Boolean) {
+        _uiState.update { it.copy(hasNotificationPermission = hasPermission) }
+    }
+
     private fun loadAppInfo() {
         try {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -133,6 +137,7 @@ class PreferencesViewModel @Inject constructor(
             PreferencesEvent.ShareApp -> handleShareApp()
             PreferencesEvent.ContactDeveloper -> handleContactDeveloper()
             PreferencesEvent.ClearError -> clearError()
+            is PreferencesEvent.UpdatePermissionStatus -> updatePermissionStatus(event.hasPermission)
         }
     }
 

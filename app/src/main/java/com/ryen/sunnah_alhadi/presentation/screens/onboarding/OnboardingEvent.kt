@@ -13,4 +13,7 @@ sealed class OnboardingEvent {
     object PreviousStep : OnboardingEvent()
     object DismissOnboarding : OnboardingEvent()
     object CompleteOnboarding : OnboardingEvent()
+    object RequestNotificationPermission : OnboardingEvent()
+    object DismissPermissionDialog : OnboardingEvent()
+    data class UpdatePermissionStatus(val hasPermission: Boolean): OnboardingEvent()
 }

@@ -1,18 +1,21 @@
 package com.ryen.sunnah_alhadi.presentation.screens.onboarding
 
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
-import com.ryen.sunnah_alhadi.domain.model.UserPreferences
+import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.UpdateUserPreferencesUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.UserPreferencesUpdate
+import com.ryen.sunnah_alhadi.platform.scheduler.SotdNotificationScheduler
 import com.ryen.sunnah_alhadi.presentation.util.validateUsername
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,11 +23,17 @@ import javax.inject.Inject
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val updateUserPreferencesUseCase: UpdateUserPreferencesUseCase,
-    private val getUserPreferencesUseCase: GetUserPreferencesUseCase
+    private val getUserPreferencesUseCase: GetUserPreferencesUseCase,
+    private val getUserPreferencesFlowUseCase: GetUserPreferencesFlowUseCase,
+    private val sotdNotificationScheduler: SotdNotificationScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
+
+    init {
+        observeUserPreferences()
+    }
 
     fun onEvent(event: OnboardingEvent) {
         when (event) {
@@ -37,6 +46,9 @@ class OnboardingViewModel @Inject constructor(
             OnboardingEvent.PreviousStep -> previousStep()
             OnboardingEvent.DismissOnboarding -> dismissOnboarding()
             OnboardingEvent.CompleteOnboarding -> completeOnboarding()
+            OnboardingEvent.RequestNotificationPermission -> requestNotificationPermission()
+            OnboardingEvent.DismissPermissionDialog -> dismissPermissionDialog()
+            is OnboardingEvent.UpdatePermissionStatus -> updatePermissionStatus(event.hasPermission)
         }
     }
 
@@ -60,7 +72,19 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun updateNotification(enabled: Boolean) {
+        val currentState = _uiState.value
+
+        // If enabling notifications but no permission, show permission dialog
+        if (enabled && !currentState.hasNotificationPermission) {
+            _uiState.update { it.copy(showPermissionDialog = true) }
+            return
+        }
+
         _uiState.update { it.copy(isNotificationEnabled = enabled) }
+    }
+
+    fun updatePermissionStatus(hasPermission: Boolean) {
+        _uiState.update { it.copy(hasNotificationPermission = hasPermission) }
     }
 
     private fun updateNotificationTime(time: NotificationTime) {
@@ -116,12 +140,17 @@ class OnboardingViewModel @Inject constructor(
                     isDynamicThemeEnabled = currentState.isDynamicThemeEnabled,
                     isDailyReminderEnabled = currentState.isNotificationEnabled,
                     sotdNotificationTime = currentState.selectedNotificationTime,
+                    isSotdNotificationEnabled = currentState.isNotificationEnabled,
                     hasCompletedOnboarding = true
                 )
 
                 updateUserPreferencesUseCase(updatedPreferences)
+
+                // Handle notification scheduling
+                handleNotificationScheduling(currentState.isNotificationEnabled, currentState.selectedNotificationTime)
+
             } catch (e: Exception) {
-                // Handle error - could show snackbar or log
+                _uiState.update { it.copy(error = "Failed to save preferences: ${e.localizedMessage}") }
             }
         }
     }
@@ -130,20 +159,24 @@ class OnboardingViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val currentState = _uiState.value
-                val preferences = getUserPreferencesUseCase()
 
                 val completedPreferences = UserPreferencesUpdate(
-                    username = if (currentState.isUsernameValid) currentState.username else preferences.username,
+                    username = if (currentState.isUsernameValid) currentState.username else "",
                     themeMode = currentState.selectedTheme,
                     isDynamicThemeEnabled = currentState.isDynamicThemeEnabled,
                     isDailyReminderEnabled = currentState.isNotificationEnabled,
                     sotdNotificationTime = currentState.selectedNotificationTime,
+                    isSotdNotificationEnabled = currentState.isNotificationEnabled,
                     hasCompletedOnboarding = true
                 )
 
                 updateUserPreferencesUseCase(completedPreferences)
+
+                // Handle notification scheduling
+                handleNotificationScheduling(currentState.isNotificationEnabled, currentState.selectedNotificationTime)
+
             } catch (e: Exception) {
-                // Handle error
+                _uiState.update { it.copy(error = "Failed to complete onboarding: ${e.localizedMessage}") }
             }
         }
     }
@@ -151,10 +184,9 @@ class OnboardingViewModel @Inject constructor(
     private fun saveUsernamePreference(username: String) {
         viewModelScope.launch {
             try {
-                val preferences = getUserPreferencesUseCase()
                 updateUserPreferencesUseCase(UserPreferencesUpdate(username = username))
             } catch (e: Exception) {
-                // Handle error
+                _uiState.update { it.copy(error = "Failed to save username: ${e.localizedMessage}") }
             }
         }
     }
@@ -162,7 +194,6 @@ class OnboardingViewModel @Inject constructor(
     private fun saveThemePreferences(themeMode: ThemeMode, isDynamicEnabled: Boolean) {
         viewModelScope.launch {
             try {
-                val preferences = getUserPreferencesUseCase()
                 updateUserPreferencesUseCase(
                     UserPreferencesUpdate(
                         themeMode = themeMode,
@@ -170,7 +201,7 @@ class OnboardingViewModel @Inject constructor(
                     )
                 )
             } catch (e: Exception) {
-                // Handle error
+                _uiState.update { it.copy(error = "Failed to save theme preferences: ${e.localizedMessage}") }
             }
         }
     }
@@ -178,7 +209,6 @@ class OnboardingViewModel @Inject constructor(
     private fun saveNotificationPreferences(isEnabled: Boolean, time: NotificationTime) {
         viewModelScope.launch {
             try {
-                val preferences = getUserPreferencesUseCase()
                 updateUserPreferencesUseCase(
                     UserPreferencesUpdate(
                         isDailyReminderEnabled = isEnabled,
@@ -186,8 +216,81 @@ class OnboardingViewModel @Inject constructor(
                         isSotdNotificationEnabled = isEnabled
                     )
                 )
+
+                // Handle notification scheduling immediately after saving
+                handleNotificationScheduling(isEnabled, time)
+
             } catch (e: Exception) {
-                // Handle error
+                _uiState.update { it.copy(error = "Failed to save notification preferences: ${e.localizedMessage}") }
+            }
+        }
+    }
+
+    private suspend fun handleNotificationScheduling(isEnabled: Boolean, time: NotificationTime) {
+        try {
+            if (isEnabled && _uiState.value.hasNotificationPermission) {
+                sotdNotificationScheduler.scheduleNotification(time)
+            } else {
+                sotdNotificationScheduler.cancelNotification()
+            }
+        } catch (e: Exception) {
+            _uiState.update { it.copy(error = "Failed to schedule notifications: ${e.localizedMessage}") }
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            _uiState.update { it.copy(showPermissionDialog = true) }
+        } else {
+            // Pre-Android 13, no permission needed
+            _uiState.update { it.copy(hasNotificationPermission = true) }
+        }
+    }
+
+    private fun observeUserPreferences() {
+        viewModelScope.launch {
+            getUserPreferencesFlowUseCase()
+                .catch { exception ->
+                    _uiState.update {
+                        it.copy(
+                            error = "Failed to load preferences: ${exception.localizedMessage}",
+                            isLoading = false
+                        )
+                    }
+                }
+                .collect { preferences ->
+                    _uiState.update {
+                        it.copy(
+                            username = if (it.isUsernameValid) it.username else preferences.username,
+                            selectedTheme = ThemeMode.entries[preferences.themeMode],
+                            isDynamicThemeEnabled = preferences.isDynamicThemeEnabled,
+                            isNotificationEnabled = preferences.isDailyReminderEnabled,
+                            selectedNotificationTime = preferences.sotdNotificationTime,
+                            hasNotificationPermission = preferences.isSotdNotificationEnabled,
+                            isLoading = false,
+                            error = null
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun dismissPermissionDialog() {
+        _uiState.update { it.copy(showPermissionDialog = false) }
+    }
+
+    fun handlePermissionResult(granted: Boolean) {
+        _uiState.update {
+            it.copy(
+                hasNotificationPermission = granted,
+                showPermissionDialog = false
+            )
+        }
+
+        // If permission granted and notifications are enabled, schedule them
+        if (granted && _uiState.value.isNotificationEnabled) {
+            viewModelScope.launch {
+                handleNotificationScheduling(_uiState.value.isNotificationEnabled, _uiState.value.selectedNotificationTime)
             }
         }
     }

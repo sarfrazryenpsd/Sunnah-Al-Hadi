@@ -84,7 +84,7 @@ fun HomeScreenContent(
             // Greeting Section
             item {
                 HomeGreetingSection(
-                    userName = uiState.userName,
+                    userName = uiState.username,
                     modifier = Modifier.fillMaxWidth()
                 )
             }

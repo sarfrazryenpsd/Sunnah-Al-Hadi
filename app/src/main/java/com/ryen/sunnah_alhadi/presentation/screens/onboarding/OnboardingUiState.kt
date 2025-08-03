@@ -9,10 +9,13 @@ data class OnboardingUiState(
     val usernameError: String? = null,
     val isUsernameValid: Boolean = false,
     val selectedTheme: ThemeMode = ThemeMode.SYSTEM,
-    val isDynamicThemeEnabled: Boolean = true,
-    val isNotificationEnabled: Boolean = true,
+    val isDynamicThemeEnabled: Boolean = false,
+    val isNotificationEnabled: Boolean = false,
     val selectedNotificationTime: NotificationTime = NotificationTime.MORNING,
-    val isLoading: Boolean = false
+    val hasNotificationPermission: Boolean = false,
+    val showPermissionDialog: Boolean = false,
+    val isLoading: Boolean = false,
+    val error: String? = null
 )
 
 enum class OnboardingStep {
