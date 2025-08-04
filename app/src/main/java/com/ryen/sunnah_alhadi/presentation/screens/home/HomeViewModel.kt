@@ -8,6 +8,7 @@ import com.ryen.sunnah_alhadi.domain.useCase.GetRecentlyViewedSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahCountsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
+import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.GetCurrentSotdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.MarkSotdAsSeenUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.ShouldShowSotdCardUseCase
@@ -31,7 +32,8 @@ class HomeViewModel @Inject constructor(
     private val getSunnahCountsUseCase: GetSunnahCountsUseCase,
     private val getRecentlyViewedSunnahsUseCase: GetRecentlyViewedSunnahsUseCase,
     private val shouldShowSotdCardUseCase: ShouldShowSotdCardUseCase,
-    private val markSotdAsSeenUseCase: MarkSotdAsSeenUseCase
+    private val markSotdAsSeenUseCase: MarkSotdAsSeenUseCase,
+    private val generateNewSotdIdUseCase: GenerateNewSotdIdUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -63,6 +65,38 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.NavigateToAllTopics -> { /* Handle navigation */ }
             is HomeEvent.NavigateToTopic -> { /* Handle navigation */ }
             is HomeEvent.OpenSunnah -> { /* Handle navigation */ }
+            is HomeEvent.HandleNotificationLaunch -> handleNotificationLaunch(event.sotdId)
+        }
+    }
+
+    fun handleNotificationLaunch(sotdId: String? = null) {
+        viewModelScope.launch {
+            try {
+                // If specific SOTD ID provided, ensure it's the current one
+                sotdId?.let { id ->
+                    val currentId = getCurrentSotdUseCase().currentSotd?.id
+                    if (currentId != id) {
+                        // Notification SOTD might be stale, refresh
+                        generateNewSotdIdUseCase()
+                    }
+                }
+
+                // Force show SOTD overlay
+                val sotdState = getCurrentSotdUseCase()
+                if (sotdState.currentSotd != null) {
+                    _uiState.update {
+                        it.copy(
+                            sotd = sotdState.currentSotd,
+                            showSotd = true
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                // Handle error
+                _uiState.update {
+                    it.copy(error = "Failed to load SOTD: ${e.message}")
+                }
+            }
         }
     }
 
@@ -109,7 +143,13 @@ class HomeViewModel @Inject constructor(
                     is Result.Success -> {
                         val homeData = homeDataResult.data
 
-
+                        val finalSotdState = if (shouldShowSotd && sotdState.currentSotd == null) {
+                            // Generate new SOTD if none exists but should show
+                            generateNewSotdIdUseCase()
+                            getCurrentSotdUseCase() // Get the newly generated SOTD
+                        } else {
+                            sotdState
+                        }
                         // Determine if SOTD should auto-show (first launch today + not seen)
                         val autoShowSotd = shouldShowSotd &&
                                 sotdState.currentSotd != null &&
@@ -120,7 +160,7 @@ class HomeViewModel @Inject constructor(
                             username = homeData.userName,
                             featuredCategories = homeData.featuredCategories,
                             recentSotd = recentSotd,
-                            sotd = sotdState.currentSotd,
+                            sotd = finalSotdState.currentSotd,
                             showSotd = autoShowSotd
                         )
                     }
@@ -169,10 +209,5 @@ class HomeViewModel @Inject constructor(
         _uiState.value = currentState.copy(
             showDisclaimer = !currentState.showDisclaimer
         )
-    }
-
-    // Helper function to refresh data (can be called from pull-to-refresh)
-    fun refreshData() {
-        loadHomeData()
     }
 }

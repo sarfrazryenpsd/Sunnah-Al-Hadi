@@ -38,11 +38,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
+import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.presentation.components.DisclaimerDialog
 import com.ryen.sunnah_alhadi.presentation.components.HomeGreetingSection
 import com.ryen.sunnah_alhadi.presentation.components.cards.HomeSunnahCard
@@ -79,7 +82,7 @@ fun HomeScreenContent(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(16.dp)
+            contentPadding = PaddingValues(vertical = 24.dp)
         ) {
             // Greeting Section
             item {
@@ -101,7 +104,7 @@ fun HomeScreenContent(
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -124,7 +127,8 @@ fun HomeScreenContent(
                         }
 
                         LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.padding(start = 6.dp)
                         ) {
                             items(
                                 items = uiState.featuredCategories,
@@ -135,7 +139,6 @@ fun HomeScreenContent(
                                     numberOfSunnah = uiState.sunnahCount[category.id] ?: 0,
                                     topicSImage = R.drawable.interface_darklight,
                                     modifier = Modifier
-                                        .width(160.dp)
                                         .clickable {
                                             onEvent(HomeEvent.NavigateToTopic(category.id))
                                         }
@@ -317,6 +320,8 @@ fun HomeScreenContent(
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview
+@PreviewFontScale
+@PreviewScreenSizes
 @Composable
 private fun HomeScreenContentPrev() {
     CompositionLocalProvider(
@@ -326,7 +331,28 @@ private fun HomeScreenContentPrev() {
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
         ) {
             HomeScreenContent(
-                uiState = HomeUiState(),
+                uiState = HomeUiState(
+                    username = "Sarfraz",
+                    featuredCategories = listOf(
+                        Category(
+                            id = 1,
+                            topic = "Walking"
+                        ),Category(
+                            id = 2,
+                            topic = "Walking"
+                        ),Category(
+                            id = 3,
+                            topic = "Walking"
+                        ),Category(
+                            id = 4,
+                            topic = "Walking"
+                        ),Category(
+                            id = 5,
+                            topic = "Walking"
+                        )
+                    )
+
+                ),
                 onEvent = {}
             )
         }

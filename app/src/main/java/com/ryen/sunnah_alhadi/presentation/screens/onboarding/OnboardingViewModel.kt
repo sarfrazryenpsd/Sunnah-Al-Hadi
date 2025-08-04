@@ -276,7 +276,7 @@ class OnboardingViewModel @Inject constructor(
                             isDynamicThemeEnabled = preferences.isDynamicThemeEnabled,
                             isNotificationEnabled = preferences.isDailyReminderEnabled,
                             selectedNotificationTime = preferences.sotdNotificationTime,
-                            hasNotificationPermission = preferences.isSotdNotificationEnabled,
+                            hasNotificationPermission = NotificationPermissionUtils.hasNotificationPermission(context),
                             isLoading = false,
                             error = null
                         )

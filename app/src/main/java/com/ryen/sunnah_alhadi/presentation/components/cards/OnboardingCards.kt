@@ -39,7 +39,6 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -156,7 +155,7 @@ private fun UsernameCard(
         )
 
         Text(
-            text = "Let's personalize your experience.\nWhat would you like to be called?",
+            text = "Let's personalize your experience.\nWhat is your good name?",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant

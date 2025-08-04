@@ -34,7 +34,7 @@ val homeSunnahConst: Sunnah = Sunnah(
             type = ContentType.ENGLISH_TEXT,
             subtype = EnglishSubtype.NORMAL.name,
             content = "It was humbly asked, ‘Ya Rasoolallah صَلَّى اللهُ عَلَيْهِ وَسَلَّم ! Who will be those people?’ He صَلَّى اللهُ عَلَيْهِ وَسَلَّم replied:\n" +
-                    "1. The person who removes the worry of my Ummati.\n" +
+                    "1. The person who removes the worry of my Ummah.\n" +
                     "2. The one who revives my Sunnah.\n" +
                     "3. The one who recites salat upon me abundantly."
         )

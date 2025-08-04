@@ -1,23 +1,18 @@
 package com.ryen.sunnah_alhadi.presentation.components.cards
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +36,7 @@ fun SpecialArabicCard(
 
     Card(
         modifier = modifier
+            .wrapContentHeight()
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         colors = CardDefaults.cardColors(
@@ -56,45 +52,10 @@ fun SpecialArabicCard(
     ) {
         Box(
             modifier = Modifier
+                .wrapContentHeight()
                 .fillMaxWidth()
                 .padding(20.dp)
         ) {
-            // Decorative corner ornaments
-            Icon(
-                imageVector = Icons.Default.Star,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .size(16.dp)
-            )
-
-            Icon(
-                imageVector = Icons.Default.Star,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(16.dp)
-            )
-
-            Icon(
-                imageVector = Icons.Default.Star,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .size(16.dp)
-            )
-
-            Icon(
-                imageVector = Icons.Default.Star,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .size(16.dp)
-            )
 
             // Arabic content with RTL support
             BasicText(
@@ -109,12 +70,12 @@ fun SpecialArabicCard(
                 ),
                 maxLines = 2,
                 autoSize = TextAutoSize.StepBased(
-                    minFontSize = 20.sp,
+                    minFontSize = 16.sp,
                     maxFontSize = 30.sp,
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
             )
         }
     }

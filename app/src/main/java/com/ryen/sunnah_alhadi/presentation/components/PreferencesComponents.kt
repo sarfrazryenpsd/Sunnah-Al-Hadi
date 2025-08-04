@@ -121,36 +121,48 @@ fun PreferenceHorizontalItem(
             .fillMaxWidth()
             .then(clickableModifier)
             .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Icon(
-            imageVector = leadingIcon,
-            contentDescription = null,
-            tint = if (enabled) iconColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
-            modifier = Modifier.size(24.dp)
-        )
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Column(
-            modifier = Modifier
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+           modifier = Modifier.weight(1f)
+        ){
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = null,
+                tint = if (enabled) iconColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                    alpha = 0.38f
+                ),
+                modifier = Modifier.size(24.dp)
             )
 
-            subtitle?.let {
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier
+            ) {
                 Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        alpha = 0.38f
+                    )
                 )
+
+                subtitle?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = 0.38f
+                        )
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
+        //Spacer(modifier = Modifier.width(16.dp))
 
         trailingContent()
     }

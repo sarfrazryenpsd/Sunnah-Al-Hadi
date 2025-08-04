@@ -1,17 +1,15 @@
 package com.ryen.sunnah_alhadi
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.crashlytics
 import com.ryen.sunnah_alhadi.presentation.navigation.MainNavigation
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeViewModel
@@ -38,6 +36,8 @@ class MainActivity : ComponentActivity() {
             // Check if onboarding should be shown
             val showOnboarding = themeViewModel.shouldShowOnboarding()
 
+            val shouldShowSotd = intent?.getBooleanExtra("show_sotd", false) ?: false
+
             val windowSizeClass = calculateWindowSizeClass(this)
 
             SunnahAlHadiTheme(
@@ -47,6 +47,20 @@ class MainActivity : ComponentActivity() {
             ) {
                 MainNavigation(showOnboarding)
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        this.intent = intent
+
+        // If notification clicked while app is running, trigger SOTD display
+        val shouldShowSotd = intent.getBooleanExtra("show_sotd", false)
+        if (shouldShowSotd) {
+            // You'll need to implement a way to communicate this to your HomeViewModel
+            // Option 1: Use a shared event bus
+            // Option 2: Use a global state holder
+            // Option 3: Recreate the activity (not recommended)
         }
     }
 }

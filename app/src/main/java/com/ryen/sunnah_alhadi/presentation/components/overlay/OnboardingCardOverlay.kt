@@ -37,6 +37,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +51,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -61,8 +61,8 @@ import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingStep
 import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingUiState
 import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingViewModel
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
-import com.ryen.sunnah_alhadi.util.NotificationPermissionUtils
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun OnboardingCardOverlay(
     showOnboarding: Boolean,
@@ -70,6 +70,7 @@ fun OnboardingCardOverlay(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
+    val motion = MaterialTheme.motionScheme
     Box(modifier = modifier.fillMaxSize()) {
         // Main content underneath
         content()
@@ -78,10 +79,7 @@ fun OnboardingCardOverlay(
         AnimatedVisibility(
             visible = showOnboarding,
             enter = fadeIn(
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = EaseInOut
-                )
+                animationSpec = motion.fastEffectsSpec()
             ),
             exit = fadeOut(
                 animationSpec = tween(
