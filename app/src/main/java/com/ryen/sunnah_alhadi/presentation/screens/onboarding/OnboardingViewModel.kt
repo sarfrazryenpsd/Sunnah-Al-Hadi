@@ -304,15 +304,4 @@ class OnboardingViewModel @Inject constructor(
             }
         }
     }
-
-    fun canProceedToNextStep(): Boolean {
-        return when (_uiState.value.currentStep) {
-            OnboardingStep.USERNAME -> _uiState.value.isUsernameValid
-            else -> true
-        }
-    }
-
-    fun canGoToPreviousStep(): Boolean {
-        return _uiState.value.currentStep != OnboardingStep.USERNAME
-    }
 }

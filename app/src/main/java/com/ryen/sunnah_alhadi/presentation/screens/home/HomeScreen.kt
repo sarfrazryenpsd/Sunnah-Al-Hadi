@@ -124,8 +124,7 @@ fun HomeScreenContent(
                         }
 
                         LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            contentPadding = PaddingValues(horizontal = 4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             items(
                                 items = uiState.featuredCategories,

@@ -57,7 +57,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
@@ -101,7 +100,7 @@ fun PreferenceSection(
 }
 
 @Composable
-fun PreferenceItem(
+fun PreferenceHorizontalItem(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,
@@ -158,6 +157,73 @@ fun PreferenceItem(
 }
 
 @Composable
+fun PreferenceVerticalItem(
+    modifier: Modifier = Modifier,
+    title: String,
+    subtitle: String? = null,
+    leadingIcon: ImageVector,
+    iconColor: Color,
+    trailingContent: @Composable () -> Unit,
+    onClick: (() -> Unit)? = null,
+    enabled: Boolean = true,
+) {
+    val clickableModifier = if (onClick != null && enabled) {
+        Modifier.clickable { onClick() }
+    } else {
+        Modifier
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .then(clickableModifier)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = null,
+                tint = if (enabled) iconColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                    alpha = 0.38f
+                ),
+                modifier = Modifier.size(24.dp)
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        alpha = 0.38f
+                    )
+                )
+
+                subtitle?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = 0.38f
+                        )
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        trailingContent()
+    }
+}
+
+@Composable
 fun PreferenceSwitch(
     modifier: Modifier = Modifier,
     title: String,
@@ -168,7 +234,7 @@ fun PreferenceSwitch(
     iconColor: Color,
     enabled: Boolean = true
 ) {
-    PreferenceItem(
+    PreferenceHorizontalItem(
         title = title,
         subtitle = subtitle,
         leadingIcon = leadingIcon,
@@ -619,7 +685,7 @@ private fun PreferenceItemPrev() {
     SunnahAlHadiTheme(
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
-        PreferenceItem(
+        PreferenceHorizontalItem(
             title = "Title",
             subtitle = "Subtitle",
             leadingIcon = Icons.Default.Person,
@@ -642,7 +708,7 @@ private fun PreferenceSectionPrev() {
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
         PreferenceSection(title = "Title") {
-            PreferenceItem(
+            PreferenceHorizontalItem(
                 title = "Title",
                 subtitle = "Subtitle",
                 leadingIcon = Icons.Default.Person,
@@ -655,7 +721,7 @@ private fun PreferenceSectionPrev() {
                     )
                 }
             )
-            PreferenceItem(
+            PreferenceHorizontalItem(
                 title = "Title",
                 subtitle = "Subtitle",
                 leadingIcon = Icons.Default.Person,

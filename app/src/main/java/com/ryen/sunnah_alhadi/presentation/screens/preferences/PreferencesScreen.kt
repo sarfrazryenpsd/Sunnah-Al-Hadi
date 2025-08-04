@@ -60,10 +60,11 @@ import com.ryen.sunnah_alhadi.presentation.components.BugReportDialog
 import com.ryen.sunnah_alhadi.presentation.components.ContentDisplayDialog
 import com.ryen.sunnah_alhadi.presentation.components.NotificationPermissionDialog
 import com.ryen.sunnah_alhadi.presentation.components.NotificationTimeDropdown
-import com.ryen.sunnah_alhadi.presentation.components.PreferenceItem
+import com.ryen.sunnah_alhadi.presentation.components.PreferenceHorizontalItem
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceSection
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceSwitch
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceTextField
+import com.ryen.sunnah_alhadi.presentation.components.PreferenceVerticalItem
 import com.ryen.sunnah_alhadi.presentation.components.ThemeSegmentedButton
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
@@ -235,7 +236,7 @@ private fun AppearanceSection(
     PreferenceSection(title = "Appearance") {
         uiState.userPreferences?.let { preferences ->
             // Theme Mode Selection
-            PreferenceItem(
+            PreferenceVerticalItem(
                 title = "Theme",
                 subtitle = "Choose your preferred theme",
                 leadingIcon = Icons.Default.Palette,
@@ -297,7 +298,7 @@ private fun NotificationsSection(
                 )
 
                 // Notification Time Selection
-                PreferenceItem(
+                PreferenceVerticalItem(
                     title = "Reminder Time",
                     subtitle = "When to receive daily reminders",
                     leadingIcon = Icons.Default.AccessTime,
@@ -322,7 +323,7 @@ private fun AboutSection(
 ) {
     PreferenceSection(title = "About") {
         // App Version (Non-clickable)
-        PreferenceItem(
+        PreferenceHorizontalItem(
             title = "App Version",
             subtitle = "Version ${uiState.appVersion} (Build ${uiState.buildNumber})",
             leadingIcon = Icons.Default.Info,
@@ -336,7 +337,7 @@ private fun AboutSection(
         )
 
         // About Sunnah Al-Hadi
-        PreferenceItem(
+        PreferenceHorizontalItem(
             title = "About Sunnah Al-Hadi",
             subtitle = "Learn more about this app",
             leadingIcon = Icons.AutoMirrored.Default.MenuBook,
@@ -357,7 +358,7 @@ private fun AboutSection(
         )
 
         // Privacy Policy
-        PreferenceItem(
+        PreferenceHorizontalItem(
             title = "Privacy Policy",
             subtitle = "How we protect your privacy",
             leadingIcon = Icons.Default.Policy,
@@ -378,7 +379,7 @@ private fun AboutSection(
         )
 
         // Terms of Service
-        PreferenceItem(
+        PreferenceHorizontalItem(
             title = "Terms of Service",
             subtitle = "App usage terms and conditions",
             leadingIcon = Icons.Default.Description,
@@ -403,7 +404,7 @@ private fun SupportSection(
 ) {
     PreferenceSection(title = "Support & Feedback") {
         // Rate App
-        PreferenceItem(
+        PreferenceHorizontalItem(
             title = "Rate App",
             subtitle = "Help us improve by rating on Play Store",
             leadingIcon = Icons.Default.Star,
@@ -427,7 +428,7 @@ private fun SupportSection(
         )
 
         // Report Bug
-        PreferenceItem(
+        PreferenceHorizontalItem(
             title = "Report Bug",
             subtitle = "Help us fix issues you encounter",
             leadingIcon = Icons.Default.BugReport,
@@ -455,7 +456,7 @@ private fun SupportSection(
         )
 
         // Contact Developer
-        PreferenceItem(
+        PreferenceHorizontalItem(
             title = "Contact Developer",
             subtitle = "Send feedback or ask questions",
             leadingIcon = Icons.Default.Email,
@@ -479,7 +480,7 @@ private fun SupportSection(
         )
 
         // Share App
-        PreferenceItem(
+        PreferenceHorizontalItem(
             title = "Share App",
             subtitle = "Invite others to this blessed app",
             leadingIcon = Icons.Default.Share,

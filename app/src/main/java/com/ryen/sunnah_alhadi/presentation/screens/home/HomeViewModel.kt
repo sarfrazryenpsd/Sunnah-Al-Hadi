@@ -42,6 +42,7 @@ class HomeViewModel @Inject constructor(
         loadHomeData()
         val categoryIds = (0..29).toList()
         loadCounts(categoryIds)
+        observeUserPreferences()
     }
 
     fun loadCounts(categoryIds: List<Int>) {
