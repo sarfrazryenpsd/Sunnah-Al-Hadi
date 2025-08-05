@@ -45,7 +45,7 @@ class ThemeViewModel @Inject constructor(
 }
 
 data class ThemeUiState(
-    val themeMode: ThemeMode = ThemeMode.LIGHT,
-    val isDynamicThemeEnabled: Boolean = true,
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val isDynamicThemeEnabled: Boolean = false,
     val userPreferences: UserPreferences? = null
 )

@@ -37,6 +37,7 @@ class MainActivity : ComponentActivity() {
             val showOnboarding = themeViewModel.shouldShowOnboarding()
 
             val shouldShowSotd = intent?.getBooleanExtra("show_sotd", false) ?: false
+            val sotdId = intent?.getStringExtra("sotd_id")
 
             val windowSizeClass = calculateWindowSizeClass(this)
 
@@ -45,7 +46,7 @@ class MainActivity : ComponentActivity() {
                 themeMode = themeUiState.themeMode,
                 isDynamicColorEnabled = themeUiState.isDynamicThemeEnabled
             ) {
-                MainNavigation(showOnboarding)
+                MainNavigation(showOnboarding, shouldShowSotd, sotdId)
             }
         }
     }
@@ -54,13 +55,9 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         this.intent = intent
 
-        // If notification clicked while app is running, trigger SOTD display
-        val shouldShowSotd = intent.getBooleanExtra("show_sotd", false)
-        if (shouldShowSotd) {
-            // You'll need to implement a way to communicate this to your HomeViewModel
-            // Option 1: Use a shared event bus
-            // Option 2: Use a global state holder
-            // Option 3: Recreate the activity (not recommended)
+        // ✅ For notification clicks while app is running, recreate with new intent
+        if (intent.getBooleanExtra("show_sotd", false)) {
+            recreate() // Simple approach to handle new intent
         }
     }
 }

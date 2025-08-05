@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@file:OptIn(ExperimentalMaterial3WindowSizeClassApi::class,
+    ExperimentalMaterial3ExpressiveApi::class
+)
 
 package com.ryen.sunnah_alhadi.presentation.components.overlay
 
@@ -62,12 +64,12 @@ import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingUiState
 import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingViewModel
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun OnboardingCardOverlay(
-    showOnboarding: Boolean,
+fun CardOverlay(
+    showOverlay: Boolean,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    overlayContent: @Composable () -> Unit,
     content: @Composable () -> Unit
 ) {
     val motion = MaterialTheme.motionScheme
@@ -75,12 +77,10 @@ fun OnboardingCardOverlay(
         // Main content underneath
         content()
 
-        // Onboarding overlay with backdrop blur
+        // Overlay with backdrop blur
         AnimatedVisibility(
-            visible = showOnboarding,
-            enter = fadeIn(
-                animationSpec = motion.fastEffectsSpec()
-            ),
+            visible = showOverlay,
+            enter = fadeIn(animationSpec = motion.fastEffectsSpec()),
             exit = fadeOut(
                 animationSpec = tween(
                     durationMillis = 200,
@@ -88,16 +88,31 @@ fun OnboardingCardOverlay(
                 )
             )
         ) {
-            OnboardingOverlayContent(
-                onDismiss = onDismiss,
-                modifier = Modifier.fillMaxSize()
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.7f))
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { /* Prevent click-through */ }
+            ) {
+                // Centered overlay card (80% screen size)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .fillMaxWidth(0.8f)
+                        .wrapContentHeight()
+                ) {
+                    overlayContent()
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun OnboardingOverlayContent(
+fun OnboardingOverlayContent(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {

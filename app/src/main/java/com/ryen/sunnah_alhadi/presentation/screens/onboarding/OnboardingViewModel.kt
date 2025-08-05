@@ -15,6 +15,7 @@ import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
 import com.ryen.sunnah_alhadi.util.NotificationPermissionUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -159,6 +160,7 @@ class OnboardingViewModel @Inject constructor(
                 // Handle notification scheduling
                 handleNotificationScheduling(currentState.isNotificationEnabled, currentState.selectedNotificationTime)
 
+                delay(100)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to save preferences: ${e.localizedMessage}") }
             }
@@ -185,6 +187,7 @@ class OnboardingViewModel @Inject constructor(
                 // Handle notification scheduling
                 handleNotificationScheduling(currentState.isNotificationEnabled, currentState.selectedNotificationTime)
 
+                delay(100)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to complete onboarding: ${e.localizedMessage}") }
             }

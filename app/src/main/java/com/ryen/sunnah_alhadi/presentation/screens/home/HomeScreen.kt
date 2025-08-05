@@ -31,6 +31,7 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -59,9 +60,17 @@ import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    shouldShowSotd: Boolean = false,
+    onSotdRequested: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.showSotd) {
+        if (uiState.showSotd) {
+            onSotdRequested()
+        }
+    }
 
     HomeScreenContent(
         uiState = uiState,

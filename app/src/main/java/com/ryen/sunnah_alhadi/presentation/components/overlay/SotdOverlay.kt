@@ -16,14 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,6 +35,9 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.ContentBlock
 import com.ryen.sunnah_alhadi.domain.model.ContentType
@@ -52,6 +55,9 @@ import com.ryen.sunnah_alhadi.domain.model.ExtraContent
 import com.ryen.sunnah_alhadi.domain.model.ExtraContentType
 import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
+import com.ryen.sunnah_alhadi.presentation.components.cards.SotdCard
+import com.ryen.sunnah_alhadi.presentation.screens.home.HomeEvent
+import com.ryen.sunnah_alhadi.presentation.screens.home.HomeViewModel
 import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRenderer
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
@@ -61,161 +67,186 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun SotdOverlay(
-    sunnah: Sunnah,
+fun SotdCardContainer(
+    sotdId: String?,
     onDismiss: () -> Unit,
-    onReadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Brightened backdrop (not darkened) covering entire screen
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
-            )
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { onDismiss() }
-    ) {
-        // Close button at top-right
-        IconButton(
-            onClick = onDismiss,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-                .background(
-                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
-                    CircleShape
-                )
-        ) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Close SOTD",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+    val homeViewModel: HomeViewModel = hiltViewModel()
+    val uiState by homeViewModel.uiState.collectAsState()
 
-        // Dynamic sizing based on content - centered SOTD card
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .widthIn(max = 400.dp)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+    // ✅ Handle notification launch or auto-show
+    LaunchedEffect(sotdId) {
+        if (sotdId != null) {
+            // From notification - handle specific SOTD
+            homeViewModel.onEvent(HomeEvent.HandleNotificationLaunch(sotdId))
+        } else {
+            // Auto-show current SOTD
+            homeViewModel.onEvent(HomeEvent.ToggleSotd)
+        }
+    }
+
+    // ✅ Only show if SOTD exists
+    if (uiState.sotd != null) {
+        // Brightened backdrop covering entire screen
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(
+                    MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+                )
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
-                ) { /* Prevent dismiss when clicking on card */ },
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Enhanced SOTD Card for overlay
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                ),
-                border = BorderStroke(
-                    width = 3.dp,
-                    color = MaterialTheme.colorScheme.tertiary
-                ),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 12.dp
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Enhanced SOTD Header
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = "Sunnah of the Day",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.size(24.dp)
-                        )
+                    homeViewModel.onEvent(HomeEvent.MarkSotdAsSeen)
+                    onDismiss()
+                }
+        ) {
+            // Close button at top-right
+            IconButton(
+                onClick = {
+                    homeViewModel.onEvent(HomeEvent.MarkSotdAsSeen)
+                    onDismiss()
+                },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .background(
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close SOTD",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .fillMaxWidth(0.8f)
+                    .wrapContentHeight()
+            ) {
+                SotdOverlayContent(
+                    sunnah = uiState.sotd!!,
+                    onDismiss = {
+                        homeViewModel.onEvent(HomeEvent.MarkSotdAsSeen)
+                        onDismiss()
                     }
+                )
+            }
+        }
+    }
+}
 
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Date indicator
-                    Text(
-                        text = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault())
-                            .format(Date()),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f),
-                        textAlign = TextAlign.Center
+@Composable
+fun SotdOverlayContent(
+    sunnah: Sunnah,
+    onDismiss: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .widthIn(max = 400.dp)
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { /* Prevent dismiss when clicking on card */ },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Enhanced SOTD Card for overlay
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+            ),
+            border = BorderStroke(
+                width = 3.dp,
+                color = MaterialTheme.colorScheme.tertiary
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 12.dp
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Enhanced SOTD Header
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.size(24.dp)
                     )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Sunnah Title
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = sunnah.title,
-                        style = MaterialTheme.typography.headlineMedium,
+                        text = "Sunnah of the Day",
+                        style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold
                     )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Sunnah Content
-                    DynamicContentBlockRenderer(
-                        contentBlocks = sunnah.body,
-                        modifier = Modifier.fillMaxWidth()
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.size(24.dp)
                     )
+                }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                    // Action buttons
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                // Date indicator
+                Text(
+                    text = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault())
+                        .format(Date()),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f),
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Sunnah Title
+                Text(
+                    text = sunnah.title,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Sunnah Content
+                DynamicContentBlockRenderer(
+                    contentBlocks = sunnah.body,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Action buttons
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
                     ) {
-                        OutlinedButton(
-                            onClick = onDismiss,
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                            )
-                        ) {
-                            Text("Later")
-                        }
-
-                        Button(
-                            onClick = onReadMore,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.tertiary,
-                                contentColor = MaterialTheme.colorScheme.onTertiary
-                            )
-                        ) {
-                            Text("Read More")
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
+                        Text("Sub'han Allah")
                     }
                 }
             }
@@ -229,12 +260,12 @@ fun SotdOverlay(
 private fun SotdOverlayPrev() {
     CompositionLocalProvider(
         LocalScreenSize provides ScreenSize.EXPANDED // or whatever default makes sense
-    ){
+    ) {
         SunnahAlHadiTheme(
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp)),
 
-        ) {
-            SotdOverlay(
+            ) {
+            SotdOverlayContent(
                 sunnah = Sunnah(
                     id = "",
                     categoryId = 5,
@@ -288,8 +319,7 @@ private fun SotdOverlayPrev() {
                         )
                     ),
                 ),
-                onDismiss = {},
-                onReadMore = {}
+                onDismiss = {}
             )
         }
     }

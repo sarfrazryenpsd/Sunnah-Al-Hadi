@@ -3,6 +3,7 @@ package com.ryen.sunnah_alhadi.presentation.screens.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ryen.sunnah_alhadi.domain.model.SotdState
 import com.ryen.sunnah_alhadi.domain.useCase.GetHomeDataUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetRecentlyViewedSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
@@ -72,18 +73,35 @@ class HomeViewModel @Inject constructor(
     fun handleNotificationLaunch(sotdId: String? = null) {
         viewModelScope.launch {
             try {
-                // If specific SOTD ID provided, ensure it's the current one
-                sotdId?.let { id ->
-                    val currentId = getCurrentSotdUseCase().currentSotd?.id
-                    if (currentId != id) {
-                        // Notification SOTD might be stale, refresh
-                        generateNewSotdIdUseCase()
+                val sotdState = if (sotdId != null) {
+                    // ✅ Specific SOTD from notification
+                    val sunnah = getSunnahByIdUseCase(sotdId)
+                    when (sunnah) {
+                        is Result.Success -> {
+                            if (sunnah.data != null) {
+                                // Verify this is current SOTD, if not update it
+                                val currentSotdId = getCurrentSotdUseCase().currentSotd?.id
+                                if (currentSotdId != sotdId) {
+                                    // Update current SOTD to match notification
+                                    markSotdAsSeenUseCase() // Mark old as seen
+                                    // Update preferences with notification SOTD
+                                }
+                                SotdState(
+                                    currentSotd = sunnah.data,
+                                    isSeen = false,
+                                    isAvailable = true,
+                                    generatedDate = System.currentTimeMillis()
+                                )
+                            } else null
+                        }
+                        is Result.Error -> null
                     }
+                } else {
+                    // ✅ Get current SOTD
+                    getCurrentSotdUseCase()
                 }
 
-                // Force show SOTD overlay
-                val sotdState = getCurrentSotdUseCase()
-                if (sotdState.currentSotd != null) {
+                if (sotdState?.currentSotd != null) {
                     _uiState.update {
                         it.copy(
                             sotd = sotdState.currentSotd,
@@ -92,7 +110,6 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                // Handle error
                 _uiState.update {
                     it.copy(error = "Failed to load SOTD: ${e.message}")
                 }

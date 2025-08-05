@@ -48,6 +48,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,9 +71,12 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
-import com.ryen.sunnah_alhadi.presentation.components.overlay.OnboardingCardOverlay
+import com.ryen.sunnah_alhadi.presentation.components.overlay.CardOverlay
+import com.ryen.sunnah_alhadi.presentation.components.overlay.OnboardingOverlayContent
+import com.ryen.sunnah_alhadi.presentation.components.overlay.SotdCardContainer
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeScreen
 import com.ryen.sunnah_alhadi.presentation.screens.preferences.PreferencesScreen
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -80,9 +84,8 @@ import com.ryen.sunnah_alhadi.presentation.screens.preferences.PreferencesScreen
 fun MainNavigation(
     showOnboarding: Boolean,
     shouldShowSotd: Boolean = false,
-    sotdId: String? = null
+    sotdId: String? = null // ✅ Now receives sotdId
 ) {
-
     // Screen size detection
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val isCompact = !windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
@@ -91,25 +94,77 @@ fun MainNavigation(
     val backStack = rememberNavBackStack(Home)
     val topLevelDestinations = listOf(Home, Browse, Preferences)
 
-    // Onboarding integration with backdrop overlay
-    OnboardingCardOverlay(
-        showOnboarding = showOnboarding,
-        onDismiss = {
-            // Handle onboarding dismissal - mark as completed
-            // This will be handled by OnboardingViewModel internally
+    // ✅ Sequential overlay state management
+    var showOnboardingState by remember { mutableStateOf(showOnboarding) }
+    var showSotdState by remember { mutableStateOf(false) }
+    var currentSotdId by remember { mutableStateOf<String?>(null) }
+
+    // ✅ Handle notification launch immediately if from notification
+    LaunchedEffect(shouldShowSotd, sotdId) {
+        if (shouldShowSotd && sotdId != null) {
+            currentSotdId = sotdId
+            if (!showOnboardingState) {
+                // Show SOTD immediately if onboarding not needed
+                showSotdState = true
+            }
+        }
+    }
+
+    // ✅ Show SOTD after onboarding completes (if needed)
+    LaunchedEffect(showOnboardingState) {
+        if (!showOnboardingState && shouldShowSotd) {
+            delay(300) // Smooth transition
+            showSotdState = true
+        }
+    }
+
+    // ✅ Onboarding overlay (highest priority)
+    CardOverlay(
+        showOverlay = showOnboardingState,
+        onDismiss = { showOnboardingState = false },
+        overlayContent = {
+            OnboardingOverlayContent(
+                onDismiss = { showOnboardingState = false }
+            )
         }
     ) {
-        // Main app content underneath onboarding overlay
-        if (isCompact) {
-            CompactScreenLayout(
-                backStack = backStack,
-                topLevelDestinations = topLevelDestinations
-            )
-        } else {
-            ExpandedScreenLayout(
-                backStack = backStack,
-                topLevelDestinations = topLevelDestinations
-            )
+        // ✅ SOTD overlay (shows after onboarding or immediately)
+        CardOverlay(
+            showOverlay = showSotdState,
+            onDismiss = {
+                showSotdState = false
+                currentSotdId = null
+            },
+            overlayContent = {
+                SotdCardContainer(
+                    sotdId = currentSotdId,
+                    onDismiss = {
+                        showSotdState = false
+                        currentSotdId = null
+                    }
+                )
+            }
+        ) {
+            // Main app content
+            if (isCompact) {
+                CompactScreenLayout(
+                    backStack = backStack,
+                    topLevelDestinations = topLevelDestinations,
+                    shouldShowSotd = shouldShowSotd,
+                    onSotdRequested = {
+                        showSotdState = true
+                    }
+                )
+            } else {
+                ExpandedScreenLayout(
+                    backStack = backStack,
+                    topLevelDestinations = topLevelDestinations,
+                    shouldShowSotd = shouldShowSotd,
+                    onSotdRequested = {
+                        showSotdState = true
+                    }
+                )
+            }
         }
     }
 }
@@ -118,7 +173,9 @@ fun MainNavigation(
 @Composable
 private fun CompactScreenLayout(
     backStack: SnapshotStateList<NavKey>,
-    topLevelDestinations: List<NavKey>
+    topLevelDestinations: List<NavKey>,
+    shouldShowSotd: Boolean,
+    onSotdRequested: () -> Unit
 ) {
     // State for toolbar expansion
     var isToolbarExpanded by rememberSaveable { mutableStateOf(true) }
@@ -139,6 +196,8 @@ private fun CompactScreenLayout(
             // Main navigation content
             NavigationContent(
                 backStack = backStack,
+                shouldShowSotd = shouldShowSotd,
+                onSotdRequested = onSotdRequested,
                 modifier = Modifier.fillMaxSize()
             )
 
@@ -159,7 +218,9 @@ private fun CompactScreenLayout(
 @Composable
 private fun ExpandedScreenLayout(
     backStack: SnapshotStateList<NavKey>,
-    topLevelDestinations: List<NavKey>
+    topLevelDestinations: List<NavKey>,
+    shouldShowSotd: Boolean,
+    onSotdRequested: () -> Unit
 ) {
     // State for navigation rail expansion
     var isNavRailExpanded by rememberSaveable { mutableStateOf(false) }
@@ -178,6 +239,8 @@ private fun ExpandedScreenLayout(
 
         NavigationContent(
             backStack = backStack,
+            shouldShowSotd = shouldShowSotd,
+            onSotdRequested = onSotdRequested,
             modifier = Modifier.fillMaxSize()
         )
     }
@@ -186,6 +249,8 @@ private fun ExpandedScreenLayout(
 @Composable
 private fun NavigationContent(
     backStack: SnapshotStateList<NavKey>,
+    shouldShowSotd: Boolean,
+    onSotdRequested: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val twoPaneStrategy = remember { TwoPaneSceneStrategy<NavKey>() }
@@ -232,7 +297,7 @@ private fun NavigationContent(
                 slideInHorizontally(initialOffsetX = { -it }) togetherWith
                         slideOutHorizontally(targetOffsetX = { it })
             },
-            entryProvider = createEntryProvider(backStack)
+            entryProvider = createEntryProvider(backStack, shouldShowSotd, onSotdRequested)
         )
     }
 }
@@ -361,13 +426,17 @@ private fun getDestinationIcon(destination: NavKey): ImageVector {
 }
 
 // Entry provider factory function
-private fun createEntryProvider(backStack: SnapshotStateList<NavKey>) = entryProvider<NavKey> {
+private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, shouldShowSotd: Boolean, onSotdRequested: () -> Unit) = entryProvider<NavKey> {
     entry<Home>(
         metadata = TwoPaneScene.twoPane()
     ) {
         HomeScreen(
+            shouldShowSotd = shouldShowSotd,
+            onSotdRequested = onSotdRequested,
             modifier = Modifier.fillMaxSize()
         )
+
+        //ContentGreen("HomeScreen")
     }
 
     entry<Topic>(

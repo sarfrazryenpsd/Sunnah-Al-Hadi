@@ -36,6 +36,7 @@ import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 fun SotdCard(
     sunnah: Sunnah,
     modifier: Modifier = Modifier,
+    onDismiss: () -> Unit = {},
     onClick: () -> Unit = {}
 ) {
     Card(
