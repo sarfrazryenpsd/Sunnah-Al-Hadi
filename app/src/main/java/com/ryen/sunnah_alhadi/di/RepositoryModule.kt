@@ -37,7 +37,8 @@ abstract class RepositoryModule {
     ): CategoryRepository
 
     @Binds
+    @Singleton
     abstract fun bindBugReportRepository(
-        bugReportRepositoryImpl: BugReportRepositoryImpl
+        impl: BugReportRepositoryImpl
     ): BugReportRepository
 }

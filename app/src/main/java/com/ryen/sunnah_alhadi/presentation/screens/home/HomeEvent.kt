@@ -15,6 +15,6 @@ sealed class HomeEvent{
 
     data class OpenSunnah(val sunnahId: String) : HomeEvent()
 
-    data class HandleNotificationLaunch(val sotdId: String?) : HomeEvent()
+    data object HandleNotificationLaunch : HomeEvent()
 
 }

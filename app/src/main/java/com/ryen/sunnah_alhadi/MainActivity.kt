@@ -5,11 +5,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ryen.sunnah_alhadi.presentation.common.LoadingIndicator
 import com.ryen.sunnah_alhadi.presentation.navigation.MainNavigation
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeViewModel
@@ -34,9 +38,7 @@ class MainActivity : ComponentActivity() {
             val themeUiState by themeViewModel.uiState.collectAsState()
 
             // Check if onboarding should be shown
-            val showOnboarding = themeViewModel.shouldShowOnboarding()
 
-            val shouldShowSotd = intent?.getBooleanExtra("show_sotd", false) ?: false
             val sotdId = intent?.getStringExtra("sotd_id")
 
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -46,7 +48,20 @@ class MainActivity : ComponentActivity() {
                 themeMode = themeUiState.themeMode,
                 isDynamicColorEnabled = themeUiState.isDynamicThemeEnabled
             ) {
-                MainNavigation(showOnboarding, shouldShowSotd, sotdId)
+                val showOnboarding by themeViewModel.shouldShowOnboardingFlow().collectAsState(initial = null)
+
+                val isFromNotification = intent?.getBooleanExtra("show_sotd", false) ?: false
+
+
+                showOnboarding?.let { shouldShowOnboarding ->
+                    MainNavigation(
+                        showOnboarding = shouldShowOnboarding,
+                        isFromNotification = isFromNotification
+                    )
+                } ?: run {
+                    // ✅ Show loading while determining onboarding state
+                    LoadingIndicator()
+                }
             }
         }
     }

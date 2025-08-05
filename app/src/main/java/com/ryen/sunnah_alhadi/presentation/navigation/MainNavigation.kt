@@ -71,6 +71,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
+import com.ryen.sunnah_alhadi.presentation.common.LoadingIndicator
 import com.ryen.sunnah_alhadi.presentation.components.overlay.CardOverlay
 import com.ryen.sunnah_alhadi.presentation.components.overlay.OnboardingOverlayContent
 import com.ryen.sunnah_alhadi.presentation.components.overlay.SotdCardContainer
@@ -83,8 +84,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun MainNavigation(
     showOnboarding: Boolean,
-    shouldShowSotd: Boolean = false,
-    sotdId: String? = null // ✅ Now receives sotdId
+    isFromNotification: Boolean = false,
 ) {
     // Screen size detection
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
@@ -95,27 +95,24 @@ fun MainNavigation(
     val topLevelDestinations = listOf(Home, Browse, Preferences)
 
     // ✅ Sequential overlay state management
-    var showOnboardingState by remember { mutableStateOf(showOnboarding) }
-    var showSotdState by remember { mutableStateOf(false) }
-    var currentSotdId by remember { mutableStateOf<String?>(null) }
+    var showOnboardingState by rememberSaveable { mutableStateOf(showOnboarding) }
+    var showSotdState by rememberSaveable { mutableStateOf(false) }
+    var isInitializing by remember { mutableStateOf(true) }
 
-    // ✅ Handle notification launch immediately if from notification
-    LaunchedEffect(shouldShowSotd, sotdId) {
-        if (shouldShowSotd && sotdId != null) {
-            currentSotdId = sotdId
-            if (!showOnboardingState) {
-                // Show SOTD immediately if onboarding not needed
-                showSotdState = true
-            }
-        }
+    // ✅ Handle initial loading to prevent flash
+    LaunchedEffect(showOnboarding) {
+        isInitializing = false
     }
 
-    // ✅ Show SOTD after onboarding completes (if needed)
-    LaunchedEffect(showOnboardingState) {
-        if (!showOnboardingState && shouldShowSotd) {
+    // ✅ Handle notification launch - trigger SOTD after onboarding completes
+    LaunchedEffect(showOnboardingState, isFromNotification) {
+        if (!isInitializing && !showOnboardingState && isFromNotification) {
             delay(300) // Smooth transition
             showSotdState = true
         }
+    }
+    if (isInitializing) {
+        LoadingIndicator()
     }
 
     // ✅ Onboarding overlay (highest priority)
@@ -131,17 +128,11 @@ fun MainNavigation(
         // ✅ SOTD overlay (shows after onboarding or immediately)
         CardOverlay(
             showOverlay = showSotdState,
-            onDismiss = {
-                showSotdState = false
-                currentSotdId = null
-            },
+            onDismiss = { showSotdState = false },
             overlayContent = {
                 SotdCardContainer(
-                    sotdId = currentSotdId,
-                    onDismiss = {
-                        showSotdState = false
-                        currentSotdId = null
-                    }
+                    isFromNotification = isFromNotification,
+                    onDismiss = { showSotdState = false }
                 )
             }
         ) {
@@ -150,19 +141,13 @@ fun MainNavigation(
                 CompactScreenLayout(
                     backStack = backStack,
                     topLevelDestinations = topLevelDestinations,
-                    shouldShowSotd = shouldShowSotd,
-                    onSotdRequested = {
-                        showSotdState = true
-                    }
+                    onSotdRequested = { showSotdState = true }
                 )
             } else {
                 ExpandedScreenLayout(
                     backStack = backStack,
                     topLevelDestinations = topLevelDestinations,
-                    shouldShowSotd = shouldShowSotd,
-                    onSotdRequested = {
-                        showSotdState = true
-                    }
+                    onSotdRequested = { showSotdState = true }
                 )
             }
         }
@@ -174,7 +159,6 @@ fun MainNavigation(
 private fun CompactScreenLayout(
     backStack: SnapshotStateList<NavKey>,
     topLevelDestinations: List<NavKey>,
-    shouldShowSotd: Boolean,
     onSotdRequested: () -> Unit
 ) {
     // State for toolbar expansion
@@ -196,7 +180,6 @@ private fun CompactScreenLayout(
             // Main navigation content
             NavigationContent(
                 backStack = backStack,
-                shouldShowSotd = shouldShowSotd,
                 onSotdRequested = onSotdRequested,
                 modifier = Modifier.fillMaxSize()
             )
@@ -219,7 +202,6 @@ private fun CompactScreenLayout(
 private fun ExpandedScreenLayout(
     backStack: SnapshotStateList<NavKey>,
     topLevelDestinations: List<NavKey>,
-    shouldShowSotd: Boolean,
     onSotdRequested: () -> Unit
 ) {
     // State for navigation rail expansion
@@ -239,7 +221,6 @@ private fun ExpandedScreenLayout(
 
         NavigationContent(
             backStack = backStack,
-            shouldShowSotd = shouldShowSotd,
             onSotdRequested = onSotdRequested,
             modifier = Modifier.fillMaxSize()
         )
@@ -249,7 +230,6 @@ private fun ExpandedScreenLayout(
 @Composable
 private fun NavigationContent(
     backStack: SnapshotStateList<NavKey>,
-    shouldShowSotd: Boolean,
     onSotdRequested: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -297,7 +277,7 @@ private fun NavigationContent(
                 slideInHorizontally(initialOffsetX = { -it }) togetherWith
                         slideOutHorizontally(targetOffsetX = { it })
             },
-            entryProvider = createEntryProvider(backStack, shouldShowSotd, onSotdRequested)
+            entryProvider = createEntryProvider(backStack, onSotdRequested)
         )
     }
 }
@@ -426,12 +406,11 @@ private fun getDestinationIcon(destination: NavKey): ImageVector {
 }
 
 // Entry provider factory function
-private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, shouldShowSotd: Boolean, onSotdRequested: () -> Unit) = entryProvider<NavKey> {
+private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequested: () -> Unit) = entryProvider<NavKey> {
     entry<Home>(
         metadata = TwoPaneScene.twoPane()
     ) {
         HomeScreen(
-            shouldShowSotd = shouldShowSotd,
             onSotdRequested = onSotdRequested,
             modifier = Modifier.fillMaxSize()
         )

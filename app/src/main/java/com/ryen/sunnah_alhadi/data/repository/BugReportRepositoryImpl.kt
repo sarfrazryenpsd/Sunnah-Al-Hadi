@@ -5,6 +5,7 @@ import com.ryen.sunnah_alhadi.data.local.datasource.dao.BugReportDao
 import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.data.model.toEntity
 import com.ryen.sunnah_alhadi.domain.model.BugReport
+import com.ryen.sunnah_alhadi.domain.model.BugReportException
 import com.ryen.sunnah_alhadi.domain.repository.BugReportRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -100,17 +101,3 @@ class BugReportRepositoryImpl @Inject constructor(
     }
 }
 
-class BugReportException(
-    message: String,
-    val fullDescription: String,
-    val reportId: String
-) : Exception(message) {
-
-    fun toFormattedString(): String {
-        return buildString {
-            appendLine("BugReportException: $message")
-            appendLine("Report ID: $reportId")
-            appendLine("Full Description: $fullDescription")
-        }
-    }
-}

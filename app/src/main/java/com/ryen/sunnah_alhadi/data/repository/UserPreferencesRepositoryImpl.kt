@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -21,19 +22,47 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class UserPreferencesRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<ProtoUserPreferences>,
     @param:ApplicationScope private val applicationScope: CoroutineScope
 ) : UserPreferencesRepository{
 
-
+    // ✅ Create a default UserPreferences for initial state
+    private val defaultUserPreferences = UserPreferences(
+        username = "",
+        themeMode = 0, // SYSTEM
+        isDynamicThemeEnabled = true,
+        isDailyReminderEnabled = true,
+        hasCompletedOnboarding = false,
+        hasSeenDisclaimer = false,
+        recentlyViewedSunnahIds = emptyList(),
+        currentSotdId = "",
+        sotdGeneratedDate = 0L,
+        isSotdSeen = false,
+        sotdNotificationTime = NotificationTime.MORNING,
+        isSotdNotificationEnabled = true
+    )
     // Cache frequently accessed data
-    private val _userPreferencesFlow: StateFlow<UserPreferences?> = dataStore.data.map { it.toDomain() }
+    private val _userPreferencesFlow: StateFlow<UserPreferences> = dataStore.data
+        .map { protoPrefs ->
+            try {
+                protoPrefs.toDomain()
+            } catch (e: Exception) {
+                // Return default if parsing fails
+                defaultUserPreferences
+            }
+        }
+        .catch { exception ->
+            // Emit default preferences on any error
+            emit(defaultUserPreferences)
+        }
         .stateIn(
             scope = applicationScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = null
+            started = SharingStarted.Lazily, // ✅ Keep alive once started
+            initialValue = defaultUserPreferences // ✅ Never null
         )
 
     override suspend fun getUserPreferences(): UserPreferences {

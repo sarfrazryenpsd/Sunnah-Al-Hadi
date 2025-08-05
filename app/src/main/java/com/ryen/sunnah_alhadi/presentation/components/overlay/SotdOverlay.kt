@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -55,7 +54,6 @@ import com.ryen.sunnah_alhadi.domain.model.ExtraContent
 import com.ryen.sunnah_alhadi.domain.model.ExtraContentType
 import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
-import com.ryen.sunnah_alhadi.presentation.components.cards.SotdCard
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeEvent
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeViewModel
 import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRenderer
@@ -68,70 +66,61 @@ import java.util.Locale
 
 @Composable
 fun SotdCardContainer(
-    sotdId: String?,
+    isFromNotification: Boolean = false,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val homeViewModel: HomeViewModel = hiltViewModel()
     val uiState by homeViewModel.uiState.collectAsState()
 
-    // ✅ Handle notification launch or auto-show
-    LaunchedEffect(sotdId) {
-        if (sotdId != null) {
-            // From notification - handle specific SOTD
-            homeViewModel.onEvent(HomeEvent.HandleNotificationLaunch(sotdId))
+    // ✅ Load SOTD based on source
+    LaunchedEffect(isFromNotification) {
+        if (isFromNotification) {
+            // From notification - ensure current SOTD is loaded
+            homeViewModel.onEvent(HomeEvent.HandleNotificationLaunch)
         } else {
-            // Auto-show current SOTD
+            // Auto-show - toggle current SOTD
             homeViewModel.onEvent(HomeEvent.ToggleSotd)
         }
     }
 
     // ✅ Only show if SOTD exists
-    if (uiState.sotd != null) {
-        // Brightened backdrop covering entire screen
+    uiState.sotd?.let { sunnah ->
         Box(
-            modifier = modifier
-                .fillMaxSize()
-                .background(
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
-                )
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    homeViewModel.onEvent(HomeEvent.MarkSotdAsSeen)
-                    onDismiss()
-                }
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth(0.85f)
+                .wrapContentHeight()
         ) {
-            // Close button at top-right
-            IconButton(
-                onClick = {
-                    homeViewModel.onEvent(HomeEvent.MarkSotdAsSeen)
-                    onDismiss()
-                },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-                    .background(
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
-                        CircleShape
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Close SOTD",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            Column {
+                // Close button at top-right
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(
+                        onClick = {
+                            homeViewModel.onEvent(HomeEvent.MarkSotdAsSeen)
+                            onDismiss()
+                        },
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f),
+                                CircleShape
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close SOTD",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
 
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .fillMaxWidth(0.8f)
-                    .wrapContentHeight()
-            ) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // SOTD Content
                 SotdOverlayContent(
-                    sunnah = uiState.sotd!!,
+                    sunnah = sunnah,
                     onDismiss = {
                         homeViewModel.onEvent(HomeEvent.MarkSotdAsSeen)
                         onDismiss()

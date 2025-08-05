@@ -1,9 +1,7 @@
 package com.ryen.sunnah_alhadi.presentation.screens.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ryen.sunnah_alhadi.domain.model.SotdState
 import com.ryen.sunnah_alhadi.domain.useCase.GetHomeDataUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetRecentlyViewedSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
@@ -66,46 +64,32 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.NavigateToAllTopics -> { /* Handle navigation */ }
             is HomeEvent.NavigateToTopic -> { /* Handle navigation */ }
             is HomeEvent.OpenSunnah -> { /* Handle navigation */ }
-            is HomeEvent.HandleNotificationLaunch -> handleNotificationLaunch(event.sotdId)
+            is HomeEvent.HandleNotificationLaunch -> handleNotificationLaunch()
         }
     }
 
-    fun handleNotificationLaunch(sotdId: String? = null) {
+    fun handleNotificationLaunch() {
         viewModelScope.launch {
             try {
-                val sotdState = if (sotdId != null) {
-                    // ✅ Specific SOTD from notification
-                    val sunnah = getSunnahByIdUseCase(sotdId)
-                    when (sunnah) {
-                        is Result.Success -> {
-                            if (sunnah.data != null) {
-                                // Verify this is current SOTD, if not update it
-                                val currentSotdId = getCurrentSotdUseCase().currentSotd?.id
-                                if (currentSotdId != sotdId) {
-                                    // Update current SOTD to match notification
-                                    markSotdAsSeenUseCase() // Mark old as seen
-                                    // Update preferences with notification SOTD
-                                }
-                                SotdState(
-                                    currentSotd = sunnah.data,
-                                    isSeen = false,
-                                    isAvailable = true,
-                                    generatedDate = System.currentTimeMillis()
-                                )
-                            } else null
-                        }
-                        is Result.Error -> null
-                    }
-                } else {
-                    // ✅ Get current SOTD
-                    getCurrentSotdUseCase()
-                }
+                // Always get current SOTD - no need for complex logic
+                val sotdState = getCurrentSotdUseCase()
 
-                if (sotdState?.currentSotd != null) {
+                if (sotdState.currentSotd != null) {
                     _uiState.update {
                         it.copy(
                             sotd = sotdState.currentSotd,
                             showSotd = true
+                        )
+                    }
+                } else {
+                    // Generate new SOTD if none exists
+                    generateNewSotdIdUseCase()
+                    val newSotdState = getCurrentSotdUseCase()
+
+                    _uiState.update {
+                        it.copy(
+                            sotd = newSotdState.currentSotd,
+                            showSotd = newSotdState.currentSotd != null
                         )
                     }
                 }
@@ -155,22 +139,22 @@ class HomeViewModel @Inject constructor(
                 val recentSotd = recentSotdDeferred.await()
                 val shouldShowSotd = shouldShowSotdDeferred.await()
 
-                // Process results and handle potential errors
                 when (homeDataResult) {
                     is Result.Success -> {
                         val homeData = homeDataResult.data
 
+                        // ✅ Generate SOTD if needed and should show
                         val finalSotdState = if (shouldShowSotd && sotdState.currentSotd == null) {
-                            // Generate new SOTD if none exists but should show
                             generateNewSotdIdUseCase()
-                            getCurrentSotdUseCase() // Get the newly generated SOTD
+                            getCurrentSotdUseCase()
                         } else {
                             sotdState
                         }
-                        // Determine if SOTD should auto-show (first launch today + not seen)
+
+                        // ✅ Auto-show SOTD only if: should show + exists + not seen + not from notification
                         val autoShowSotd = shouldShowSotd &&
-                                sotdState.currentSotd != null &&
-                                !sotdState.isSeen
+                                finalSotdState.currentSotd != null &&
+                                !finalSotdState.isSeen
 
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
@@ -186,7 +170,6 @@ class HomeViewModel @Inject constructor(
                             isLoading = false,
                             error = homeDataResult.exception.message ?: "Failed to load home data",
                         )
-                        Log.d("HOMEVIEWMODEL", "Error loading home data: ${homeDataResult.exception.message}")
                     }
                 }
             } catch (e: Exception) {

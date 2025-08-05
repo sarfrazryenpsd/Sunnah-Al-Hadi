@@ -60,7 +60,6 @@ import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    shouldShowSotd: Boolean = false,
     onSotdRequested: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
