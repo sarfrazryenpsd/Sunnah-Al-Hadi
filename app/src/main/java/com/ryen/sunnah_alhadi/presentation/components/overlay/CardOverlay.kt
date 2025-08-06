@@ -1,4 +1,5 @@
-@file:OptIn(ExperimentalMaterial3WindowSizeClassApi::class,
+@file:OptIn(
+    ExperimentalMaterial3WindowSizeClassApi::class,
     ExperimentalMaterial3ExpressiveApi::class
 )
 
@@ -89,6 +90,7 @@ fun CardOverlay(
             )
         ) {
             Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.7f))
@@ -97,15 +99,7 @@ fun CardOverlay(
                         interactionSource = remember { MutableInteractionSource() }
                     ) { /* Prevent click-through */ }
             ) {
-                // Centered overlay card (80% screen size)
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .fillMaxWidth(0.8f)
-                        .wrapContentHeight()
-                ) {
-                    overlayContent()
-                }
+                overlayContent()
             }
         }
     }
@@ -114,6 +108,7 @@ fun CardOverlay(
 @Composable
 fun OnboardingOverlayContent(
     onDismiss: () -> Unit,
+    onComplete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val onboardingViewModel: OnboardingViewModel = hiltViewModel()
@@ -134,26 +129,16 @@ fun OnboardingOverlayContent(
         }
     }
 
-    // Backdrop with blur effect
-    Box(
-        modifier = modifier
-            .background(Color.Black.copy(alpha = 0.7f))
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) { /* Prevent click-through */ }
-    ) {
-        // Centered onboarding card (80% screen size)
-        OnboardingCardContainer(
-            uiState = uiState,
-            onEvent = onboardingViewModel::onEvent,
-            onDismiss = onDismiss,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth(0.8f)
-                .wrapContentHeight()
-        )
-    }
+    // Centered onboarding card (80% screen size)
+    OnboardingCardContainer(
+        uiState = uiState,
+        onEvent = onboardingViewModel::onEvent,
+        onDismiss = onDismiss,
+        onComplete = onComplete,
+        modifier = Modifier
+            .fillMaxWidth(0.85f)
+            .wrapContentHeight()
+    )
 }
 
 @Composable
@@ -161,6 +146,7 @@ private fun OnboardingCardContainer(
     uiState: OnboardingUiState,
     onEvent: (OnboardingEvent) -> Unit,
     onDismiss: () -> Unit,
+    onComplete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Determine navigation capabilities
@@ -169,7 +155,8 @@ private fun OnboardingCardContainer(
         OnboardingStep.USERNAME -> uiState.isUsernameValid
         OnboardingStep.THEME,
         OnboardingStep.NOTIFICATION -> true
-        OnboardingStep.WELCOME -> false // No next step after welcome
+
+        OnboardingStep.WELCOME -> false
     }
 
     Card(
@@ -185,10 +172,13 @@ private fun OnboardingCardContainer(
                 .padding(24.dp)
                 .fillMaxWidth()
         ) {
-            // Header with dismiss button
+            // ✅ Header with proper dismiss handling
             OnboardingHeader(
                 currentStep = uiState.currentStep,
-                onDismiss = { onEvent(OnboardingEvent.DismissOnboarding) }
+                onDismiss = {
+                    onEvent(OnboardingEvent.DismissOnboarding)
+                    onDismiss()
+                } // ✅ Use parent's onDismiss directly
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -210,7 +200,8 @@ private fun OnboardingCardContainer(
                     uiState = uiState,
                     onEvent = onEvent,
                     canProceedToNext = canProceedToNext,
-                    canGoToPrevious = canGoToPrevious
+                    canGoToPrevious = canGoToPrevious,
+                    onComplete = onComplete // ✅ Pass completion handler
                 )
             }
         }
@@ -303,8 +294,6 @@ private fun StepDot(
 }
 
 
-
-
 @Preview
 @Composable
 private fun OBPrevStepDots() {
@@ -318,6 +307,7 @@ private fun OBPrevStepDots() {
 
     }
 }
+
 @Preview
 @Composable
 private fun OBPrevStepIndicator() {
@@ -330,6 +320,7 @@ private fun OBPrevStepIndicator() {
 
     }
 }
+
 @Preview
 @Composable
 private fun OBPrevHeader() {
@@ -343,6 +334,7 @@ private fun OBPrevHeader() {
 
     }
 }
+
 @Preview
 @Composable
 private fun OBPrevCardContainer() {
@@ -352,7 +344,8 @@ private fun OBPrevCardContainer() {
         OnboardingCardContainer(
             uiState = OnboardingUiState(),
             onEvent = {},
-            onDismiss = {}
+            onDismiss = {},
+            onComplete = {}
         )
 
     }

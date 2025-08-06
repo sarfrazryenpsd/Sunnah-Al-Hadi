@@ -74,6 +74,7 @@ fun OnboardingCard(
     uiState: OnboardingUiState,
     onEvent: (OnboardingEvent) -> Unit,
     canProceedToNext: Boolean,
+    onComplete: () -> Unit,
     canGoToPrevious: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -124,7 +125,10 @@ fun OnboardingCard(
                 canGoToPrevious = canGoToPrevious,
                 onNext = { onEvent(OnboardingEvent.NextStep) },
                 onPrevious = { onEvent(OnboardingEvent.PreviousStep) },
-                onComplete = { onEvent(OnboardingEvent.CompleteOnboarding) }
+                onComplete = {
+                    onEvent(OnboardingEvent.CompleteOnboarding)
+                    onComplete()
+                }
             )
         }
     }
@@ -691,7 +695,8 @@ fun OnboardingCardsPrev() {
             uiState = OnboardingUiState(username = "Sarfraz"),
             onEvent = {},
             canProceedToNext = true,
-            canGoToPrevious = true
+            canGoToPrevious = true,
+            onComplete = {}
         )
     }
 }

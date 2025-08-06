@@ -409,7 +409,8 @@ fun NotificationTimeDropdown(
 
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            shape = RoundedCornerShape(16.dp)
         ) {
             timeOptions.forEach { time ->
                 DropdownMenuItem(

@@ -95,8 +95,8 @@ fun MainNavigation(
     val topLevelDestinations = listOf(Home, Browse, Preferences)
 
     // ✅ Sequential overlay state management
-    var showOnboardingState by rememberSaveable { mutableStateOf(showOnboarding) }
-    var showSotdState by rememberSaveable { mutableStateOf(false) }
+    var onboardingCompleted by rememberSaveable { mutableStateOf(false) }
+    var currentOverlay by rememberSaveable { mutableStateOf<OverlayType?>(null) }
     var isInitializing by remember { mutableStateOf(true) }
 
     // ✅ Handle initial loading to prevent flash
@@ -104,11 +104,26 @@ fun MainNavigation(
         isInitializing = false
     }
 
-    // ✅ Handle notification launch - trigger SOTD after onboarding completes
-    LaunchedEffect(showOnboardingState, isFromNotification) {
-        if (!isInitializing && !showOnboardingState && isFromNotification) {
-            delay(300) // Smooth transition
-            showSotdState = true
+    // ✅ Initialize overlay state based on conditions
+    LaunchedEffect(showOnboarding) {
+        currentOverlay = if (showOnboarding) {
+            OverlayType.ONBOARDING
+        } else {
+            null
+        }
+    }
+    // ✅ Handle onboarding completion -> SOTD sequence
+    LaunchedEffect(onboardingCompleted, isFromNotification) {
+        if (!isInitializing && onboardingCompleted) {
+            // Wait for smooth transition
+            delay(300)
+
+            currentOverlay = if (isFromNotification) {
+                OverlayType.SOTD_FROM_NOTIFICATION
+            } else {
+                // Check if should auto-show SOTD (handled in HomeViewModel)
+                OverlayType.SOTD_AUTO_SHOW
+            }
         }
     }
     if (isInitializing) {
@@ -117,42 +132,54 @@ fun MainNavigation(
 
     // ✅ Onboarding overlay (highest priority)
     CardOverlay(
-        showOverlay = showOnboardingState,
-        onDismiss = { showOnboardingState = false },
+        showOverlay = currentOverlay != null,
+        onDismiss = { currentOverlay == null },
         overlayContent = {
-            OnboardingOverlayContent(
-                onDismiss = { showOnboardingState = false }
-            )
+            when (currentOverlay) {
+                OverlayType.ONBOARDING -> {
+                    OnboardingOverlayContent(
+                        onDismiss = {
+                            currentOverlay = null
+                        },
+                        onComplete = {
+                            onboardingCompleted = true
+                            currentOverlay = null
+                        }
+                    )
+                }
+
+                OverlayType.SOTD_FROM_NOTIFICATION,
+                OverlayType.SOTD_AUTO_SHOW -> {
+                    SotdCardContainer(
+                        isFromNotification = currentOverlay == OverlayType.SOTD_FROM_NOTIFICATION,
+                        onDismiss = {
+                            currentOverlay = null
+                        }
+                    )
+                }
+
+                null -> { /* No overlay */
+                }
+            }
         }
     ) {
-        // ✅ SOTD overlay (shows after onboarding or immediately)
-        CardOverlay(
-            showOverlay = showSotdState,
-            onDismiss = { showSotdState = false },
-            overlayContent = {
-                SotdCardContainer(
-                    isFromNotification = isFromNotification,
-                    onDismiss = { showSotdState = false }
-                )
-            }
-        ) {
-            // Main app content
-            if (isCompact) {
-                CompactScreenLayout(
-                    backStack = backStack,
-                    topLevelDestinations = topLevelDestinations,
-                    onSotdRequested = { showSotdState = true }
-                )
-            } else {
-                ExpandedScreenLayout(
-                    backStack = backStack,
-                    topLevelDestinations = topLevelDestinations,
-                    onSotdRequested = { showSotdState = true }
-                )
-            }
+        // Main app content
+        if (isCompact) {
+            CompactScreenLayout(
+                backStack = backStack,
+                topLevelDestinations = topLevelDestinations,
+                onSotdRequested = { currentOverlay = OverlayType.SOTD_AUTO_SHOW }
+            )
+        } else {
+            ExpandedScreenLayout(
+                backStack = backStack,
+                topLevelDestinations = topLevelDestinations,
+                onSotdRequested = { currentOverlay = OverlayType.SOTD_AUTO_SHOW }
+            )
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -406,86 +433,87 @@ private fun getDestinationIcon(destination: NavKey): ImageVector {
 }
 
 // Entry provider factory function
-private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequested: () -> Unit) = entryProvider<NavKey> {
-    entry<Home>(
-        metadata = TwoPaneScene.twoPane()
-    ) {
-        HomeScreen(
-            onSotdRequested = onSotdRequested,
-            modifier = Modifier.fillMaxSize()
-        )
-
-        //ContentGreen("HomeScreen")
-    }
-
-    entry<Topic>(
-        metadata = TwoPaneScene.twoPane()
-    ) { topic ->
-        ContentBase(
-            "Topic: ${topic.categoryId}",
-            Modifier.background(Color.Blue.copy(alpha = 0.1f))
+private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequested: () -> Unit) =
+    entryProvider<NavKey> {
+        entry<Home>(
+            metadata = TwoPaneScene.twoPane()
         ) {
-            Text("This is topic ${topic.categoryId}")
-            Button(onClick = { backStack.removeLastOrNull() }) {
-                Text("Go Back")
-            }
+            HomeScreen(
+                onSotdRequested = onSotdRequested,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            //ContentGreen("HomeScreen")
         }
-    }
 
-    entry<AllTopic>(
-        metadata = TwoPaneScene.twoPane()
-    ) {
-        ContentBase(
-            "All Topics",
-            Modifier.background(Color.Cyan)
-        ) {
-            LazyColumn(
-                state = rememberLazyListState(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+        entry<Topic>(
+            metadata = TwoPaneScene.twoPane()
+        ) { topic ->
+            ContentBase(
+                "Topic: ${topic.categoryId}",
+                Modifier.background(Color.Blue.copy(alpha = 0.1f))
             ) {
-                val list = (0..75).map { it.toString() }
-                items(list) { item ->
-                    Text(
-                        text = "Topic $item",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .clickable { backStack.addTopicRoute(item.toInt()) }
-                    )
+                Text("This is topic ${topic.categoryId}")
+                Button(onClick = { backStack.removeLastOrNull() }) {
+                    Text("Go Back")
                 }
             }
         }
-    }
 
-    entry<Browse> {
-        ContentBase(
-            "Browse",
-            Modifier.background(Color.Yellow)
+        entry<AllTopic>(
+            metadata = TwoPaneScene.twoPane()
         ) {
-            LazyColumn(
-                state = rememberLazyListState(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ContentBase(
+                "All Topics",
+                Modifier.background(Color.Cyan)
             ) {
-                val list = (0..75).map { it.toString() }
-                items(list) { item ->
-                    Text(
-                        text = "Browse Item $item",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .clickable { backStack.addTopicRoute(item.toInt()) }
-                    )
+                LazyColumn(
+                    state = rememberLazyListState(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val list = (0..75).map { it.toString() }
+                    items(list) { item ->
+                        Text(
+                            text = "Topic $item",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .clickable { backStack.addTopicRoute(item.toInt()) }
+                        )
+                    }
                 }
             }
         }
-    }
 
-    entry<Preferences> {
-        PreferencesScreen()
+        entry<Browse> {
+            ContentBase(
+                "Browse",
+                Modifier.background(Color.Yellow)
+            ) {
+                LazyColumn(
+                    state = rememberLazyListState(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val list = (0..75).map { it.toString() }
+                    items(list) { item ->
+                        Text(
+                            text = "Browse Item $item",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .clickable { backStack.addTopicRoute(item.toInt()) }
+                        )
+                    }
+                }
+            }
+        }
+
+        entry<Preferences> {
+            PreferencesScreen()
+        }
     }
-}
 
 // Extension function for adding topic routes
 private fun SnapshotStateList<NavKey>.addTopicRoute(topicId: Int) {
@@ -544,4 +572,10 @@ fun ContentGreen(title: String) {
     ) {
         Text(title, style = MaterialTheme.typography.headlineMedium)
     }
+}
+
+enum class OverlayType {
+    ONBOARDING,
+    SOTD_FROM_NOTIFICATION,
+    SOTD_AUTO_SHOW
 }
