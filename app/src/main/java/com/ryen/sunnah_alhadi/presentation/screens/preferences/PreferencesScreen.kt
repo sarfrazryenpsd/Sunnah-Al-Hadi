@@ -2,11 +2,8 @@
 
 package com.ryen.sunnah_alhadi.presentation.screens.preferences
 
-import android.Manifest
 import android.content.Context
 import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -56,6 +53,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
+import com.ryen.sunnah_alhadi.presentation.NotificationPermissionHandler
 import com.ryen.sunnah_alhadi.presentation.components.BugReportDialog
 import com.ryen.sunnah_alhadi.presentation.components.ContentDisplayDialog
 import com.ryen.sunnah_alhadi.presentation.components.NotificationPermissionDialog
@@ -77,20 +75,16 @@ fun PreferencesScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Permission launcher for notifications
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        viewModel.handlePermissionResult(isGranted)
-    }
-
-    // Handle permission requests
-    LaunchedEffect(uiState.showPermissionDialog) {
-        if (uiState.showPermissionDialog && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    NotificationPermissionHandler(
+        showPermissionDialog = uiState.showPermissionDialog,
+        hasNotificationPermission = uiState.hasNotificationPermission,
+        onPermissionResult = { granted ->
+            viewModel.handlePermissionResult(granted)
+        },
+        onDismissDialog = {
             viewModel.onEvent(PreferencesEvent.DismissPermissionDialog)
         }
-    }
+    )
 
     // Show success messages
     uiState.successMessage?.let { message ->

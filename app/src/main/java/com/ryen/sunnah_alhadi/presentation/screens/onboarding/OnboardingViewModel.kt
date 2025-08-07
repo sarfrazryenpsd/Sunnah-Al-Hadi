@@ -85,18 +85,30 @@ class OnboardingViewModel @Inject constructor(
     private fun updateNotification(enabled: Boolean) {
         val currentState = _uiState.value
 
-        // If enabling notifications but no permission, show permission dialog
         if (enabled && !currentState.hasNotificationPermission) {
-            _uiState.update { it.copy(showPermissionDialog = true) }
-            return
+            // Request permission when enabling notifications
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                _uiState.update { it.copy(showPermissionDialog = true) }
+                return
+            } else {
+                // Pre-Android 13, no permission needed
+                _uiState.update {
+                    it.copy(
+                        hasNotificationPermission = true,
+                        isNotificationEnabled = true
+                    )
+                }
+            }
+        } else {
+            _uiState.update { it.copy(isNotificationEnabled = enabled) }
         }
-
-        _uiState.update { it.copy(isNotificationEnabled = enabled) }
     }
 
     fun updatePermissionStatus(hasPermission: Boolean) {
         _uiState.update { it.copy(hasNotificationPermission = hasPermission) }
     }
+
+
 
     private fun updateNotificationTime(time: NotificationTime) {
         _uiState.update { it.copy(selectedNotificationTime = time) }
@@ -300,10 +312,19 @@ class OnboardingViewModel @Inject constructor(
             )
         }
 
-        // If permission granted and notifications are enabled, schedule them
-        if (granted && _uiState.value.isNotificationEnabled) {
+        // If permission granted, enable notifications
+        if (granted) {
+            _uiState.update {
+                it.copy(isNotificationEnabled = true)
+            }
+            // Schedule notifications immediately
             viewModelScope.launch {
-                handleNotificationScheduling(_uiState.value.isNotificationEnabled, _uiState.value.selectedNotificationTime)
+                handleNotificationScheduling(true, _uiState.value.selectedNotificationTime)
+            }
+        } else {
+            // Permission denied, disable notifications
+            _uiState.update {
+                it.copy(isNotificationEnabled = false)
             }
         }
     }

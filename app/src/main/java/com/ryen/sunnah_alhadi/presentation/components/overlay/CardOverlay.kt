@@ -5,10 +5,6 @@
 
 package com.ryen.sunnah_alhadi.presentation.components.overlay
 
-import android.Manifest
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -47,7 +43,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -58,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ryen.sunnah_alhadi.presentation.NotificationPermissionHandler
 import com.ryen.sunnah_alhadi.presentation.components.cards.OnboardingCard
 import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingEvent
 import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingStep
@@ -114,20 +110,18 @@ fun OnboardingOverlayContent(
     val onboardingViewModel: OnboardingViewModel = hiltViewModel()
     val uiState by onboardingViewModel.uiState.collectAsState()
 
-    // Permission launcher for notifications
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        onboardingViewModel.handlePermissionResult(isGranted)
-    }
 
     // Handle permission requests
-    LaunchedEffect(uiState.showPermissionDialog) {
-        if (uiState.showPermissionDialog && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    NotificationPermissionHandler(
+        showPermissionDialog = uiState.showPermissionDialog,
+        hasNotificationPermission = uiState.hasNotificationPermission,
+        onPermissionResult = { granted ->
+            onboardingViewModel.handlePermissionResult(granted)
+        },
+        onDismissDialog = {
             onboardingViewModel.onEvent(OnboardingEvent.DismissPermissionDialog)
         }
-    }
+    )
 
     // Centered onboarding card (80% screen size)
     OnboardingCardContainer(

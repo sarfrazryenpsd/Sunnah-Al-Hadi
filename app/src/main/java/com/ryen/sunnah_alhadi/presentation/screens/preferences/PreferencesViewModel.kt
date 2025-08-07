@@ -264,9 +264,37 @@ class PreferencesViewModel @Inject constructor(
             )
         }
 
-        // If permission granted, enable notifications
         if (granted) {
-            updateSotdNotification(true)
+            // Permission granted, enable notifications and schedule them
+            viewModelScope.launch {
+                try {
+                    updateUserPreferencesUseCase(
+                        UserPreferencesUpdate(
+                            isDailyReminderEnabled = true,
+                            isSotdNotificationEnabled = true
+                        )
+                    )
+
+                    //sotdNotificationScheduler.scheduleNotification(_uiState.value.notificationTime)
+                    _uiState.update {
+                        it.copy(
+                            successMessage = "Notifications enabled! You'll receive daily Sunnah reminders."
+                        )
+                    }
+                } catch (e: Exception) {
+                    _uiState.update {
+                        it.copy(error = "Failed to enable notifications: ${e.localizedMessage}")
+                    }
+                }
+            }
+        } else {
+            // Permission denied
+            _uiState.update {
+                it.copy(
+                    successMessage = null,
+                    error = null
+                )
+            }
         }
     }
 
