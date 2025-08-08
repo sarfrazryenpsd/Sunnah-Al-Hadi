@@ -6,6 +6,7 @@ import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.domain.useCase.ExportSunnahAsImageUseCase
+import com.ryen.sunnah_alhadi.domain.useCase.GetAllCategoriesUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetAllSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetBookmarkedSunnahsFlowUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetHomeDataUseCase
@@ -80,6 +81,9 @@ object UseCaseModule {
 
     @Provides
     fun provideExportSunnahAsImageUseCase() = ExportSunnahAsImageUseCase()
+
+    @Provides fun provideGetAllCategoriesUseCase(categoryRepository: CategoryRepository) =
+        GetAllCategoriesUseCase(categoryRepository)
 
     @Provides
     fun provideGetSunnahByIdUseCase(

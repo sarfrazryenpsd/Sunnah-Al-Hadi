@@ -92,31 +92,6 @@ fun SotdCardContainer(
                 .wrapContentHeight()
         ) {
             Column {
-                // Close button at top-right
-                /*Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    IconButton(
-                        onClick = {
-                            homeViewModel.onEvent(HomeEvent.MarkSotdAsSeen)
-                            onDismiss()
-                        },
-                        modifier = Modifier
-                            .background(
-                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f),
-                                CircleShape
-                            )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Close SOTD",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))*/
 
                 // SOTD Content
                 SotdOverlayContent(

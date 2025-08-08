@@ -51,6 +51,11 @@ fun NotificationPermissionHandler(
     onPermissionResult: (Boolean) -> Unit,
     onDismissDialog: () -> Unit,
 ) {
+    if (hasNotificationPermission) {
+        // Optionally notify the caller immediately
+        onPermissionResult(true)
+        return
+    }
     val context = LocalContext.current
     var permissionAttempts by rememberSaveable {
         mutableIntStateOf(0)
@@ -71,7 +76,8 @@ fun NotificationPermissionHandler(
             permissionAttempts++
 
             // Check if we should show rationale (user can still grant permission)
-            val shouldShowRationale = NotificationPermissionUtils.shouldShowPermissionRationale(context as Activity)
+            val shouldShowRationale = NotificationPermissionUtils
+                .shouldShowPermissionRationale(context as Activity)
 
             if (!shouldShowRationale && permissionAttempts >= 2) {
                 // User has denied twice and "Don't ask again" is likely checked

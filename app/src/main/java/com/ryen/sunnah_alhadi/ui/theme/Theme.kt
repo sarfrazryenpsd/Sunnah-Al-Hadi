@@ -23,8 +23,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.ryen.sunnah_alhadi.presentation.util.DefaultCategoryGradientProvider
-import com.ryen.sunnah_alhadi.presentation.util.LocalCategoryGradients
 
 // Theme preferences
 enum class ThemeMode {
@@ -150,7 +148,6 @@ fun SunnahAlHadiTheme(
             CompositionLocalProvider(
                 LocalSharedTransitionScope provides this,
                 LocalDynamicDimensions provides dimensions,
-                LocalCategoryGradients provides DefaultCategoryGradientProvider,
                 LocalAppTypography provides appTypography,
                 LocalScreenSize provides screenSize
             ) {

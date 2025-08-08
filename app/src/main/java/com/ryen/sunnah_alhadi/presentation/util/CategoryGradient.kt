@@ -1,23 +1,16 @@
 package com.ryen.sunnah_alhadi.presentation.util
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.staticCompositionLocalOf
 
-interface CategoryGradientProvider {
-    @Composable
-    fun gradientFor(categoryId: Int): Brush
-}
 
-val LocalCategoryGradients = staticCompositionLocalOf<CategoryGradientProvider> {
-    error("No CategoryGradientProvider provided")
-}
+@Composable
+fun categoryGradient(categoryId: Int): Brush {
+    val isDark = isSystemInDarkTheme()
 
-object DefaultCategoryGradientProvider : CategoryGradientProvider {
-
-    private val categoryGradients: Map<Int, List<Color>> = mapOf(
+    val gradientMap = mapOf(
         0 to listOf(Color(0xFFBBE4A2), Color(0xFFA0CE8C)), // Walking
         1 to listOf(Color(0xFFF3D9B1), Color(0xFFE5C7A1)), // Wearing Shoes
         2 to listOf(Color(0xFFE5D0EC), Color(0xFFD5BFE0)), // Sitting
@@ -50,17 +43,15 @@ object DefaultCategoryGradientProvider : CategoryGradientProvider {
         29 to listOf(Color(0xFFC8E0D1), Color(0xFFA9C9BA))
     )
 
-    @Composable
-    override fun gradientFor(categoryId: Int): Brush {
-        val isDark = isSystemInDarkTheme()
-        val colors = categoryGradients[categoryId] ?: listOf(Color.Gray, Color.DarkGray)
+    val colors = gradientMap[categoryId] ?: listOf(Color.Gray, Color.DarkGray)
 
-        val finalColors = if (isDark) {
-            colors.map { it.darken(0.15f).copy(alpha = 0.85f) }
-        } else colors
-
-        return Brush.linearGradient(colors = finalColors)
+    val adjustedColors = if (isDark) {
+        colors.map { it.darken(0.15f).copy(alpha = 0.85f) }
+    } else {
+        colors
     }
+
+    return Brush.linearGradient(adjustedColors)
 }
 
 

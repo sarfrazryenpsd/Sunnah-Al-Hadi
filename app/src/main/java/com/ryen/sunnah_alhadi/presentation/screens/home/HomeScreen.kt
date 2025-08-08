@@ -112,7 +112,9 @@ fun HomeScreenContent(
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -136,7 +138,7 @@ fun HomeScreenContent(
 
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.padding(start = 6.dp)
+                            modifier = Modifier.padding(horizontal = 6.dp)
                         ) {
                             items(
                                 items = uiState.featuredCategories,
@@ -200,7 +202,10 @@ fun HomeScreenContent(
 
                                         // Add verses icon if contains verses
                                         if (sunnah.body.any {
-                                                it.subtype.equals(ArabicSubtype.VERSE.name, ignoreCase = true)
+                                                it.subtype.equals(
+                                                    ArabicSubtype.VERSE.name,
+                                                    ignoreCase = true
+                                                )
                                             }) {
                                             add {
                                                 Icon(
@@ -213,7 +218,10 @@ fun HomeScreenContent(
                                         }
 
                                         if (sunnah.body.any {
-                                                it.subtype.equals(ArabicSubtype.SUPPLICATION.name, ignoreCase = true)
+                                                it.subtype.equals(
+                                                    ArabicSubtype.SUPPLICATION.name,
+                                                    ignoreCase = true
+                                                )
                                             }) {
                                             add {
                                                 Icon(
@@ -308,15 +316,6 @@ fun HomeScreenContent(
             }
         }
 
-        /*// SOTD Overlay
-        if (uiState.showSotd && uiState.sotd != null) {
-            SotdOverlay(
-                sunnah = uiState.sotd,
-                onDismiss = { onEvent(HomeEvent.DismissSotd) },
-                onReadMore = { onEvent(HomeEvent.OpenSunnah(uiState.sotd.id)) }
-            )
-        }*/
-
         // Disclaimer Dialog
         if (uiState.showDisclaimer) {
             DisclaimerDialog(
@@ -334,7 +333,7 @@ fun HomeScreenContent(
 private fun HomeScreenContentPrev() {
     CompositionLocalProvider(
         LocalScreenSize provides ScreenSize.MEDIUM
-    ){
+    ) {
         SunnahAlHadiTheme(
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
         ) {
@@ -345,16 +344,16 @@ private fun HomeScreenContentPrev() {
                         Category(
                             id = 1,
                             topic = "Walking"
-                        ),Category(
+                        ), Category(
                             id = 2,
                             topic = "Walking"
-                        ),Category(
+                        ), Category(
                             id = 3,
                             topic = "Walking"
-                        ),Category(
+                        ), Category(
                             id = 4,
                             topic = "Walking"
-                        ),Category(
+                        ), Category(
                             id = 5,
                             topic = "Walking"
                         )

@@ -35,7 +35,7 @@ class PreferencesViewModel @Inject constructor(
     private val getUserPreferencesFlowUseCase: GetUserPreferencesFlowUseCase,
     private val updateUserPreferencesUseCase: UpdateUserPreferencesUseCase,
     private val submitBugReportUseCase: SubmitBugReportUseCase,
-    private val sotdNotificationScheduler: SotdNotificationScheduler, // Add this injection
+    private val sotdNotificationScheduler: SotdNotificationScheduler,
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -44,8 +44,33 @@ class PreferencesViewModel @Inject constructor(
 
     init {
         observeUserPreferences()
-        checkNotificationPermission()
         loadAppInfo()
+    }
+
+    fun onEvent(event: PreferencesEvent) {
+        when (event) {
+            is PreferencesEvent.UpdateUsername -> updateUsername(event.username)
+            is PreferencesEvent.UpdateDynamicTheme -> updateDynamicTheme(event.enabled)
+            is PreferencesEvent.UpdateThemeMode -> updateThemeMode(event.themeMode)
+            is PreferencesEvent.UpdateSotdNotification -> updateSotdNotification(event.enabled)
+            is PreferencesEvent.UpdateNotificationTime -> updateNotificationTime(event.time)
+            PreferencesEvent.RequestNotificationPermission -> requestNotificationPermission()
+            PreferencesEvent.DismissPermissionDialog -> dismissPermissionDialog()
+            PreferencesEvent.ShowBugReportDialog -> showBugReportDialog()
+            PreferencesEvent.DismissBugReportDialog -> dismissBugReportDialog()
+            is PreferencesEvent.SubmitBugReport -> submitBugReport(event.description, event.email)
+            PreferencesEvent.ShowPrivacyPolicyDialog -> showPrivacyPolicyDialog()
+            PreferencesEvent.DismissPrivacyPolicyDialog -> dismissPrivacyPolicyDialog()
+            PreferencesEvent.ShowTermsOfServiceDialog -> showTermsOfServiceDialog()
+            PreferencesEvent.DismissTermsOfServiceDialog -> dismissTermsOfServiceDialog()
+            PreferencesEvent.ShowAboutDialog -> showAboutDialog()
+            PreferencesEvent.DismissAboutDialog -> dismissAboutDialog()
+            PreferencesEvent.RateApp -> handleRateApp()
+            PreferencesEvent.ShareApp -> handleShareApp()
+            PreferencesEvent.ContactDeveloper -> handleContactDeveloper()
+            PreferencesEvent.ClearError -> clearError()
+            is PreferencesEvent.UpdatePermissionStatus -> updatePermissionStatus(event.hasPermission)
+        }
     }
 
     private fun observeUserPreferences() {
@@ -71,10 +96,6 @@ class PreferencesViewModel @Inject constructor(
         }
     }
 
-    private fun checkNotificationPermission() {
-        val hasPermission = NotificationPermissionUtils.hasNotificationPermission(context)
-        _uiState.update { it.copy(hasNotificationPermission = hasPermission) }
-    }
 
     fun updatePermissionStatus(hasPermission: Boolean) {
         _uiState.update { it.copy(hasNotificationPermission = hasPermission) }
@@ -104,32 +125,6 @@ class PreferencesViewModel @Inject constructor(
                     buildNumber = "Unknown"
                 )
             }
-        }
-    }
-
-    fun onEvent(event: PreferencesEvent) {
-        when (event) {
-            is PreferencesEvent.UpdateUsername -> updateUsername(event.username)
-            is PreferencesEvent.UpdateDynamicTheme -> updateDynamicTheme(event.enabled)
-            is PreferencesEvent.UpdateThemeMode -> updateThemeMode(event.themeMode)
-            is PreferencesEvent.UpdateSotdNotification -> updateSotdNotification(event.enabled)
-            is PreferencesEvent.UpdateNotificationTime -> updateNotificationTime(event.time)
-            PreferencesEvent.RequestNotificationPermission -> requestNotificationPermission()
-            PreferencesEvent.DismissPermissionDialog -> dismissPermissionDialog()
-            PreferencesEvent.ShowBugReportDialog -> showBugReportDialog()
-            PreferencesEvent.DismissBugReportDialog -> dismissBugReportDialog()
-            is PreferencesEvent.SubmitBugReport -> submitBugReport(event.description, event.email)
-            PreferencesEvent.ShowPrivacyPolicyDialog -> showPrivacyPolicyDialog()
-            PreferencesEvent.DismissPrivacyPolicyDialog -> dismissPrivacyPolicyDialog()
-            PreferencesEvent.ShowTermsOfServiceDialog -> showTermsOfServiceDialog()
-            PreferencesEvent.DismissTermsOfServiceDialog -> dismissTermsOfServiceDialog()
-            PreferencesEvent.ShowAboutDialog -> showAboutDialog()
-            PreferencesEvent.DismissAboutDialog -> dismissAboutDialog()
-            PreferencesEvent.RateApp -> handleRateApp()
-            PreferencesEvent.ShareApp -> handleShareApp()
-            PreferencesEvent.ContactDeveloper -> handleContactDeveloper()
-            PreferencesEvent.ClearError -> clearError()
-            is PreferencesEvent.UpdatePermissionStatus -> updatePermissionStatus(event.hasPermission)
         }
     }
 
