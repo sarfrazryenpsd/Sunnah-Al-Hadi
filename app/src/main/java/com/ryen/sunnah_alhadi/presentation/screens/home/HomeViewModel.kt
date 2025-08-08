@@ -76,7 +76,6 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.DismissSotd -> dismissSotdOverlay()
             is HomeEvent.MarkSotdAsSeen -> markSotdAsSeen()
             is HomeEvent.ToggleDisclaimer -> toggleDisclaimer()
-            is HomeEvent.NavigateToAllTopics -> { /* Handle navigation */ }
             is HomeEvent.NavigateToTopic -> { /* Handle navigation */ }
             is HomeEvent.OpenSunnah -> { /* Handle navigation */ }
             is HomeEvent.HandleNotificationLaunch -> handleNotificationLaunch()

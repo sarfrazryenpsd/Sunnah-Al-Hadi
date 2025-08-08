@@ -61,6 +61,7 @@ import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onSotdRequested: () -> Unit = {},
+    onNavigateToAllTopics: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -74,6 +75,7 @@ fun HomeScreen(
     HomeScreenContent(
         uiState = uiState,
         onEvent = viewModel::onEvent,
+        onNavigateToAllTopics = onNavigateToAllTopics,
         modifier = modifier
     )
 
@@ -82,6 +84,7 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     uiState: HomeUiState,
+    onNavigateToAllTopics: () -> Unit,
     onEvent: (HomeEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -125,7 +128,7 @@ fun HomeScreenContent(
                             )
 
                             TextButton(
-                                onClick = { onEvent(HomeEvent.NavigateToAllTopics) }
+                                onClick = onNavigateToAllTopics
                             ) {
                                 Text("View All")
                                 Icon(
@@ -360,7 +363,8 @@ private fun HomeScreenContentPrev() {
                     )
 
                 ),
-                onEvent = {}
+                onEvent = {},
+                onNavigateToAllTopics = {},
             )
         }
     }

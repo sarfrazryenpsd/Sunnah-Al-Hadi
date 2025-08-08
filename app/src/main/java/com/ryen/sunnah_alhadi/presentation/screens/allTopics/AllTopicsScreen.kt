@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+
 package com.ryen.sunnah_alhadi.presentation.screens.allTopics
 
 import androidx.compose.foundation.Canvas
@@ -26,6 +28,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,10 +48,14 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryen.sunnah_alhadi.R
+import com.ryen.sunnah_alhadi.domain.model.Category // Assuming location
 import com.ryen.sunnah_alhadi.presentation.components.OptimizedTopicsGrid
+import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -145,7 +153,7 @@ private fun AllTopicsContent(
                     // Main topics grid with pull-to-refresh
                     PullToRefreshLayout(
                         onRefresh = onRefresh,
-                        isRefreshing = false
+                        isRefreshing = false // This should ideally reflect actual refresh state
                     ) {
                         OptimizedTopicsGrid(
                             topics = uiState.topics,
@@ -234,7 +242,7 @@ private fun LoadingContent(
 
             // Islamic star pattern in center
             Icon(
-                painter = painterResource(id = R.drawable.ec_warning),
+                painter = painterResource(id = R.drawable.ec_warning), // Assuming this is an appropriate icon
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.primary
@@ -313,7 +321,7 @@ private fun EmptyContent(
         modifier = modifier.padding(32.dp)
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.ec_warning),
+            painter = painterResource(id = R.drawable.ec_warning), // Assuming this is an appropriate icon
             contentDescription = null,
             modifier = Modifier.size(120.dp),
             tint = MaterialTheme.colorScheme.outline
@@ -347,7 +355,7 @@ private fun IslamicPatternBackground(
         val pattern = createComplexIslamicPattern(size)
         drawPath(
             path = pattern,
-            color = Color.Black,
+            color = Color.Black, // Or use MaterialTheme.colorScheme.onBackground for theme awareness
             style = Stroke(width = 2.dp.toPx())
         )
     }
@@ -394,23 +402,236 @@ private fun PullToRefreshLayout(
     isRefreshing: Boolean,
     content: @Composable () -> Unit
 ) {
-    var refreshing by remember { mutableStateOf(false) }
+    var refreshing by remember { mutableStateOf(false) } // This state is local to PullToRefreshLayout
 
     LaunchedEffect(isRefreshing) {
         refreshing = isRefreshing
     }
 
     // Simple implementation - can be enhanced with actual pull-to-refresh library
-    Box {
+    Box(modifier = Modifier.fillMaxSize()) { // Added fillMaxSize for better preview
         content()
 
         if (refreshing) {
-            LinearProgressIndicator(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.TopCenter),
-                color = MaterialTheme.colorScheme.primary
-            )
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter))
         }
     }
 }
+
+// Previews
+
+private val sampleTopics = List(30) { index ->
+    TopicWithCount(
+        category = Category(
+            id = index,
+            topic = "Topic ${index + 1}",
+            // Replace with an actual drawable resource if available, otherwise, this will cause an error if imageRes is Int
+            // For network URLs, ensure Coil or Glide is set up for previews or use placeholders.
+
+        ),
+        imageRes = android.R.drawable.sym_def_app_icon, // Placeholder
+        sunnahCount = (index + 1) * 5
+    )
+}
+
+@Preview(showBackground = true, name = "AllTopicsContent - Loading")
+@Composable
+private fun AllTopicsContentLoadingPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(800.dp, 480.dp)
+        )
+    ) {
+        AllTopicsContent(
+            uiState = AllTopicsUiState(isLoading = true),
+            onTopicClick = {},
+            onRetryClick = {},
+            onRefresh = {},
+            onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "AllTopicsContent - Error")
+@Composable
+private fun AllTopicsContentErrorPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(800.dp, 480.dp)
+        )
+    ) {
+        AllTopicsContent(
+            uiState = AllTopicsUiState(error = "Failed to load topics. Please check your connection."),
+            onTopicClick = {},
+            onRetryClick = {},
+            onRefresh = {},
+            onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "AllTopicsContent - With Data")
+@Composable
+private fun AllTopicsContentWithDataPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(800.dp, 480.dp)
+        )
+    ) {
+        AllTopicsContent(
+            uiState = AllTopicsUiState(topics = sampleTopics, isLoading = false),
+            onTopicClick = {},
+            onRetryClick = {},
+            onRefresh = {},
+            onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "AllTopicsContent - Empty")
+@Composable
+private fun AllTopicsContentEmptyPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(800.dp, 480.dp)
+        )
+    ) {
+        AllTopicsContent(
+            uiState = AllTopicsUiState(topics = emptyList()),
+            onTopicClick = {},
+            onRetryClick = {},
+            onRefresh = {},
+            onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AllTopicsAppBarPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(800.dp, 480.dp)
+        )
+    ) {
+        AllTopicsAppBar(
+            onNavigateBack = {},
+            onRefresh = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LoadingContentPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(800.dp, 480.dp)
+        )
+    ) {
+        LoadingContent()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ErrorContentPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(800.dp, 480.dp)
+        )
+    ) {
+        ErrorContent(
+            error = "A network error occurred.",
+            onRetryClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EmptyContentPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(800.dp, 480.dp)
+        )
+    ) {
+        EmptyContent()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 300, heightDp = 200)
+@Composable
+private fun IslamicPatternBackgroundPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(800.dp, 480.dp)
+        )
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) { // Ensure background has size
+            IslamicPatternBackground(modifier = Modifier.fillMaxSize())
+            Text("Content on top", modifier = Modifier.align(Alignment.Center))
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "PullToRefreshLayout - Not Refreshing")
+@Composable
+private fun PullToRefreshLayoutNotRefreshingPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(800.dp, 480.dp)
+        )
+    ) {
+        PullToRefreshLayout(
+            onRefresh = {},
+            isRefreshing = false
+        ) {
+            Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
+                Text("Pull down to refresh content here.")
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "PullToRefreshLayout - Refreshing")
+@Composable
+private fun PullToRefreshLayoutRefreshingPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(800.dp, 480.dp)
+        )
+    ) {
+        PullToRefreshLayout(
+            onRefresh = {},
+            isRefreshing = true
+        ) {
+            Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
+                Text("Content is currently refreshing...")
+            }
+        }
+    }
+}
+
+// Dummy AllTopicsUiState for preview if not defined in the ViewModel or a shared location
+// If AllTopicsUiState is defined elsewhere and imported, this can be removed.
+// data class AllTopicsUiState(
+// val isLoading: Boolean = false,
+// val topics: List<TopicWithCount> = emptyList(),
+// val error: String? = null
+// )
+// Assuming Category and TopicWithCount are defined in domain.model and imported.
+// If not, their definitions would be needed here for the sampleTopics to compile.
+/*
+data class Category(
+    val id: Int,
+    val name: String,
+    val description: String, // Added based on typical use
+    val imageRes: Int // Or String for URL
+)
+
+data class TopicWithCount(
+    val category: Category,
+    val hadithCount: Int
+)
+*/

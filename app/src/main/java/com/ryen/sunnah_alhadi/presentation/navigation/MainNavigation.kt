@@ -75,6 +75,7 @@ import com.ryen.sunnah_alhadi.presentation.common.LoadingIndicator
 import com.ryen.sunnah_alhadi.presentation.components.overlay.CardOverlay
 import com.ryen.sunnah_alhadi.presentation.components.overlay.OnboardingOverlayContent
 import com.ryen.sunnah_alhadi.presentation.components.overlay.SotdCardContainer
+import com.ryen.sunnah_alhadi.presentation.screens.allTopics.AllTopicsScreen
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeScreen
 import com.ryen.sunnah_alhadi.presentation.screens.preferences.PreferencesScreen
 import kotlinx.coroutines.delay
@@ -440,6 +441,7 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequ
         ) {
             HomeScreen(
                 onSotdRequested = onSotdRequested,
+                onNavigateToAllTopics = { backStack.add(AllTopic) },
                 modifier = Modifier.fillMaxSize()
             )
 
@@ -463,27 +465,13 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequ
         entry<AllTopic>(
             metadata = TwoPaneScene.twoPane()
         ) {
-            ContentBase(
-                "All Topics",
-                Modifier.background(Color.Cyan)
-            ) {
-                LazyColumn(
-                    state = rememberLazyListState(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    val list = (0..75).map { it.toString() }
-                    items(list) { item ->
-                        Text(
-                            text = "Topic $item",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                                .clickable { backStack.addTopicRoute(item.toInt()) }
-                        )
-                    }
-                }
-            }
+            AllTopicsScreen(
+                onNavigateToTopic = { topicId ->
+                    backStack.addTopicRoute(topicId)
+                },
+                onNavigateBack = { backStack.removeLastOrNull() },
+                modifier = Modifier.fillMaxSize(),
+            )
         }
 
         entry<Browse> {
