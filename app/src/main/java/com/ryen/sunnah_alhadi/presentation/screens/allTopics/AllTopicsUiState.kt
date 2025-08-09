@@ -4,7 +4,7 @@ import com.ryen.sunnah_alhadi.domain.model.Category
 
 data class AllTopicsUiState(
     val topics: List<TopicWithCount> = emptyList(),
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     val error: String? = null
 )
 

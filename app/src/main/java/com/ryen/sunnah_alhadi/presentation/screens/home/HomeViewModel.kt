@@ -60,9 +60,11 @@ class HomeViewModel @Inject constructor(
 
                 // ✅ Update UI state on main thread
                 withContext(Dispatchers.Main) {
-                    _uiState.value = _uiState.value.copy(
-                        sunnahCount = categoryIdToSunnahCount
-                    )
+                    _uiState.update {
+                        it.copy(
+                            sunnahCount = categoryIdToSunnahCount
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 // Handle error silently or log
@@ -180,7 +182,7 @@ class HomeViewModel @Inject constructor(
     private fun loadHomeData() {
         viewModelScope.launch(ioDispatcher) {
             withContext(Dispatchers.Main) {
-                _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+                _uiState.update {it.copy(isLoading = true, error = null)}
             }
 
             try {
@@ -207,31 +209,38 @@ class HomeViewModel @Inject constructor(
 
                         // ✅ Update UI on main thread
                         withContext(Dispatchers.Main) {
-                            _uiState.value = _uiState.value.copy(
-                                isLoading = false,
-                                username = homeData.userName,
-                                featuredCategories = homeData.featuredCategories,
-                                recentSotd = recentSotd,
-                                sotd = finalSotdState.currentSotd,
-                                showSotd = false // Don't auto-show here, let MainNavigation handle it
-                            )
+                            _uiState.update{
+                                it.copy(
+                                    isLoading = false,
+                                    username = homeData.userName,
+                                    featuredCategories = homeData.featuredCategories,
+                                    recentSotd = recentSotd,
+                                    sotd = finalSotdState.currentSotd,
+                                    showSotd = false // Don't auto-show here, let MainNavigation handle it
+                                )
+                            }
                         }
                     }
                     is Result.Error -> {
                         withContext(Dispatchers.Main) {
-                            _uiState.value = _uiState.value.copy(
-                                isLoading = false,
-                                error = homeDataResult.exception.message ?: "Failed to load home data",
-                            )
+                            _uiState.update{
+                                it.copy(
+                                    isLoading = false,
+                                    error = homeDataResult.exception.message
+                                        ?: "Failed to load home data",
+                                )
+                            }
                         }
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = e.message ?: "An unexpected error occurred"
-                    )
+                    _uiState.update{
+                        it.copy(
+                            isLoading = false,
+                            error = e.message ?: "An unexpected error occurred"
+                        )
+                    }
                 }
             }
         }
@@ -239,13 +248,19 @@ class HomeViewModel @Inject constructor(
 
     private fun toggleSotdOverlay() {
         val currentState = _uiState.value
-        _uiState.value = currentState.copy(
-            showSotd = !currentState.showSotd
-        )
+        _uiState.update{
+            it.copy(
+                showSotd = !currentState.showSotd
+            )
+        }
     }
 
     private fun dismissSotdOverlay() {
-        _uiState.value = _uiState.value.copy(showSotd = false)
+        _uiState.update{
+            it.copy(
+                showSotd = false
+            )
+        }
         markSotdAsSeen()
     }
 
@@ -261,8 +276,10 @@ class HomeViewModel @Inject constructor(
 
     private fun toggleDisclaimer() {
         val currentState = _uiState.value
-        _uiState.value = currentState.copy(
-            showDisclaimer = !currentState.showDisclaimer
-        )
+        _uiState.update{
+            it.copy(
+                showDisclaimer = !currentState.showDisclaimer
+            )
+        }
     }
 }

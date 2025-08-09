@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -88,7 +89,12 @@ class AllTopicsViewModel @Inject constructor(
     private fun loadAllTopics() {
         viewModelScope.launch {
             try {
-                _uiState.value.copy(isLoading = true, error = null)
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = null
+                    )
+                }
 
                 // Fetch all categories from database
                 val categories = getAllCategoriesUseCase()
@@ -106,18 +112,22 @@ class AllTopicsViewModel @Inject constructor(
                     )
                 }
 
-                _uiState.value.copy(
-                    topics = topicsWithCounts,
-                    isLoading = false,
-                    error = null
-                )
+                _uiState.update {
+                    it.copy(
+                        topics = topicsWithCounts,
+                        isLoading = false,
+                        error = null
+                    )
+                }
 
 
             } catch (e: Exception) {
-                _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Failed to load topics"
-                )
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = e.message ?: "Failed to load topics"
+                    )
+                }
             }
         }
     }

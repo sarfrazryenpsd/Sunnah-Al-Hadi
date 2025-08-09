@@ -43,9 +43,6 @@ class ThemeViewModel @Inject constructor(
         }
     }
 
-    fun shouldShowOnboarding(): Boolean {
-        return _uiState.value.userPreferences?.hasCompletedOnboarding == false
-    }
     fun shouldShowOnboardingFlow(): Flow<Boolean> {
         return getUserPreferencesFlowUseCase()
             .map { preferences -> !preferences.hasCompletedOnboarding }
