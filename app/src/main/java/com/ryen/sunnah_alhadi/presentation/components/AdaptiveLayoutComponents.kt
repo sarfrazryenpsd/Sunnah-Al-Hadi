@@ -2,8 +2,6 @@
 
 package com.ryen.sunnah_alhadi.presentation.components
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,13 +10,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -26,13 +28,14 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,10 +46,11 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.ryen.sunnah_alhadi.R
-import com.ryen.sunnah_alhadi.domain.model.Category // Assuming Category location
+import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.presentation.components.cards.AnimatedTopicCard
+import com.ryen.sunnah_alhadi.presentation.components.cards.SunnahCountBadge
 import com.ryen.sunnah_alhadi.presentation.screens.allTopics.TopicWithCount
-import com.ryen.sunnah_alhadi.presentation.util.categoryGradient
+import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicDimensions
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
@@ -70,11 +74,13 @@ fun AdaptiveTopicsGrid(
                 spacing = dimensions.cardSpacing,
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
             )
+
             ScreenSize.MEDIUM -> GridConfig(
                 columns = 2,
                 spacing = dimensions.cardSpacing,
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
             )
+
             ScreenSize.EXPANDED -> GridConfig(
                 columns = 3, // Can be 2-3 based on available width
                 spacing = dimensions.cardSpacing,
@@ -183,6 +189,7 @@ fun ResponsiveTopicsLayout(
                 modifier = modifier
             )
         }
+
         ScreenSize.MEDIUM, ScreenSize.EXPANDED -> {
             // Use adaptive grid for larger screens
             AdaptiveTopicsGrid(
@@ -194,24 +201,6 @@ fun ResponsiveTopicsLayout(
     }
 }
 
-// Performance optimization: Item visibility tracking
-@Composable
-fun rememberItemVisibilityTracker(
-    listState: LazyListState,
-    itemCount: Int
-): List<Boolean> {
-    return remember {
-        derivedStateOf {
-            val layoutInfo = listState.layoutInfo
-            val visibleItems = layoutInfo.visibleItemsInfo
-
-            List(itemCount) { index ->
-                visibleItems.any { it.index == index }
-            }
-        }
-    }.value
-}
-
 // Scroll performance optimization
 @Composable
 fun OptimizedTopicsGrid(
@@ -219,31 +208,19 @@ fun OptimizedTopicsGrid(
     onTopicClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val listState = rememberLazyListState()
-    val gridState = rememberLazyStaggeredGridState()
+    val gridState = rememberLazyGridState()
     val dimensions = LocalDynamicDimensions.current
     val screenSize = LocalScreenSize.current
 
-    // Track visible items for performance optimization
-    val visibleItems = rememberItemVisibilityTracker(
-        listState = listState,
-        itemCount = topics.size
-    )
-
-    // Wave loading animation
-    val waveLoadingStates = rememberWaveLoadingState(
-        itemCount = topics.size,
-        animationDelayMs = 75L
-    )
 
     val columns = when (screenSize) {
         ScreenSize.COMPACT -> 1
         ScreenSize.MEDIUM -> 2
-        ScreenSize.EXPANDED -> 3
+        ScreenSize.EXPANDED -> 1
     }
 
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Fixed(columns),
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columns),
         state = gridState,
         contentPadding = PaddingValues(
             horizontal = when (screenSize) {
@@ -254,51 +231,24 @@ fun OptimizedTopicsGrid(
             vertical = 12.dp
         ),
         horizontalArrangement = Arrangement.spacedBy(dimensions.cardSpacing),
-        verticalItemSpacing = dimensions.cardSpacing,
+        verticalArrangement = Arrangement.spacedBy(dimensions.cardSpacing),
         modifier = modifier.fillMaxSize()
     ) {
         itemsIndexed(
             items = topics,
-            key = { _, topic -> topic.category.id }
+            key = { _: Int, topic: TopicWithCount -> topic.category.id }
         ) { index, topicWithCount ->
-            // Only animate visible and near-visible items for performance
-            val shouldAnimate = index < visibleItems.size &&
-                    (visibleItems[index] || index < 10) // Preload first 10 items
-
-            if (shouldAnimate) {
-                AnimatedTopicCard(
-                    topicWithCount = topicWithCount,
-                    onClick = onTopicClick,
-                    scrollState = listState,
-                    itemIndex = index,
-                    isVisible = if (index < waveLoadingStates.size) waveLoadingStates[index] else false,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .animateItem(
-                            fadeInSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessLow
-                            ),
-                            fadeOutSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessLow
-                            )
-                        )
-                )
-            } else {
-                // Simplified version for non-visible items
-                SimpleTopicCard(
-                    topicWithCount = topicWithCount,
-                    onClick = onTopicClick,
-                )
-            }
+            SimpleTopicCard(
+                topicWithCount = topicWithCount,
+                onClick = onTopicClick,
+            )
         }
     }
 }
 
 // Simplified card for performance optimization
 @Composable
-private fun SimpleTopicCard(
+fun SimpleTopicCard(
     topicWithCount: TopicWithCount,
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
@@ -314,59 +264,77 @@ private fun SimpleTopicCard(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(categoryGradient(topicWithCount.category.id))
+                .background(CategoryUtils.categoryGradient(topicWithCount.category.id))
         ) {
+            SunnahCountBadge(
+                count = topicWithCount.sunnahCount,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(24.dp)
+            )
             // Simplified content without animations
             Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(LocalDynamicDimensions.current.cardPadding),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxSize()
+
             ) {
-                Column(modifier = Modifier.weight(1f)) {
+                Column(
+                    verticalArrangement = Arrangement.Bottom, modifier = Modifier.padding(
+                        start = LocalDynamicDimensions.current.cardPadding,
+                        bottom = LocalDynamicDimensions.current.cardPadding
+                    ).weight(1f)
+                ) {
                     Text(
                         text = stringResource(id = R.string.sunnah_and_manner_of),
-                        style = MaterialTheme.typography.labelSmall
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.scrim
                     )
-                    Text(
+                    BasicText(
                         text = topicWithCount.category.topic,
-                        style = MaterialTheme.appTypography.topicHeading,
-                        maxLines = 2
+                        style = MaterialTheme.appTypography.topicHeading.copy(
+                            lineHeight = MaterialTheme.appTypography.topicHeading.lineHeight,
+                            fontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2,
+                            color = MaterialTheme.colorScheme.scrim
+                        ),
+                        maxLines = 2,
+                        autoSize = TextAutoSize.StepBased(
+                            minFontSize = MaterialTheme.appTypography.topicHeading.fontSize * .6,
+                            maxFontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2
+                        )
                     )
                 }
 
                 Image(
                     painter = rememberAsyncImagePainter(model = topicWithCount.imageRes),
                     contentDescription = null,
-                    modifier = Modifier.size(LocalDynamicDimensions.current.imageSize)
+                    modifier = Modifier.fillMaxHeight()
                 )
             }
         }
     }
 }
 
-// --- Previews ---
-
 private val sampleTopics = listOf(
-    TopicWithCount(Category(1, "Salah"), 10, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(2, "Sawm"), 5, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(3, "Zakat"), 8, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(4, "Hajj"), 3, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(5, "Siyam"), 7, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(6, "Tawakkal"), 9, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(7, "Dhikr"), 6, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(8, "Du'a"), 4, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(9, "Quran"), 2, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(10, "Hadith"), 1, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(11, "Sunnah"), 11, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(12, "Fiqh"), 12, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(13, "Aqeedah"), 13, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(14, "Tafsir"), 14, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(15, "Seerah"), 15, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(16, "Hadeeth"), 16, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(17, "Iman"), 17, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(18, "Ihsan"), 18, R.drawable.ic_launcher_foreground),
-    TopicWithCount(Category(19, "Shahadah"), 19, R.drawable.ic_launcher_foreground),
+    TopicWithCount(Category(1, "Salah"), 10, R.drawable.sleeping_14),
+    TopicWithCount(Category(2, "Sawm"), 5, R.drawable.funerals_27),
+    TopicWithCount(Category(3, "Zakat"), 8, R.drawable.visiting_sick_25),
+    TopicWithCount(Category(4, "Hajj"), 3, R.drawable.ring_21),
+    TopicWithCount(Category(5, "Siyam"), 7, R.drawable.treating_relatives_08),
+    TopicWithCount(Category(6, "Treating Relatives with Kindness"), 9, R.drawable.graveyards_29),
+    TopicWithCount(Category(7, "Dhikr"), 6, R.drawable.burials_28),
+    TopicWithCount(Category(8, "Du'a"), 4, R.drawable.shrouding_26),
+    TopicWithCount(Category(9, "Quran"), 2, R.drawable.travelling_24),
+    TopicWithCount(Category(10, "Hadith"), 1, R.drawable.naming_23),
+    TopicWithCount(Category(11, "Sunnah"), 11, R.drawable.aqeeqah_22),
+    TopicWithCount(Category(12, "Fiqh"), 12, R.drawable.imamah_20),
+    TopicWithCount(Category(13, "Aqeedah"), 13, R.drawable.oil_combing_16),
+    TopicWithCount(Category(14, "Tafsir"), 14, R.drawable.clothing_19),
+    TopicWithCount(Category(15, "Seerah"), 15, R.drawable.nails_18),
+    TopicWithCount(Category(16, "Hadeeth"), 16, R.drawable.nails_18),
+    TopicWithCount(Category(17, "Iman"), 17, R.drawable.miswak_17),
+    TopicWithCount(Category(18, "Ihsan"), 18, R.drawable.hairstyles_15),
+    TopicWithCount(Category(19, "Shahadah"), 19, R.drawable.kohl_13),
 )
 
 @Preview(showBackground = true, name = "AdaptiveTopicsGrid - Compact")
@@ -377,11 +345,6 @@ fun AdaptiveTopicsGridCompactPreview() {
             DpSize(800.dp, 480.dp)
         )
     ) {
-        // Simulate Compact screen for preview
-        val originalScreenSize = LocalScreenSize.current
-        val dimensions = LocalDynamicDimensions.current
-        val tempScreenSize = ScreenSize.COMPACT
-        val tempGridConfig = GridConfig(1, dimensions.cardSpacing, PaddingValues(horizontal = 16.dp, vertical = 8.dp))
 
         // This preview will show how it looks on a compact screen
         // It uses the actual logic inside AdaptiveTopicsGrid for COMPACT
@@ -400,7 +363,7 @@ fun AdaptiveTopicsGridMediumPreview() {
             DpSize(800.dp, 480.dp)
         )
     ) {
-         // Simulate Medium screen for preview
+        // Simulate Medium screen for preview
         AdaptiveTopicsGrid(
             topics = sampleTopics,
             onTopicClick = {}
@@ -417,7 +380,7 @@ fun AdaptiveTopicsGridExpandedPreview() {
         )
     ) {
         // Simulate Expanded screen for preview
-         AdaptiveTopicsGrid(
+        AdaptiveTopicsGrid(
             topics = sampleTopics,
             onTopicClick = {}
         )

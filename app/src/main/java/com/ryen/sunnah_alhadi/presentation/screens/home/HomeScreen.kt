@@ -53,6 +53,7 @@ import com.ryen.sunnah_alhadi.presentation.components.cards.HomeSunnahCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.SpecialArabicCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.SunnahCompactCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.TopicCard
+import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
@@ -148,9 +149,9 @@ fun HomeScreenContent(
                                 key = { it.id }
                             ) { category ->
                                 TopicCard(
-                                    categoryName = category.topic,
+                                    category = category,
                                     numberOfSunnah = uiState.sunnahCount[category.id] ?: 0,
-                                    topicSImage = R.drawable.interface_darklight,
+                                    topicSImage = CategoryUtils.categoryImageMap[category.id] ?: R.drawable.ec_warning,
                                     modifier = Modifier
                                         .clickable {
                                             onEvent(HomeEvent.NavigateToTopic(category.id))

@@ -24,7 +24,7 @@ data class DynamicDimensions(
 
 fun ScreenSize.toDynamicDimensions(): DynamicDimensions = when (this) {
     ScreenSize.COMPACT -> DynamicDimensions(
-        topicCardWidth = 300.dp,
+        topicCardWidth = 320.dp,
         topicCardHeight = 140.dp,
         sunnahCardWidth = 140.dp,
         sunnahCardHeight = 80.dp,
@@ -36,8 +36,8 @@ fun ScreenSize.toDynamicDimensions(): DynamicDimensions = when (this) {
         imageSize = 56.dp
     )
     ScreenSize.MEDIUM -> DynamicDimensions(
-        topicCardWidth = 200.dp,
-        topicCardHeight = 120.dp,
+        topicCardWidth = 360.dp,
+        topicCardHeight = 140.dp,
         sunnahCardWidth = 160.dp,
         sunnahCardHeight = 90.dp,
         compactCardWidth = 140.dp,
@@ -48,7 +48,7 @@ fun ScreenSize.toDynamicDimensions(): DynamicDimensions = when (this) {
         imageSize = 64.dp
     )
     ScreenSize.EXPANDED -> DynamicDimensions(
-        topicCardWidth = 240.dp,
+        topicCardWidth = 380.dp,
         topicCardHeight = 140.dp,
         sunnahCardWidth = 200.dp,
         sunnahCardHeight = 120.dp,

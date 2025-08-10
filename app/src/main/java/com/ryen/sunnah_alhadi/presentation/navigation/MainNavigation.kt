@@ -441,7 +441,7 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequ
         ) {
             HomeScreen(
                 onSotdRequested = onSotdRequested,
-                onNavigateToAllTopics = { backStack.add(AllTopic) },
+                onNavigateToAllTopics = { if (AllTopic !in backStack) backStack.add(AllTopic) },
                 modifier = Modifier.fillMaxSize()
             )
 

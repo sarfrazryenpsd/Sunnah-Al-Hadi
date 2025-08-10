@@ -64,7 +64,7 @@ import com.ryen.sunnah_alhadi.presentation.components.floatingAnimation
 import com.ryen.sunnah_alhadi.presentation.components.parallaxEffect
 import com.ryen.sunnah_alhadi.presentation.components.scaleInAnimation
 import com.ryen.sunnah_alhadi.presentation.screens.allTopics.TopicWithCount
-import com.ryen.sunnah_alhadi.presentation.util.categoryGradient
+import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicDimensions
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
@@ -93,7 +93,7 @@ fun AnimatedTopicCard(
     )
 
     // Card background gradient based on category
-    val cardGradient = categoryGradient(topicWithCount.category.id)
+    val cardGradient = CategoryUtils.categoryGradient(topicWithCount.category.id)
 
     Card(
         modifier = modifier
@@ -172,7 +172,7 @@ fun AnimatedTopicCard(
 }
 
 @Composable
-private fun SunnahCountBadge(
+fun SunnahCountBadge(
     count: Int, modifier: Modifier = Modifier
 ) {
     Box(

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.useCase.GetAllCategoriesUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahCountsUseCase
+import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,40 +23,7 @@ class AllTopicsViewModel @Inject constructor(
 ) : ViewModel() {
 
     // Map category IDs to their corresponding 3D illustration resources
-    private val categoryImageMap = mapOf(
-        0 to R.drawable.ec_warning,
-        1 to R.drawable.ec_warning,
-        2 to R.drawable.ec_warning,
-        3 to R.drawable.ec_warning,
-        4 to R.drawable.ec_warning,
-        5 to R.drawable.ec_warning,
-        6 to R.drawable.ec_warning,
-        7 to R.drawable.ec_warning,
-        8 to R.drawable.ec_warning,
-        9 to R.drawable.ec_warning,
-        10 to R.drawable.ec_warning,
-        11 to R.drawable.ec_warning,
-        12 to R.drawable.ec_warning,
-        13 to R.drawable.ec_warning,
-        14 to R.drawable.ec_warning,
-        15 to R.drawable.ec_warning,
-        16 to R.drawable.ec_warning,
-        17 to R.drawable.ec_warning,
-        18 to R.drawable.ec_warning,
-        19 to R.drawable.ec_warning,
-        20 to R.drawable.ec_warning,
-        21 to R.drawable.ec_warning,
-        22 to R.drawable.ec_warning,
-        23 to R.drawable.ec_warning,
-        24 to R.drawable.ec_warning,
-        25 to R.drawable.ec_warning,
-        26 to R.drawable.ec_warning,
-        27 to R.drawable.ec_warning,
-        28 to R.drawable.ec_warning,
-        29 to R.drawable.ec_warning
-        // Add mappings for all 30 categories
-        // This will be populated based on your actual category IDs and image resources
-    )
+    private val categoryImageMap = CategoryUtils.categoryImageMap
 
     private val _uiState = MutableStateFlow(AllTopicsUiState())
     val uiState: StateFlow<AllTopicsUiState> = _uiState.asStateFlow()

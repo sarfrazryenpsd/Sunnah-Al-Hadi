@@ -11,96 +11,98 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.ryen.sunnah_alhadi.R
+import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.presentation.common.PreviewWrapperWithFullTheme
 import com.ryen.sunnah_alhadi.presentation.common.SunnahPreview
+import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicDimensions
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
 
 @Composable
 fun TopicCard(
-    categoryName: String,
+    category: Category,
     numberOfSunnah: Int,
     @DrawableRes topicSImage: Int,
     modifier: Modifier = Modifier,
 ) {
     val dimensions = LocalDynamicDimensions.current
 
-    Box(
+    Card(
         modifier = modifier
-            .width(dimensions.topicCardWidth)
+            .fillMaxWidth()
             .height(dimensions.topicCardHeight)
-            .clip(RoundedCornerShape(24.dp))
-            .background(Color.Yellow)
+            .width(dimensions.topicCardWidth),
+        shape = RoundedCornerShape(24.dp)
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-
+                .background(CategoryUtils.categoryGradient(category.id))
         ) {
-            Box(
-                contentAlignment = Alignment.Center,
+            SunnahCountBadge(
+                count = numberOfSunnah,
                 modifier = Modifier
-                    .size(32.dp)
-                    .padding(top = 8.dp, start = 8.dp)
-                    .background(Color(0xFFB0D6FF), CircleShape)
-            ) {
-                Text(
-                    text = "$numberOfSunnah",
-                    style = MaterialTheme.typography.labelSmall
-                )
-            }
+                    .padding(8.dp)
+                    .size(24.dp)
+            )
+
             Row(
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxSize()
+
             ) {
                 Column(
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.Start,
-                    modifier = Modifier
-                        .padding(dimensions.cardPadding)
+                    verticalArrangement = Arrangement.Bottom, modifier = Modifier
+                        .padding(
+                            start = LocalDynamicDimensions.current.cardPadding,
+                            bottom = LocalDynamicDimensions.current.cardPadding
+                        )
                         .weight(1f)
                 ) {
-                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(id = R.string.sunnah_and_manner_of),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7
-                        )
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.scrim
                     )
                     BasicText(
-                        text = categoryName,
+                        text = category.topic,
                         style = MaterialTheme.appTypography.topicHeading.copy(
-                            lineHeight = MaterialTheme.appTypography.topicHeading.lineHeight * 0.7
+                            lineHeight = MaterialTheme.appTypography.topicHeading.lineHeight,
+                            fontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2,
+                            color = MaterialTheme.colorScheme.scrim
                         ),
                         maxLines = 2,
                         autoSize = TextAutoSize.StepBased(
                             minFontSize = MaterialTheme.appTypography.topicHeading.fontSize * .6,
-                            maxFontSize = MaterialTheme.appTypography.topicHeading.fontSize
+                            maxFontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2
                         )
                     )
                 }
@@ -108,10 +110,7 @@ fun TopicCard(
                 Image(
                     painter = rememberAsyncImagePainter(model = topicSImage),
                     contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .size(dimensions.imageSize)
-
+                    modifier = Modifier.fillMaxHeight()
                 )
             }
         }
@@ -161,7 +160,7 @@ fun TopicScreen(topics: List<TopicUiModel>, userName: String) {
             ) {
                 items(topics) { topic ->
                     TopicCard(
-                        categoryName = topic.name,
+                        category = topic.category,
                         numberOfSunnah = topic.count,
                         topicSImage = topic.imageRes
                     )
@@ -191,11 +190,15 @@ fun TopicScreenCleanPreview() {
 }
 
 
+
 fun previewDummyTopics() = listOf(
-    TopicUiModel("Applying Oil and Combing Hair", 12, R.drawable.ic_launcher_background),
-    TopicUiModel("Treating Relatives With Kindness", 8, R.drawable.ic_launcher_background),
-    TopicUiModel("Waking Up and Sleeping", 10, R.drawable.ic_launcher_background),
-    TopicUiModel("Helping", 6, R.drawable.ic_launcher_background)
+    TopicUiModel(Category(id = 1,topic = "Applying Oil and Combing Hair"), 12, R.drawable.oil_combing_16),
+    TopicUiModel(Category(id = 2,topic = "Funerals"), 12, R.drawable.funerals_27),
+    TopicUiModel(Category(id = 3,topic = "Sleeping"), 12, R.drawable.sleeping_14),
+    TopicUiModel(Category(id = 4,topic = "Hospitality"), 12, R.drawable.hospitality_07),
+    TopicUiModel(Category(id = 5,topic = "Miswak"), 12, R.drawable.miswak_17),
+    TopicUiModel(Category(id = 6,topic = "Visiting Graveyards"), 12, R.drawable.entering_leaving_03),
+    TopicUiModel(Category(id = 7,topic = "Applying Kohl"), 12, R.drawable.kohl_13),
 )
 
 
@@ -203,7 +206,7 @@ fun previewDummyTopics() = listOf(
 
 
 data class TopicUiModel(
-    val name: String,
+    val category: Category,
     val count: Int,
     @param:DrawableRes val imageRes: Int
 )
