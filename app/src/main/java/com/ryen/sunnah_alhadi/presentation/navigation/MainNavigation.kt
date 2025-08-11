@@ -32,7 +32,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AppBarRow
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
@@ -78,6 +77,7 @@ import com.ryen.sunnah_alhadi.presentation.components.overlay.SotdCardContainer
 import com.ryen.sunnah_alhadi.presentation.screens.allTopics.AllTopicsScreen
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeScreen
 import com.ryen.sunnah_alhadi.presentation.screens.preferences.PreferencesScreen
+import com.ryen.sunnah_alhadi.presentation.screens.topic.TopicScreen
 import kotlinx.coroutines.delay
 
 
@@ -451,15 +451,10 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequ
         entry<Topic>(
             metadata = TwoPaneScene.twoPane()
         ) { topic ->
-            ContentBase(
-                "Topic: ${topic.categoryId}",
-                Modifier.background(Color.Blue.copy(alpha = 0.1f))
-            ) {
-                Text("This is topic ${topic.categoryId}")
-                Button(onClick = { backStack.removeLastOrNull() }) {
-                    Text("Go Back")
-                }
-            }
+            TopicScreen(
+                categoryId = topic.categoryId.toInt(),
+                onNavigateBack = { backStack.removeLastOrNull() }
+            )
         }
 
         entry<AllTopic>(
@@ -467,7 +462,22 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequ
         ) {
             AllTopicsScreen(
                 onNavigateToTopic = { topicId ->
-                    backStack.addTopicRoute(topicId)
+                    val newTopicKey = Topic("$topicId") // Create the key for the new topic
+                    val currentLastKey = backStack.lastOrNull()
+
+                    if (currentLastKey is Topic) {
+                        // If the current detail view is already a TopicScreen
+                        if (currentLastKey != newTopicKey) {
+                            // And a *different* topic is selected, replace the current one
+                            backStack.removeLastOrNull() // Remove the current TopicScreen from the stack
+                            backStack.addTopicRoute(topicId) // Add the new TopicScreen
+                        }
+                        // If currentLastKey == newTopicKey, do nothing (already showing the correct topic)
+                    } else {
+                        // Otherwise (e.g., AllTopicsScreen is the last main screen, not in a detail pair yet),
+                        // just add the new TopicScreen.
+                        backStack.addTopicRoute(topicId)
+                    }
                 },
                 onNavigateBack = { backStack.removeLastOrNull() },
                 modifier = Modifier.fillMaxSize(),
@@ -506,9 +516,15 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequ
 // Extension function for adding topic routes
 private fun SnapshotStateList<NavKey>.addTopicRoute(topicId: Int) {
     val topicRoute = Topic("$topicId")
-    if (!contains(topicRoute)) {
-        add(topicRoute)
+    if (this.lastOrNull() == topicRoute) {
+        // If the exact same topic is already the last one, do nothing.
+        return
     }
+    // If the topic exists elsewhere in the stack, remove its old instance first to bring it to the top.
+    if (this.contains(topicRoute)) {
+        this.remove(topicRoute)
+    }
+    this.add(topicRoute) // Add the new (or now moved) topic to the end of the stack.
 }
 
 /**
