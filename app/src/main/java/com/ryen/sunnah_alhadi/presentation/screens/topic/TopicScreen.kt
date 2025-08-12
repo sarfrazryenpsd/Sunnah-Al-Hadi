@@ -57,6 +57,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.presentation.components.SunnahPager
@@ -80,7 +81,7 @@ fun TopicScreen(
         viewModel.initialize(categoryId)
     }
 
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val screenSize = LocalScreenSize.current
     val dimensions = LocalDynamicDimensions.current
 
@@ -302,7 +303,7 @@ private fun LoadingContent(
 }
 
 @Composable
-private fun SkeletonCard() {
+fun SkeletonCard() {
     Surface(
         modifier = Modifier
             .fillMaxWidth()

@@ -8,21 +8,15 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
@@ -75,6 +69,7 @@ import com.ryen.sunnah_alhadi.presentation.components.overlay.CardOverlay
 import com.ryen.sunnah_alhadi.presentation.components.overlay.OnboardingOverlayContent
 import com.ryen.sunnah_alhadi.presentation.components.overlay.SotdCardContainer
 import com.ryen.sunnah_alhadi.presentation.screens.allTopics.AllTopicsScreen
+import com.ryen.sunnah_alhadi.presentation.screens.browse.BrowseScreen
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeScreen
 import com.ryen.sunnah_alhadi.presentation.screens.preferences.PreferencesScreen
 import com.ryen.sunnah_alhadi.presentation.screens.topic.TopicScreen
@@ -485,27 +480,13 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequ
         }
 
         entry<Browse> {
-            ContentBase(
-                "Browse",
-                Modifier.background(Color.Yellow)
-            ) {
-                LazyColumn(
-                    state = rememberLazyListState(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    val list = (0..75).map { it.toString() }
-                    items(list) { item ->
-                        Text(
-                            text = "Browse Item $item",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                                .clickable { backStack.addTopicRoute(item.toInt()) }
-                        )
-                    }
-                }
-            }
+            BrowseScreen(
+                onNavigateToSunnahPager = { sunnahList, index ->
+                    // Handle navigation to SunnahPager
+                    // This is where you would add the logic to navigate to the SunnahPager screen
+                    // For example, you might push a new route onto the back stack
+                },
+            )
         }
 
         entry<Preferences> {

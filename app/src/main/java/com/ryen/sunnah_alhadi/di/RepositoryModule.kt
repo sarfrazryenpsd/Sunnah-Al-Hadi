@@ -1,9 +1,11 @@
 package com.ryen.sunnah_alhadi.di
 
+import com.ryen.sunnah_alhadi.data.repository.BookmarkRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.BugReportRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.CategoryRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.SunnahRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.UserPreferencesRepositoryImpl
+import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
 import com.ryen.sunnah_alhadi.domain.repository.BugReportRepository
 import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
@@ -29,6 +31,12 @@ abstract class RepositoryModule {
     abstract fun bindSunnahRepository(
         impl: SunnahRepositoryImpl
     ): SunnahRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindBookmarkRepository(
+        impl: BookmarkRepositoryImpl
+    ): BookmarkRepository
 
     @Binds
     @Singleton
