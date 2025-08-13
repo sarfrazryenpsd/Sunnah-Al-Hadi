@@ -11,13 +11,16 @@ import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.GetCurrentSotdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.MarkSotdAsSeenUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.ShouldShowSotdCardUseCase
+import com.ryen.sunnah_alhadi.presentation.screens.allTopics.AllTopicsUiEvent
 import com.ryen.sunnah_alhadi.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -43,6 +46,9 @@ class HomeViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    private val _eventFlow = MutableSharedFlow<HomeEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
 
     init {
         loadHomeData()
@@ -78,7 +84,11 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.DismissSotd -> dismissSotdOverlay()
             is HomeEvent.MarkSotdAsSeen -> markSotdAsSeen()
             is HomeEvent.ToggleDisclaimer -> toggleDisclaimer()
-            is HomeEvent.NavigateToTopic -> { /* Handle navigation */ }
+            is HomeEvent.NavigateToTopic -> {
+                viewModelScope.launch {
+                    _eventFlow.emit(event) // emit navigation event
+                }
+            }
             is HomeEvent.OpenSunnah -> { /* Handle navigation */ }
             is HomeEvent.HandleNotificationLaunch -> handleNotificationLaunch()
             is HomeEvent.AutoShowSotdCheck -> autoShowSotdCheck()

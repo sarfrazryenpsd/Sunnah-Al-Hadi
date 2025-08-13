@@ -54,6 +54,7 @@ import com.ryen.sunnah_alhadi.presentation.components.cards.HomeSunnahCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.SpecialArabicCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.SunnahCompactCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.TopicCard
+import com.ryen.sunnah_alhadi.presentation.screens.allTopics.AllTopicsUiEvent
 import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
@@ -64,9 +65,21 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     onSotdRequested: () -> Unit = {},
     onNavigateToAllTopics: () -> Unit = {},
+    onNavigateToTopic: (Int) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is HomeEvent.NavigateToTopic -> {
+                    onNavigateToTopic(event.categoryId)
+                }
+                else -> Unit
+            }
+        }
+    }
 
     LaunchedEffect(uiState.showSotd) {
         if (uiState.showSotd) {

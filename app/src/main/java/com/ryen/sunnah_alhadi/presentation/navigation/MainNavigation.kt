@@ -436,11 +436,31 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequ
         ) {
             HomeScreen(
                 onSotdRequested = onSotdRequested,
-                onNavigateToAllTopics = { if (AllTopic !in backStack) backStack.add(AllTopic) },
+                onNavigateToAllTopics = {
+                    while (backStack.last() !is Home) backStack.removeLastOrNull()
+                    if (AllTopic !in backStack) backStack.add(AllTopic)
+                },
+                onNavigateToTopic = { topicId ->
+                    val newTopicKey = Topic("$topicId") // Create the key for the new topic
+                    val currentLastKey = backStack.lastOrNull()
+
+                    if (currentLastKey is Topic) {
+                        // If the current detail view is already a TopicScreen
+                        if (currentLastKey != newTopicKey) {
+                            // And a *different* topic is selected, replace the current one
+                            backStack.removeLastOrNull() // Remove the current TopicScreen from the stack
+                            backStack.addTopicRoute(topicId) // Add the new TopicScreen
+                        }
+                        // If currentLastKey == newTopicKey, do nothing (already showing the correct topic)
+                    } else {
+                        // Otherwise (e.g., AllTopicsScreen is the last main screen, not in a detail pair yet),
+                        // just add the new TopicScreen.
+                        backStack.addTopicRoute(topicId)
+                    }
+                },
                 modifier = Modifier.fillMaxSize()
             )
 
-            //ContentGreen("HomeScreen")
         }
 
         entry<Topic>(
