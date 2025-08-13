@@ -41,6 +41,8 @@ class BrowseViewModel @Inject constructor(
             is BrowseUiEvent.RetryLoading -> loadInitialData()
             is BrowseUiEvent.ClearSearch -> handleClearSearch()
             is BrowseUiEvent.ClearAllFilters -> handleClearAllFilters()
+            is BrowseUiEvent.ClosePager -> handleClosePager()
+            is BrowseUiEvent.PagerPageChanged -> handlePagerPageChanged(event.index)
         }
     }
 
@@ -86,6 +88,32 @@ class BrowseViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    private fun handleClosePager() {
+        _uiState.update {
+            it.copy(isPagerVisible = false, selectedSunnahIndex = 0)
+        }
+    }
+
+    private fun handlePagerPageChanged(index: Int) {
+        _uiState.update {
+            it.copy(selectedSunnahIndex = index)
+        }
+    }
+
+    // 5. MODIFY handleSunnahCardClicked method in BrowseViewModel
+    private fun handleSunnahCardClicked(sunnah: Sunnah) {
+        val currentState = _uiState.value
+        val currentList = currentState.filteredSunnahs
+        val selectedIndex = currentList.indexOfFirst { it.id == sunnah.id }
+
+        _uiState.update {
+            it.copy(
+                isPagerVisible = true,
+                selectedSunnahIndex = selectedIndex.coerceAtLeast(0)
+            )
         }
     }
 
@@ -149,10 +177,6 @@ class BrowseViewModel @Inject constructor(
         }
     }
 
-    private fun handleSunnahCardClicked(sunnah: Sunnah) {
-        // This will be handled by the UI - navigation to SunnahPager
-        // The ViewModel just needs to maintain state
-    }
 
     private fun handleClearSearch() {
         _uiState.update { currentState ->
@@ -238,7 +262,7 @@ class BrowseViewModel @Inject constructor(
             }
             FilterType.HAS_NOTES -> {
                 !sunnah.extra.isNullOrEmpty() && sunnah.extra.any { extra ->
-                    extra.type.name.equals("note", ignoreCase = true)
+                    extra.type.name.equals("notes", ignoreCase = true)
                 }
             }
             FilterType.HAS_BENEFITS -> {

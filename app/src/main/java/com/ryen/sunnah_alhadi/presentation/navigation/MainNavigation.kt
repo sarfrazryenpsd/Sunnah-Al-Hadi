@@ -480,13 +480,7 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequ
         }
 
         entry<Browse> {
-            BrowseScreen(
-                onNavigateToSunnahPager = { sunnahList, index ->
-                    // Handle navigation to SunnahPager
-                    // This is where you would add the logic to navigate to the SunnahPager screen
-                    // For example, you might push a new route onto the back stack
-                },
-            )
+            BrowseScreen()
         }
 
         entry<Preferences> {

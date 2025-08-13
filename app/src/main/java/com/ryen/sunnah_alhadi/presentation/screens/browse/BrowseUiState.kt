@@ -9,6 +9,8 @@ data class BrowseUiState(
     val bookmarkedSunnahs: List<Sunnah> = emptyList(),
     val filteredSunnahs: List<Sunnah> = emptyList(),
     val selectedFilters: Set<FilterType> = emptySet(),
+    val isPagerVisible: Boolean = false,
+    val selectedSunnahIndex: Int = 0,
     val isLoading: Boolean = true,
     val error: String? = null
 )

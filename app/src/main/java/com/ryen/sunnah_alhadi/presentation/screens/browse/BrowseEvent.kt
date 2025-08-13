@@ -7,6 +7,8 @@ sealed class BrowseUiEvent {
     data class SearchQueryChanged(val query: String) : BrowseUiEvent()
     data class FilterToggled(val filter: FilterType) : BrowseUiEvent()
     data class SunnahCardClicked(val sunnah: Sunnah) : BrowseUiEvent()
+    object ClosePager : BrowseUiEvent()
+    data class PagerPageChanged(val index: Int) : BrowseUiEvent()
     object RetryLoading : BrowseUiEvent()
     object ClearSearch : BrowseUiEvent()
     object ClearAllFilters : BrowseUiEvent()

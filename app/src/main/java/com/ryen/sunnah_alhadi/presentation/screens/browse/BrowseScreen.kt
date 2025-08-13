@@ -35,7 +35,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -63,6 +62,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
+import com.ryen.sunnah_alhadi.presentation.components.SunnahPager
 import com.ryen.sunnah_alhadi.presentation.screens.topic.SkeletonCard
 import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.presentation.util.buildMetaInfoIconsForSunnah
@@ -75,7 +75,6 @@ import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
 // BrowseScreen Main Composable
 @Composable
 fun BrowseScreen(
-    onNavigateToSunnahPager: (List<Sunnah>, Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BrowseViewModel = hiltViewModel()
 ) {
@@ -119,10 +118,20 @@ fun BrowseScreen(
             screenSize = screenSize,
             dimensions = dimensions,
             onSunnahCardClicked = { sunnah ->
-                onNavigateToSunnahPager(listOf(sunnah), 0)
+                viewModel.onEvent(BrowseUiEvent.SunnahCardClicked(sunnah))
             },
             onRetryLoading = { viewModel.onEvent(BrowseUiEvent.RetryLoading) },
             modifier = Modifier.fillMaxSize()
+        )
+    }
+    if (uiState.isPagerVisible) {
+        SunnahPager(
+            sunnahs = uiState.filteredSunnahs, // Use filtered list based on search/tab
+            initialPage = uiState.selectedSunnahIndex,
+            onDismiss = { viewModel.onEvent(BrowseUiEvent.ClosePager) },
+            onPageChanged = { index ->
+                viewModel.onEvent(BrowseUiEvent.PagerPageChanged(index))
+            }
         )
     }
 }
