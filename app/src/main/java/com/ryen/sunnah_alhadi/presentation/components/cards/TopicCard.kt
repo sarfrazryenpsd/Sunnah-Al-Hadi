@@ -57,8 +57,8 @@ fun TopicCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(dimensions.topicCardHeight)
-            .width(dimensions.topicCardWidth),
+            .height(dimensions.topicCardHeight),
+            //.width(dimensions.topicCardWidth),
         shape = RoundedCornerShape(24.dp)
     ) {
         Box(
@@ -79,7 +79,7 @@ fun TopicCard(
                 modifier = Modifier.fillMaxSize()
 
             ) {
-                Column(
+                /*Column(
                     verticalArrangement = Arrangement.Bottom, modifier = Modifier
                         .padding(
                             start = LocalDynamicDimensions.current.cardPadding,
@@ -105,7 +105,7 @@ fun TopicCard(
                             maxFontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2
                         )
                     )
-                }
+                }*/
 
                 Image(
                     painter = rememberAsyncImagePainter(model = topicSImage),

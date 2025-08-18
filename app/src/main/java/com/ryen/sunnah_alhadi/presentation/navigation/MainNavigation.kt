@@ -7,14 +7,10 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -33,7 +29,6 @@ import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
@@ -50,7 +45,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
@@ -441,22 +435,8 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequ
                     if (AllTopic !in backStack) backStack.add(AllTopic)
                 },
                 onNavigateToTopic = { topicId ->
-                    val newTopicKey = Topic("$topicId") // Create the key for the new topic
-                    val currentLastKey = backStack.lastOrNull()
-
-                    if (currentLastKey is Topic) {
-                        // If the current detail view is already a TopicScreen
-                        if (currentLastKey != newTopicKey) {
-                            // And a *different* topic is selected, replace the current one
-                            backStack.removeLastOrNull() // Remove the current TopicScreen from the stack
-                            backStack.addTopicRoute(topicId) // Add the new TopicScreen
-                        }
-                        // If currentLastKey == newTopicKey, do nothing (already showing the correct topic)
-                    } else {
-                        // Otherwise (e.g., AllTopicsScreen is the last main screen, not in a detail pair yet),
-                        // just add the new TopicScreen.
-                        backStack.addTopicRoute(topicId)
-                    }
+                    backStack.clearDuplicateTopic(topicId)
+                    backStack.addTopicRoute(topicId)
                 },
                 modifier = Modifier.fillMaxSize()
             )
@@ -477,22 +457,8 @@ private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequ
         ) {
             AllTopicsScreen(
                 onNavigateToTopic = { topicId ->
-                    val newTopicKey = Topic("$topicId") // Create the key for the new topic
-                    val currentLastKey = backStack.lastOrNull()
-
-                    if (currentLastKey is Topic) {
-                        // If the current detail view is already a TopicScreen
-                        if (currentLastKey != newTopicKey) {
-                            // And a *different* topic is selected, replace the current one
-                            backStack.removeLastOrNull() // Remove the current TopicScreen from the stack
-                            backStack.addTopicRoute(topicId) // Add the new TopicScreen
-                        }
-                        // If currentLastKey == newTopicKey, do nothing (already showing the correct topic)
-                    } else {
-                        // Otherwise (e.g., AllTopicsScreen is the last main screen, not in a detail pair yet),
-                        // just add the new TopicScreen.
-                        backStack.addTopicRoute(topicId)
-                    }
+                    backStack.clearDuplicateTopic(topicId)
+                    backStack.addTopicRoute(topicId)
                 },
                 onNavigateBack = { backStack.removeLastOrNull() },
                 modifier = Modifier.fillMaxSize(),
@@ -522,56 +488,16 @@ private fun SnapshotStateList<NavKey>.addTopicRoute(topicId: Int) {
     this.add(topicRoute) // Add the new (or now moved) topic to the end of the stack.
 }
 
-/**
- * Placeholder composable for red-themed content.
- */
-@Composable
-fun ContentRed(title: String, content: @Composable () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Red.copy(alpha = 0.1f))
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(title, style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
-        content()
+private fun SnapshotStateList<NavKey>.clearDuplicateTopic(topicId: Int) {
+    val newTopicKey = Topic("$topicId") // Create the key for the new topic
+    val currentLastKey = this.lastOrNull()
+
+    if (currentLastKey is Topic && currentLastKey != newTopicKey) {
+        // If the current detail view is already a TopicScreen
+        this.removeLastOrNull() // Remove the current TopicScreen from the stack
     }
 }
 
-/**
- * Placeholder composable for base content with customizable background.
- */
-@Composable
-fun ContentBase(title: String, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(title, style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
-        content()
-    }
-}
-
-/**
- * Placeholder composable for green-themed content.
- */
-@Composable
-fun ContentGreen(title: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Green.copy(alpha = 0.1f))
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(title, style = MaterialTheme.typography.headlineMedium)
-    }
-}
 
 enum class OverlayType {
     ONBOARDING,

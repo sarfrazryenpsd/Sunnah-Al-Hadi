@@ -150,7 +150,7 @@ fun AnimatedTopicCard(
                         categoryName = topicWithCount.category.topic,
                         modifier = Modifier
                             .weight(1f)
-                            .padding(dimensions.cardPadding)
+                            //.padding(dimensions.cardPadding)
                     )
 
                     // Animated 3D illustration
@@ -159,7 +159,7 @@ fun AnimatedTopicCard(
                         contentDescription = topicWithCount.category.topic,
                         modifier = Modifier
                             .fillMaxHeight()
-                            .size(dimensions.imageSize)
+                            //.size(dimensions.imageSize)
                             .floatingAnimation(
                                 animationDuration = 3000 + (itemIndex * 200), // Varied timing
                                 maxOffsetY = 6f
@@ -219,7 +219,7 @@ private fun TopicTextContent(
         )
 
         // Main topic heading with enhanced styling
-        BasicText(
+        /*BasicText(
             text = categoryName,
             style = MaterialTheme.appTypography.topicHeading.copy(
                 lineHeight = MaterialTheme.appTypography.topicHeading.lineHeight * 0.8,
@@ -236,7 +236,7 @@ private fun TopicTextContent(
                 minFontSize = MaterialTheme.appTypography.topicHeading.fontSize * 0.6,
                 maxFontSize = MaterialTheme.appTypography.topicHeading.fontSize
             )
-        )
+        )*/
     }
 }
 
@@ -251,7 +251,7 @@ private fun Animated3DImage(
         // Subtle glow background
         Box(
             modifier = Modifier
-                .size(LocalDynamicDimensions.current.imageSize * 1.2f)
+                //.size(LocalDynamicDimensions.current.imageSize * 1.2f)
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
@@ -268,7 +268,7 @@ private fun Animated3DImage(
             contentScale = ContentScale.Fit,
             modifier = Modifier
                 .fillMaxHeight()
-                .size(LocalDynamicDimensions.current.imageSize)
+                //.size(LocalDynamicDimensions.current.imageSize)
         )
     }
 }

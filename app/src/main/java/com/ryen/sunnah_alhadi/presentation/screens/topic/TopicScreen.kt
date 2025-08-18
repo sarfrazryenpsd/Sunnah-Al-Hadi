@@ -418,16 +418,49 @@ private val sampleSunnahs = List(5) {
     )
 }
 private val sampleDimensions = DynamicDimensions(
-    topicCardWidth = 320.dp,
-    topicCardHeight = 140.dp,
-    sunnahCardWidth = 140.dp,
-    sunnahCardHeight = 80.dp,
-    compactCardWidth = 120.dp,
-    compactCardHeight = 60.dp,
-    cardPadding = 12.dp,
+    spacingXs = 4.dp,
+    spacingS = 8.dp,
+    spacingM = 16.dp,
+    spacingL = 24.dp,
+    spacingXl = 32.dp,
+    spacingXxl = 40.dp,
+
+    // Screen layout
+    screenPadding = 16.dp,
+    sectionSpacing = 32.dp,
+
+    // Cards
+    cardPaddingS = 12.dp,
+    cardPaddingM = 16.dp,
+    cardPaddingL = 20.dp,
     cardSpacing = 8.dp,
-    iconSize = 20.dp,
-    imageSize = 56.dp
+    cardRadiusS = 12.dp,
+    cardRadiusM = 16.dp,
+    cardRadiusL = 20.dp,
+
+    // Components
+    iconS = 16.dp,
+    iconM = 24.dp,
+    iconL = 32.dp,
+    buttonHeight = 48.dp,
+    touchTarget = 48.dp,
+
+    // Specific cards
+    featuredCardWidth = 280.dp,
+    featuredCardHeight = 140.dp,
+    topicCardHeight = 160.dp,
+    listItemHeight = 64.dp,
+    compactItemHeight = 48.dp,
+
+    // Navigation
+    searchBarHeight = 48.dp,
+    tabHeight = 40.dp,
+    bottomNavHeight = 56.dp,
+
+    // Modals
+    modalPadding = 24.dp,
+    modalRadius = 24.dp,
+    modalMaxWidth = 320.dp
 )
 
 @Preview(name = "TopicContent - Loading", showBackground = true)

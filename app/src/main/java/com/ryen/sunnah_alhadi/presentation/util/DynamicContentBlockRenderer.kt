@@ -59,20 +59,22 @@ object DynamicContentStyleResolver {
     @Composable
     private fun getArabicStyle(subtype: Any): TextStyle {
         return when (subtype) {
-            ArabicSubtype.VERSE -> MaterialTheme.appTypography.arabicVerse
-            ArabicSubtype.SUPPLICATION -> MaterialTheme.appTypography.arabicSupplication
-            ArabicSubtype.HONORIFIC -> MaterialTheme.appTypography.arabicHonorific
-            ArabicSubtype.OTHER -> MaterialTheme.appTypography.arabicOther
-            else -> MaterialTheme.appTypography.arabicOther // Fallback for string subtypes
+            ArabicSubtype.VERSE -> MaterialTheme.appTypography.arabicTitle
+            ArabicSubtype.SUPPLICATION -> MaterialTheme.appTypography.arabicTitle
+            ArabicSubtype.HONORIFIC -> MaterialTheme.appTypography.arabicBody
+            ArabicSubtype.OTHER -> MaterialTheme.appTypography.arabicBody
+            else -> MaterialTheme.appTypography.arabicBody // Fallback for string subtypes
         }
     }
 
     @Composable
     private fun getEnglishStyle(subtype: Any): TextStyle {
         return when (subtype) {
-            EnglishSubtype.NORMAL -> MaterialTheme.appTypography.englishBodyNormal
-            EnglishSubtype.TRANSLATION -> MaterialTheme.appTypography.englishBodyTranslation
-            else -> MaterialTheme.appTypography.englishBodyNormal // Fallback for string subtypes
+            EnglishSubtype.NORMAL -> MaterialTheme.appTypography.bodyPrimary
+            EnglishSubtype.TRANSLATION -> MaterialTheme.appTypography.bodyPrimary.copy(
+                fontStyle = FontStyle.Italic
+            )
+            else -> MaterialTheme.appTypography.bodyPrimary// Fallback for string subtypes
         }
     }
 
@@ -271,9 +273,9 @@ private fun DynamicMixedContentRenderer(
 @Composable
 private fun determineDynamicArabicStyle(arabicText: String, commonPhrases: List<String>): TextStyle {
     return when {
-        commonPhrases.any { arabicText.contains(it) } -> MaterialTheme.appTypography.arabicHonorific
-        arabicText.length > 50 -> MaterialTheme.appTypography.arabicVerse // Likely a verse
-        else -> MaterialTheme.appTypography.arabicSupplication
+        commonPhrases.any { arabicText.contains(it) } -> MaterialTheme.appTypography.arabicTitle
+        arabicText.length > 50 -> MaterialTheme.appTypography.arabicTitle
+        else -> MaterialTheme.appTypography.arabicTitle
     }
 }
 
@@ -328,7 +330,7 @@ fun DynamicReferenceRenderer(
             ) {
                 Text(
                     text = "References:",
-                    style = MaterialTheme.appTypography.reference.copy(
+                    style = MaterialTheme.appTypography.bodyPrimary.copy(
                         fontStyle = FontStyle.Italic
                     ),
                     color = MaterialTheme.colorScheme.outline
@@ -337,7 +339,9 @@ fun DynamicReferenceRenderer(
                 references.forEach { reference ->
                     Text(
                         text = "• ${reference.source}",
-                        style = MaterialTheme.appTypography.reference,
+                        style = MaterialTheme.appTypography.bodyPrimary.copy(
+                            fontStyle = FontStyle.Italic
+                        ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 8.dp)
                     )

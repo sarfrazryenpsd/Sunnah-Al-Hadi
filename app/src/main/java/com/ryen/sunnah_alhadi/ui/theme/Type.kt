@@ -8,13 +8,14 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.ryen.sunnah_alhadi.R
 
 enum class ScreenSize {
     COMPACT,    // Phones
     MEDIUM,     // Small tablets / Large phones
-    EXPANDED    // Large tablets / Desktop
+    EXPANDED    // Large tablets / Desktop (two-pane)
 }
 
 // Utility function to determine screen size from WindowSizeClass
@@ -27,306 +28,244 @@ fun WindowSizeClass.toScreenSize(): ScreenSize {
     }
 }
 
-// SINGLE SOURCE OF TRUTH - All typography configurations
+// =============================================================================
+// TYPOGRAPHY SYSTEM - SIMPLIFIED FOR TWO FONTS
+// =============================================================================
+
 object TypographyConfig {
 
-    // Font families (your existing ones)
+    // Font families - Only Figtree and Amiri
+    val figtree = FontFamily(
+        Font(R.font.figtree_regular, FontWeight.Normal),
+        Font(R.font.figtree_medium, FontWeight.Medium),
+        Font(R.font.figtree_semi_bold, FontWeight.SemiBold),
+        Font(R.font.figtree_bold, FontWeight.Bold),
+        Font(R.font.figtree_light, FontWeight.Light)
+    )
+
     val amiri = FontFamily(
         Font(R.font.amiri_regular, FontWeight.Normal),
-        Font(R.font.amiri_bold, FontWeight.Bold),
-        Font(R.font.amiri_italic, FontWeight.Normal, FontStyle.Italic),
-        Font(R.font.amiri_bold_italic, FontWeight.Bold, FontStyle.Italic)
+        Font(R.font.amiri_regular, FontWeight.Light),
+        Font(R.font.amiri_bold, FontWeight.Bold)
     )
 
-    val lora = FontFamily(
-        Font(R.font.lora_regular, FontWeight.Normal),
-        Font(R.font.lora_bold, FontWeight.Bold),
-        Font(R.font.lora_medium, FontWeight.Medium)
-    )
+    // Typography roles - Simplified for production
+    enum class TextRole {
+        // UI Text (Figtree)
+        DISPLAY,        // Page titles
+        HEADLINE,       // Section headers
+        TITLE,          // Card titles, button labels
+        BODY,           // Regular content
+        LABEL,          // Small labels, captions
 
-    val cormorant_garamond = FontFamily(
-        Font(R.font.cormorant_garamond_bold, FontWeight.Bold),
-        Font(R.font.cormorant_garamond_bold_italic, FontWeight.Bold, FontStyle.Italic),
-        Font(R.font.cormorant_garamond_italic, FontWeight.Normal, FontStyle.Italic),
-        Font(R.font.cormorant_garamond_light, FontWeight.Light),
-        Font(R.font.cormorant_garamond_light_italic, FontWeight.Light, FontStyle.Italic),
-        Font(R.font.cormorant_garamond_medium, FontWeight.Medium),
-        Font(R.font.cormorant_garamond_medium_italic, FontWeight.Medium, FontStyle.Italic),
-        Font(R.font.cormorant_garamond_regular, FontWeight.Normal),
-        Font(R.font.cormorant_garamond_semi_bold, FontWeight.SemiBold),
-        Font(R.font.cormorant_garamond_semi_bold_italic, FontWeight.SemiBold, FontStyle.Italic)
-    )
-
-    val figtree = FontFamily(
-        Font(R.font.figtree_black, FontWeight.Black),
-        Font(R.font.figtree_black_italic, FontWeight.Black, FontStyle.Italic),
-        Font(R.font.figtree_bold, FontWeight.Bold),
-        Font(R.font.figtree_bold_italic, FontWeight.Bold, FontStyle.Italic),
-        Font(R.font.figtree_extra_bold, FontWeight.ExtraBold),
-        Font(R.font.figtree_extra_bold_italic, FontWeight.ExtraBold, FontStyle.Italic),
-        Font(R.font.figtree_italic, FontWeight.Normal, FontStyle.Italic),
-        Font(R.font.figtree_light, FontWeight.Light),
-        Font(R.font.figtree_light_italic, FontWeight.Light, FontStyle.Italic),
-        Font(R.font.figtree_medium, FontWeight.Medium),
-        Font(R.font.figtree_medium_italic, FontWeight.Medium, FontStyle.Italic),
-        Font(R.font.figtree_regular, FontWeight.Normal),
-        Font(R.font.figtree_semi_bold, FontWeight.SemiBold),
-        Font(R.font.figtree_semi_bold_italic, FontWeight.SemiBold, FontStyle.Italic)
-    )
-
-    val lateef = FontFamily(
-        Font(R.font.lateef_bold, FontWeight.Bold),
-        Font(R.font.lateef_extra_bold, FontWeight.ExtraBold),
-        Font(R.font.lateef_extra_light, FontWeight.ExtraLight),
-        Font(R.font.lateef_light, FontWeight.Light),
-        Font(R.font.lateef_medium, FontWeight.Medium),
-        Font(R.font.lateef_regular, FontWeight.Normal),
-        Font(R.font.lateef_semi_bold, FontWeight.SemiBold),
-    )
-
-    val mirza = FontFamily(
-        Font(R.font.mirza_regular, FontWeight.Normal),
-        Font(R.font.mirza_bold, FontWeight.Bold),
-        Font(R.font.mirza_semi_bold, FontWeight.SemiBold),
-        Font(R.font.mirza_medium, FontWeight.Medium),
-    )
-
-    val notoNaskhArabic = FontFamily(
-        Font(R.font.noto_naskh_arabic_regular, FontWeight.Normal),
-        Font(R.font.noto_naskh_arabic_medium, FontWeight.Medium),
-        Font(R.font.noto_naskh_arabic_bold, FontWeight.Bold),
-        Font(R.font.noto_naskh_arabic_semi_bold, FontWeight.SemiBold),
-    )
-
-    val notoSerifJP = FontFamily(
-        Font(R.font.noto_serif_jp_regular, FontWeight.Normal),
-        Font(R.font.noto_serif_jp_bold, FontWeight.Bold),
-        Font(R.font.noto_serif_jp_medium, FontWeight.Medium),
-        Font(R.font.noto_serif_jp_semi_bold, FontWeight.SemiBold),
-        Font(R.font.noto_serif_jp_light, FontWeight.Light),
-        Font(R.font.noto_serif_jp_extra_light, FontWeight.ExtraLight),
-        Font(R.font.noto_serif_jp_extra_bold, FontWeight.ExtraBold),
-        Font(R.font.noto_serif_jp_black, FontWeight.Black),
-    )
-
-    // Typography categories
-    enum class TypographyCategory {
-        MATERIAL,    // Material Design 3 standard typography
-        CONTENT,     // App-specific content typography
-        ARABIC       // Arabic text typography
+        // Arabic Text (Amiri)
+        ARABIC_LARGE,   // Main Arabic content
+        ARABIC_MEDIUM,  // Secondary Arabic content
+        ARABIC_SMALL    // References, citations
     }
 
-    // Typography variants
-    sealed class TypographyVariant(
-        val category: TypographyCategory,
-        val fontFamily: FontFamily,
-        val fontWeight: FontWeight,
-        val fontStyle: FontStyle = FontStyle.Normal,
-        val letterSpacingFactor: Float = 0f
-    ) {
-        // Material Design variants
-        object DisplayLarge : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Bold, letterSpacingFactor = -0.25f)
-        object DisplayMedium : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Bold)
-        object DisplaySmall : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Bold)
-        object HeadlineLarge : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.SemiBold)
-        object HeadlineMedium : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.SemiBold)
-        object HeadlineSmall : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.SemiBold)
-        object TitleLarge : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Medium)
-        object TitleMedium : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Medium, letterSpacingFactor = 0.15f)
-        object TitleSmall : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Medium, letterSpacingFactor = 0.1f)
-        object BodyLarge : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Normal, letterSpacingFactor = 0.15f)
-        object BodyMedium : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Normal, letterSpacingFactor = 0.25f)
-        object BodySmall : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Normal, letterSpacingFactor = 0.4f)
-        object LabelLarge : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Medium, letterSpacingFactor = 0.1f)
-        object LabelMedium : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Medium, letterSpacingFactor = 0.5f)
-        object LabelSmall : TypographyVariant(TypographyCategory.MATERIAL, figtree, FontWeight.Medium, letterSpacingFactor = 0.5f)
-
-        // Content variants
-        object SunnahTitle : TypographyVariant(TypographyCategory.CONTENT, amiri, FontWeight.Bold)
-        object TopicHeading : TypographyVariant(TypographyCategory.CONTENT, lora, FontWeight.Black, letterSpacingFactor = 0.5f)
-        object EnglishBodyNormal : TypographyVariant(TypographyCategory.CONTENT, notoSerifJP, FontWeight.Normal, letterSpacingFactor = 0.15f)
-        object EnglishBodyTranslation : TypographyVariant(TypographyCategory.CONTENT, cormorant_garamond, FontWeight.SemiBold, FontStyle.Italic, 0.15f)
-        object Reference : TypographyVariant(TypographyCategory.CONTENT, notoSerifJP, FontWeight.Medium, letterSpacingFactor = 0.25f)
-
-        // Arabic variants
-        object ArabicHonorific : TypographyVariant(TypographyCategory.ARABIC, mirza, FontWeight.Bold)
-        object ArabicSupplication : TypographyVariant(TypographyCategory.ARABIC, lateef, FontWeight.Medium)
-        object ArabicVerse : TypographyVariant(TypographyCategory.ARABIC, lateef, FontWeight.Bold)
-        object ArabicOther : TypographyVariant(TypographyCategory.ARABIC, notoNaskhArabic, FontWeight.Bold)
+    enum class TextVariant {
+        LARGE,
+        MEDIUM,
+        SMALL
     }
 }
 
-// Dynamic scaling configuration
+// Simplified scaling - minimal for expanded screens since you use two-pane
 data class ScaleFactors(
     val textScale: Float,
-    val lineHeightScale: Float
+    val spacingScale: Float
 ) {
     companion object {
         fun from(screenSize: ScreenSize): ScaleFactors {
             return when (screenSize) {
-                ScreenSize.COMPACT -> ScaleFactors(0.9f, 0.9f)
+                ScreenSize.COMPACT -> ScaleFactors(1.0f, 1.0f)
                 ScreenSize.MEDIUM -> ScaleFactors(1.0f, 1.0f)
-                ScreenSize.EXPANDED -> ScaleFactors(1.2f, 1.2f)
+                ScreenSize.EXPANDED -> ScaleFactors(1.0f, 1.1f) // Minimal scaling for two-pane
             }
         }
     }
 }
 
-// Typography size definitions (your existing logic)
-class DynamicSizes(private val scaleFactors: ScaleFactors) {
-    // Material sizes
-    val displayLarge = (57 * scaleFactors.textScale).sp
-    val displayMedium = (45 * scaleFactors.textScale).sp
-    val displaySmall = (36 * scaleFactors.textScale).sp
-    val headlineLarge = (32 * scaleFactors.textScale).sp
-    val headlineMedium = (28 * scaleFactors.textScale).sp
-    val headlineSmall = (24 * scaleFactors.textScale).sp
-    val titleLarge = (22 * scaleFactors.textScale).sp
-    val titleMedium = (16 * scaleFactors.textScale).sp
-    val titleSmall = (14 * scaleFactors.textScale).sp
-    val bodyLarge = (16 * scaleFactors.textScale).sp
-    val bodyMedium = (14 * scaleFactors.textScale).sp
-    val bodySmall = (12 * scaleFactors.textScale).sp
-    val labelLarge = (14 * scaleFactors.textScale).sp
-    val labelMedium = (12 * scaleFactors.textScale).sp
-    val labelSmall = (11 * scaleFactors.textScale).sp
+// Corrected typography sizes (halved from your current values)
+class AppTypographySizes(private val scaleFactors: ScaleFactors) {
 
-    // Content sizes
-    val sunnahTitle = (20 * scaleFactors.textScale).sp
-    val topicHeading = (18 * scaleFactors.textScale).sp
-    val englishBodyNormal = (16 * scaleFactors.textScale).sp
-    val englishBodyTranslation = (15 * scaleFactors.textScale).sp
-    val reference = (13 * scaleFactors.textScale).sp
+    // UI Typography (Figtree) - Fixed sp values based on Material Design
+    val display = (32 * scaleFactors.textScale).sp      // Page titles (was 64)
+    val headline = (24 * scaleFactors.textScale).sp     // Section headers (was 48)
+    val titleLarge = (20 * scaleFactors.textScale).sp   // Main titles (was 40)
+    val titleMedium = (18 * scaleFactors.textScale).sp  // Card titles (was 36)
+    val titleSmall = (16 * scaleFactors.textScale).sp   // Button labels (was 32)
+    val bodyLarge = (16 * scaleFactors.textScale).sp    // Main content (was 32)
+    val bodyMedium = (14 * scaleFactors.textScale).sp   // Secondary content (was 28)
+    val bodySmall = (12 * scaleFactors.textScale).sp    // Small content (was 24)
+    val labelLarge = (14 * scaleFactors.textScale).sp   // Tabs (was 28)
+    val labelMedium = (12 * scaleFactors.textScale).sp  // Small labels (was 24)
+    val labelSmall = (10 * scaleFactors.textScale).sp   // Captions (was 20)
 
-    // Arabic sizes
-    val arabicHonorific = (16 * scaleFactors.textScale).sp
-    val arabicSupplication = (18 * scaleFactors.textScale).sp
-    val arabicVerse = (20 * scaleFactors.textScale).sp
-    val arabicOther = (16 * scaleFactors.textScale).sp
+    // Arabic Typography (Amiri)
+    val arabicLarge = (20 * scaleFactors.textScale).sp  // Main Arabic text (was 40)
+    val arabicMedium = (16 * scaleFactors.textScale).sp // Secondary Arabic (was 32)
+    val arabicSmall = (12 * scaleFactors.textScale).sp  // References (was 24)
 
-    // Line heights
-    val displayLargeLineHeight = (64 * scaleFactors.lineHeightScale).sp
-    val displayMediumLineHeight = (52 * scaleFactors.lineHeightScale).sp
-    val displaySmallLineHeight = (44 * scaleFactors.lineHeightScale).sp
-    val headlineLargeLineHeight = (40 * scaleFactors.lineHeightScale).sp
-    val headlineMediumLineHeight = (36 * scaleFactors.lineHeightScale).sp
-    val headlineSmallLineHeight = (32 * scaleFactors.lineHeightScale).sp
-    val titleLargeLineHeight = (28 * scaleFactors.lineHeightScale).sp
-    val titleMediumLineHeight = (24 * scaleFactors.lineHeightScale).sp
-    val titleSmallLineHeight = (20 * scaleFactors.lineHeightScale).sp
-    val bodyLargeLineHeight = (24 * scaleFactors.lineHeightScale).sp
-    val bodyMediumLineHeight = (20 * scaleFactors.lineHeightScale).sp
-    val bodySmallLineHeight = (16 * scaleFactors.lineHeightScale).sp
-    val labelLargeLineHeight = (20 * scaleFactors.lineHeightScale).sp
-    val labelMediumLineHeight = (16 * scaleFactors.lineHeightScale).sp
-    val labelSmallLineHeight = (16 * scaleFactors.lineHeightScale).sp
-
-    val sunnahTitleLineHeight = (28 * scaleFactors.lineHeightScale).sp
-    val topicHeadingLineHeight = (26 * scaleFactors.lineHeightScale).sp
-    val englishBodyNormalLineHeight = (24 * scaleFactors.lineHeightScale).sp
-    val englishBodyTranslationLineHeight = (23 * scaleFactors.lineHeightScale).sp
-    val referenceLineHeight = (19 * scaleFactors.lineHeightScale).sp
-    val arabicHonorificLineHeight = (24 * scaleFactors.lineHeightScale).sp
-    val arabicSupplicationLineHeight = (26 * scaleFactors.lineHeightScale).sp
-    val arabicVerseLineHeight = (28 * scaleFactors.lineHeightScale).sp
-    val arabicOtherLineHeight = (24 * scaleFactors.lineHeightScale).sp
+    // Line heights (1.4x font size for readability)
+    val displayLineHeight = (45 * scaleFactors.textScale).sp
+    val headlineLineHeight = (34 * scaleFactors.textScale).sp
+    val titleLargeLineHeight = (28 * scaleFactors.textScale).sp
+    val titleMediumLineHeight = (25 * scaleFactors.textScale).sp
+    val titleSmallLineHeight = (22 * scaleFactors.textScale).sp
+    val bodyLargeLineHeight = (22 * scaleFactors.textScale).sp
+    val bodyMediumLineHeight = (20 * scaleFactors.textScale).sp
+    val bodySmallLineHeight = (17 * scaleFactors.textScale).sp
+    val labelLargeLineHeight = (20 * scaleFactors.textScale).sp
+    val labelMediumLineHeight = (17 * scaleFactors.textScale).sp
+    val labelSmallLineHeight = (14 * scaleFactors.textScale).sp
+    val arabicLargeLineHeight = (28 * scaleFactors.textScale).sp
+    val arabicMediumLineHeight = (22 * scaleFactors.textScale).sp
+    val arabicSmallLineHeight = (17 * scaleFactors.textScale).sp
 }
 
-// CENTRAL TYPOGRAPHY FACTORY - Single place to create all TextStyles
+// Typography factory - Simplified
 object TypographyFactory {
 
     fun createTextStyle(
-        variant: TypographyConfig.TypographyVariant,
-        sizes: DynamicSizes
+        role: TypographyConfig.TextRole,
+        sizes: AppTypographySizes,
+        fontWeight: FontWeight = FontWeight.Normal,
+        variant: TypographyConfig.TextVariant = TypographyConfig.TextVariant.MEDIUM  // New parameter, defaults to MEDIUM
     ): TextStyle {
-        val (fontSize, lineHeight) = when (variant) {
-            TypographyConfig.TypographyVariant.DisplayLarge -> sizes.displayLarge to sizes.displayLargeLineHeight
-            TypographyConfig.TypographyVariant.DisplayMedium -> sizes.displayMedium to sizes.displayMediumLineHeight
-            TypographyConfig.TypographyVariant.DisplaySmall -> sizes.displaySmall to sizes.displaySmallLineHeight
-            TypographyConfig.TypographyVariant.HeadlineLarge -> sizes.headlineLarge to sizes.headlineLargeLineHeight
-            TypographyConfig.TypographyVariant.HeadlineMedium -> sizes.headlineMedium to sizes.headlineMediumLineHeight
-            TypographyConfig.TypographyVariant.HeadlineSmall -> sizes.headlineSmall to sizes.headlineSmallLineHeight
-            TypographyConfig.TypographyVariant.TitleLarge -> sizes.titleLarge to sizes.titleLargeLineHeight
-            TypographyConfig.TypographyVariant.TitleMedium -> sizes.titleMedium to sizes.titleMediumLineHeight
-            TypographyConfig.TypographyVariant.TitleSmall -> sizes.titleSmall to sizes.titleSmallLineHeight
-            TypographyConfig.TypographyVariant.BodyLarge -> sizes.bodyLarge to sizes.bodyLargeLineHeight
-            TypographyConfig.TypographyVariant.BodyMedium -> sizes.bodyMedium to sizes.bodyMediumLineHeight
-            TypographyConfig.TypographyVariant.BodySmall -> sizes.bodySmall to sizes.bodySmallLineHeight
-            TypographyConfig.TypographyVariant.LabelLarge -> sizes.labelLarge to sizes.labelLargeLineHeight
-            TypographyConfig.TypographyVariant.LabelMedium -> sizes.labelMedium to sizes.labelMediumLineHeight
-            TypographyConfig.TypographyVariant.LabelSmall -> sizes.labelSmall to sizes.labelSmallLineHeight
-            TypographyConfig.TypographyVariant.SunnahTitle -> sizes.sunnahTitle to sizes.sunnahTitleLineHeight
-            TypographyConfig.TypographyVariant.TopicHeading -> sizes.topicHeading to sizes.topicHeadingLineHeight
-            TypographyConfig.TypographyVariant.EnglishBodyNormal -> sizes.englishBodyNormal to sizes.englishBodyNormalLineHeight
-            TypographyConfig.TypographyVariant.EnglishBodyTranslation -> sizes.englishBodyTranslation to sizes.englishBodyTranslationLineHeight
-            TypographyConfig.TypographyVariant.Reference -> sizes.reference to sizes.referenceLineHeight
-            TypographyConfig.TypographyVariant.ArabicHonorific -> sizes.arabicHonorific to sizes.arabicHonorificLineHeight
-            TypographyConfig.TypographyVariant.ArabicSupplication -> sizes.arabicSupplication to sizes.arabicSupplicationLineHeight
-            TypographyConfig.TypographyVariant.ArabicVerse -> sizes.arabicVerse to sizes.arabicVerseLineHeight
-            TypographyConfig.TypographyVariant.ArabicOther -> sizes.arabicOther to sizes.arabicOtherLineHeight
+
+        val (fontFamily, fontSize, lineHeight, letterSpacing) = when (role) {
+            TypographyConfig.TextRole.DISPLAY -> listOf(
+                TypographyConfig.figtree,
+                sizes.display,
+                sizes.displayLineHeight,
+                (-0.5).sp
+            )
+            TypographyConfig.TextRole.HEADLINE -> listOf(
+                TypographyConfig.figtree,
+                sizes.headline,
+                sizes.headlineLineHeight,
+                0.sp
+            )
+            TypographyConfig.TextRole.TITLE -> when (variant) {  // Branch on variant
+                TypographyConfig.TextVariant.LARGE -> listOf(TypographyConfig.figtree, sizes.titleLarge, sizes.titleLargeLineHeight, 0.sp)
+                TypographyConfig.TextVariant.MEDIUM -> listOf(TypographyConfig.figtree, sizes.titleMedium, sizes.titleMediumLineHeight, 0.1.sp)
+                TypographyConfig.TextVariant.SMALL -> listOf(TypographyConfig.figtree, sizes.titleSmall, sizes.titleSmallLineHeight, 0.1.sp)
+            }
+            TypographyConfig.TextRole.BODY -> when (variant) {
+                TypographyConfig.TextVariant.LARGE -> listOf(TypographyConfig.figtree, sizes.bodyLarge, sizes.bodyLargeLineHeight, 0.15.sp)
+                TypographyConfig.TextVariant.MEDIUM -> listOf(TypographyConfig.figtree, sizes.bodyMedium, sizes.bodyMediumLineHeight, 0.25.sp)
+                TypographyConfig.TextVariant.SMALL -> listOf(TypographyConfig.figtree, sizes.bodySmall, sizes.bodySmallLineHeight, 0.4.sp)
+            }
+            TypographyConfig.TextRole.LABEL -> when (variant) {
+                TypographyConfig.TextVariant.LARGE -> listOf(TypographyConfig.figtree, sizes.labelLarge, sizes.labelLargeLineHeight, 0.1.sp)
+                TypographyConfig.TextVariant.MEDIUM -> listOf(TypographyConfig.figtree, sizes.labelMedium, sizes.labelMediumLineHeight, 0.5.sp)
+                TypographyConfig.TextVariant.SMALL -> listOf(TypographyConfig.figtree, sizes.labelSmall, sizes.labelSmallLineHeight, 0.5.sp)
+            }
+            TypographyConfig.TextRole.ARABIC_LARGE -> listOf(
+                TypographyConfig.amiri,
+                sizes.arabicLarge,
+                sizes.arabicLargeLineHeight,
+                0.sp
+            )
+            TypographyConfig.TextRole.ARABIC_MEDIUM -> listOf(
+                TypographyConfig.amiri,
+                sizes.arabicMedium,
+                sizes.arabicMediumLineHeight,
+                0.sp
+            )
+            TypographyConfig.TextRole.ARABIC_SMALL -> listOf(
+                TypographyConfig.amiri,
+                sizes.arabicSmall,
+                sizes.arabicSmallLineHeight,
+                0.sp
+            )
         }
 
         return TextStyle(
-            fontFamily = variant.fontFamily,
-            fontWeight = variant.fontWeight,
-            fontStyle = variant.fontStyle,
-            fontSize = fontSize,
-            lineHeight = lineHeight,
-            letterSpacing = (variant.letterSpacingFactor).sp
+            fontFamily = fontFamily as FontFamily,
+            fontWeight = fontWeight,
+            fontSize = fontSize as TextUnit,
+            lineHeight = lineHeight as TextUnit,
+            letterSpacing = letterSpacing as TextUnit
         )
     }
 
-    fun createMaterialTypography(sizes: DynamicSizes): Typography {
+    fun createMaterialTypography(sizes: AppTypographySizes): Typography {
         return Typography(
-            displayLarge = createTextStyle(TypographyConfig.TypographyVariant.DisplayLarge, sizes),
-            displayMedium = createTextStyle(
-                TypographyConfig.TypographyVariant.DisplayMedium,
-                sizes
-            ),
-            displaySmall = createTextStyle(TypographyConfig.TypographyVariant.DisplaySmall, sizes),
-            headlineLarge = createTextStyle(
-                TypographyConfig.TypographyVariant.HeadlineLarge,
-                sizes
-            ),
-            headlineMedium = createTextStyle(
-                TypographyConfig.TypographyVariant.HeadlineMedium,
-                sizes
-            ),
-            headlineSmall = createTextStyle(
-                TypographyConfig.TypographyVariant.HeadlineSmall,
-                sizes
-            ),
-            titleLarge = createTextStyle(TypographyConfig.TypographyVariant.TitleLarge, sizes),
-            titleMedium = createTextStyle(TypographyConfig.TypographyVariant.TitleMedium, sizes),
-            titleSmall = createTextStyle(TypographyConfig.TypographyVariant.TitleSmall, sizes),
-            bodyLarge = createTextStyle(TypographyConfig.TypographyVariant.BodyLarge, sizes),
-            bodyMedium = createTextStyle(TypographyConfig.TypographyVariant.BodyMedium, sizes),
-            bodySmall = createTextStyle(TypographyConfig.TypographyVariant.BodySmall, sizes),
-            labelLarge = createTextStyle(TypographyConfig.TypographyVariant.LabelLarge, sizes),
-            labelMedium = createTextStyle(TypographyConfig.TypographyVariant.LabelMedium, sizes),
-            labelSmall = createTextStyle(TypographyConfig.TypographyVariant.LabelSmall, sizes)
+            displayLarge = createTextStyle(TypographyConfig.TextRole.DISPLAY, sizes, FontWeight.Bold),
+            displayMedium = createTextStyle(TypographyConfig.TextRole.DISPLAY, sizes, FontWeight.Bold),
+            displaySmall = createTextStyle(TypographyConfig.TextRole.DISPLAY, sizes, FontWeight.Bold),
+            headlineLarge = createTextStyle(TypographyConfig.TextRole.HEADLINE, sizes, FontWeight.SemiBold),
+            headlineMedium = createTextStyle(TypographyConfig.TextRole.HEADLINE, sizes, FontWeight.SemiBold),
+            headlineSmall = createTextStyle(TypographyConfig.TextRole.HEADLINE, sizes, FontWeight.SemiBold),
+            titleLarge = createTextStyle(TypographyConfig.TextRole.TITLE, sizes, FontWeight.Medium, TypographyConfig.TextVariant.LARGE),  // Pass variant
+            titleMedium = createTextStyle(TypographyConfig.TextRole.TITLE, sizes, FontWeight.Medium, TypographyConfig.TextVariant.MEDIUM),
+            titleSmall = createTextStyle(TypographyConfig.TextRole.TITLE, sizes, FontWeight.Medium, TypographyConfig.TextVariant.SMALL),
+            bodyLarge = createTextStyle(TypographyConfig.TextRole.BODY, sizes, FontWeight.Normal, TypographyConfig.TextVariant.LARGE),
+            bodyMedium = createTextStyle(TypographyConfig.TextRole.BODY, sizes, FontWeight.Normal, TypographyConfig.TextVariant.MEDIUM),
+            bodySmall = createTextStyle(TypographyConfig.TextRole.BODY, sizes, FontWeight.Normal, TypographyConfig.TextVariant.SMALL),
+            labelLarge = createTextStyle(TypographyConfig.TextRole.LABEL, sizes, FontWeight.Medium, TypographyConfig.TextVariant.LARGE),
+            labelMedium = createTextStyle(TypographyConfig.TextRole.LABEL, sizes, FontWeight.Medium, TypographyConfig.TextVariant.MEDIUM),
+            labelSmall = createTextStyle(TypographyConfig.TextRole.LABEL, sizes, FontWeight.Medium, TypographyConfig.TextVariant.SMALL)
         )
     }
 }
 
-// Centralized typography access
-class AppTypography internal constructor(private val sizes: DynamicSizes) {
+// =============================================================================
+// SIMPLIFIED APP TYPOGRAPHY
+// =============================================================================
 
-    // Material Design styles - use MaterialTheme.typography instead
-    // These are kept for backward compatibility during migration
+class AppTypography internal constructor(private val sizes: AppTypographySizes) {
 
-    // Content styles - your app-specific typography
-    val sunnahTitle: TextStyle = TypographyFactory.createTextStyle(TypographyConfig.TypographyVariant.SunnahTitle, sizes)
-    val topicHeading: TextStyle = TypographyFactory.createTextStyle(TypographyConfig.TypographyVariant.TopicHeading, sizes)
-    val englishBodyNormal: TextStyle = TypographyFactory.createTextStyle(TypographyConfig.TypographyVariant.EnglishBodyNormal, sizes)
-    val englishBodyTranslation: TextStyle = TypographyFactory.createTextStyle(TypographyConfig.TypographyVariant.EnglishBodyTranslation, sizes)
-    val reference: TextStyle = TypographyFactory.createTextStyle(TypographyConfig.TypographyVariant.Reference, sizes)
+    // Page-level typography
+    val pageTitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.DISPLAY, sizes, FontWeight.Bold
+    )
 
-    // Arabic styles
-    val arabicHonorific: TextStyle = TypographyFactory.createTextStyle(TypographyConfig.TypographyVariant.ArabicHonorific, sizes)
-    val arabicSupplication: TextStyle = TypographyFactory.createTextStyle(TypographyConfig.TypographyVariant.ArabicSupplication, sizes)
-    val arabicVerse: TextStyle = TypographyFactory.createTextStyle(TypographyConfig.TypographyVariant.ArabicVerse, sizes)
-    val arabicOther: TextStyle = TypographyFactory.createTextStyle(TypographyConfig.TypographyVariant.ArabicOther, sizes)
+    // Section headers
+    val sectionHeader: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.HEADLINE, sizes, FontWeight.SemiBold
+    )
+
+    // Card titles and important labels
+    val cardTitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.TITLE, sizes, FontWeight.SemiBold
+    )
+
+    // Button labels and navigation
+    val buttonLabel: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.TITLE, sizes, FontWeight.Medium
+    )
+
+    // Main content body
+    val bodyPrimary: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.BODY, sizes, FontWeight.Normal
+    )
+
+    // Secondary content
+    val bodySecondary: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.BODY, sizes, FontWeight.Normal
+    )
+
+    // Small labels and captions
+    val caption: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.LABEL, sizes, FontWeight.Medium
+    )
+
+    // Arabic typography
+    val arabicTitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.ARABIC_LARGE, sizes, FontWeight.Bold
+    )
+
+    val arabicBody: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.ARABIC_MEDIUM, sizes, FontWeight.Normal
+    )
+
+    val arabicReference: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.ARABIC_SMALL, sizes, FontWeight.Normal
+    )
 }
 
 

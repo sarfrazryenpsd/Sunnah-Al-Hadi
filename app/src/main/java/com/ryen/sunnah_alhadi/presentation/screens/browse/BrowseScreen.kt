@@ -1,8 +1,10 @@
 package com.ryen.sunnah_alhadi.presentation.screens.browse
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -50,6 +52,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -96,7 +100,7 @@ fun BrowseScreen(
         )
 
         // Tab System - Floating Navigation Bar
-        BrowseTabBar(
+        AnimatedBrowseTabBar(
             currentTab = uiState.currentTab,
             onTabChanged = { viewModel.onEvent(BrowseUiEvent.TabChanged(it)) },
             allSunnahsCount = uiState.allSunnahs.size,
@@ -298,6 +302,109 @@ private fun BrowseTabBar(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AnimatedBrowseTabBar(
+    currentTab: BrowseTab,
+    onTabChanged: (BrowseTab) -> Unit,
+    allSunnahsCount: Int,
+    savedSunnahsCount: Int,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = Color.Transparent,
+            disabledContentColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            BrowseTab.entries.forEach { tab ->
+                val isSelected = currentTab == tab
+                val tabTitle = when (tab) {
+                    BrowseTab.ALL_SUNNAH -> "All Sunnah"
+                    BrowseTab.SAVED -> "Saved"
+                }
+
+                // Enhanced tab animation with spring physics
+                val animatedElevation by animateDpAsState(
+                    targetValue = if (isSelected) 4.dp else 0.dp,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    ),
+                    label = "tab_elevation"
+                )
+
+                val animatedScale by animateFloatAsState(
+                    targetValue = if (isSelected) 1.02f else 1f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    ),
+                    label = "tab_scale"
+                )
+                Card(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable {
+                            onTabChanged(tab)
+                            // Add haptic feedback here if available
+                        }
+                        .weight(1f)
+                        .scale(animatedScale),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            Color.Transparent
+                        },
+                        disabledContainerColor = Color.Transparent,
+                        contentColor = Color.Transparent,
+                        disabledContentColor = Color.Transparent
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = animatedElevation)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp, horizontal = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // Animated text color transition
+                        val textColor by animateColorAsState(
+                            targetValue = if (isSelected) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            animationSpec = tween(300),
+                            label = "text_color"
+                        )
+
+                        Text(
+                            text = tabTitle,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = textColor,
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                        )
+                    }
+                }
+
             }
         }
     }
@@ -588,12 +695,15 @@ private fun BrowseEmptyState(
             searchQuery.isNotEmpty() -> {
                 "No Sunnahs found" to "Try searching with different terms"
             }
+
             selectedFilters.isNotEmpty() -> {
                 "No results with current filters" to "Try removing some filters"
             }
+
             currentTab == BrowseTab.SAVED -> {
                 "No saved Sunnahs yet" to "Bookmark your favorite Sunnahs to see them here"
             }
+
             else -> {
                 "No Sunnahs available" to "Please check back later"
             }
@@ -634,7 +744,6 @@ fun BrowseEmptyStatePreview() {
         modifier = Modifier.fillMaxSize()
     )
 }
-
 
 
 // Sunnah Grid Component (Placeholder - will be implemented in Phase 3)
@@ -796,7 +905,7 @@ fun EnhancedSunnahCompactCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
 
-                    items(metaIcons){ icon ->
+                    items(metaIcons) { icon ->
                         icon()
                     }
                 }

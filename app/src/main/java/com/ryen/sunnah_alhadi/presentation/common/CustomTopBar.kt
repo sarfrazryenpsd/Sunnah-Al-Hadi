@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.presentation.common
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
@@ -11,8 +12,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.ryen.sunnah_alhadi.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,8 +31,9 @@ fun CustomTopBar(
         navigationIcon = {
             if (isTopLevel) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground ),
-                    contentDescription = "App Icon"
+                    painter = painterResource(id = R.drawable.sunnahlogo ),
+                    contentDescription = "App Icon",
+                    modifier = Modifier.size(48.dp)
                 )
             } else {
                 IconButton(onClick = onNavigateBack) {

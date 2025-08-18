@@ -340,7 +340,7 @@ private fun ContentBlockRenderer(
         ContentType.ENGLISH_TEXT -> {
             when (contentBlock.subtype.lowercase()) {
                 "translation" -> MaterialTheme.typography.bodyLarge.copy(
-                    fontStyle = MaterialTheme.appTypography.englishBodyTranslation.fontStyle,
+                    fontStyle = MaterialTheme.appTypography.bodyPrimary.fontStyle,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
                 else -> MaterialTheme.typography.bodyLarge

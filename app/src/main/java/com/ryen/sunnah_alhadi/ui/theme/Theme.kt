@@ -35,21 +35,34 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = SunnahColors.LightOnPrimary,
     primaryContainer = SunnahColors.LightPrimaryContainer,
     onPrimaryContainer = SunnahColors.LightOnPrimaryContainer,
+    inversePrimary = SunnahColors.LightInversePrimary,
     secondary = SunnahColors.LightSecondary,
     onSecondary = SunnahColors.LightOnSecondary,
+    secondaryContainer = SunnahColors.LightSecondaryContainer,
+    onSecondaryContainer = SunnahColors.LightOnSecondaryContainer,
+    tertiary = SunnahColors.LightTertiary,
+    onTertiary = SunnahColors.LightOnTertiary,
+    tertiaryContainer = SunnahColors.LightTertiaryContainer,
+    onTertiaryContainer = SunnahColors.LightOnTertiaryContainer,
     background = SunnahColors.LightBackground,
     onBackground = SunnahColors.LightOnBackground,
     surface = SunnahColors.LightSurface,
     onSurface = SunnahColors.LightOnSurface,
     surfaceVariant = SunnahColors.LightSurfaceVariant,
     onSurfaceVariant = SunnahColors.LightOnSurfaceVariant,
+    surfaceTint = SunnahColors.LightSurfaceTint,
+    inverseSurface = SunnahColors.LightInverseSurface,
+    inverseOnSurface = SunnahColors.LightInverseOnSurface,
+    error = SunnahColors.LightError,
+    onError = SunnahColors.LightOnError,
+    errorContainer = SunnahColors.LightErrorContainer,
+    onErrorContainer = SunnahColors.LightOnErrorContainer,
     outline = SunnahColors.LightOutline,
     outlineVariant = SunnahColors.LightOutlineVariant,
     scrim = SunnahColors.LightScrim,
-    inverseSurface = SunnahColors.LightInverseSurface,
-    inverseOnSurface = SunnahColors.LightInverseOnSurface,
-    inversePrimary = SunnahColors.LightInversePrimary,
-    surfaceTint = SunnahColors.LightSurfaceTint
+    surfaceContainer = SunnahColors.LightSurfaceContainer,
+    surfaceContainerHigh = SunnahColors.LightSurfaceContainerHigh,
+    surfaceContainerHighest = SunnahColors.LightSurfaceContainerHighest,
 )
 
 // Create dark color scheme
@@ -58,21 +71,34 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = SunnahColors.DarkOnPrimary,
     primaryContainer = SunnahColors.DarkPrimaryContainer,
     onPrimaryContainer = SunnahColors.DarkOnPrimaryContainer,
+    inversePrimary = SunnahColors.DarkInversePrimary,
     secondary = SunnahColors.DarkSecondary,
     onSecondary = SunnahColors.DarkOnSecondary,
+    secondaryContainer = SunnahColors.DarkSecondaryContainer,
+    onSecondaryContainer = SunnahColors.DarkOnSecondaryContainer,
+    tertiary = SunnahColors.DarkTertiary,
+    onTertiary = SunnahColors.DarkOnTertiary,
+    tertiaryContainer = SunnahColors.DarkTertiaryContainer,
+    onTertiaryContainer = SunnahColors.DarkOnTertiaryContainer,
     background = SunnahColors.DarkBackground,
     onBackground = SunnahColors.DarkOnBackground,
     surface = SunnahColors.DarkSurface,
     onSurface = SunnahColors.DarkOnSurface,
     surfaceVariant = SunnahColors.DarkSurfaceVariant,
     onSurfaceVariant = SunnahColors.DarkOnSurfaceVariant,
+    surfaceTint = SunnahColors.DarkSurfaceTint,
+    inverseSurface = SunnahColors.DarkInverseSurface,
+    inverseOnSurface = SunnahColors.DarkInverseOnSurface,
+    error = SunnahColors.DarkError,
+    onError = SunnahColors.DarkOnError,
+    errorContainer = SunnahColors.DarkErrorContainer,
+    onErrorContainer = SunnahColors.DarkOnErrorContainer,
     outline = SunnahColors.DarkOutline,
     outlineVariant = SunnahColors.DarkOutlineVariant,
     scrim = SunnahColors.DarkScrim,
-    inverseSurface = SunnahColors.DarkInverseSurface,
-    inverseOnSurface = SunnahColors.DarkInverseOnSurface,
-    inversePrimary = SunnahColors.DarkInversePrimary,
-    surfaceTint = SunnahColors.DarkSurfaceTint
+    surfaceContainer = SunnahColors.DarkSurfaceContainer,
+    surfaceContainerHigh = SunnahColors.DarkSurfaceContainerHigh,
+    surfaceContainerHighest = SunnahColors.DarkSurfaceContainerHighest,
 )
 
 
@@ -87,18 +113,27 @@ val LocalScreenSize = compositionLocalOf<ScreenSize> {
     error("No ScreenSize provided")
 }
 
-// Extension for easy access
-val MaterialTheme.appTypography: AppTypography
-    @Composable
-    @ReadOnlyComposable
-    get() = LocalAppTypography.current
-
 @OptIn(ExperimentalSharedTransitionApi::class)
 val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope> {
     throw IllegalStateException("No SharedTransitionScope provided")
 }
 
-// UPDATED THEME COMPOSABLE - Simplified and centralized
+// Extension properties for easy access
+val MaterialTheme.appTypography: AppTypography
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalAppTypography.current
+
+val MaterialTheme.appDimensions: DynamicDimensions
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalDynamicDimensions.current
+
+
+// =============================================================================
+// UPDATED THEME COMPOSABLE
+// =============================================================================
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun SunnahAlHadiTheme(
@@ -125,17 +160,21 @@ fun SunnahAlHadiTheme(
         else -> LightColorScheme
     }
 
-    // Create typography once
+    // Create all dimension and typography objects
     val screenSize = remember(windowSizeClass) { windowSizeClass.toScreenSize() }
     val scaleFactors = remember(screenSize) { ScaleFactors.from(screenSize) }
-    val dynamicSizes = remember(scaleFactors) { DynamicSizes(scaleFactors) }
-    val materialTypography = remember(dynamicSizes) { TypographyFactory.createMaterialTypography(dynamicSizes) }
-    val appTypography = remember(dynamicSizes) { AppTypography(dynamicSizes) }
+    val typographySizes = remember(scaleFactors) { AppTypographySizes(scaleFactors) }
+    val materialTypography = remember(typographySizes) { TypographyFactory.createMaterialTypography(typographySizes) }
+    val appTypography = remember(typographySizes) { AppTypography(typographySizes) }
 
-    val dimensions = remember(screenSize) { screenSize.toDynamicDimensions() }
+    val baseDimensions = remember(screenSize) { screenSize.toDynamicDimensions() }
+
     val shapes = Shapes(
-        extraSmall = RoundedCornerShape(50),
-        large = RoundedCornerShape(size = 30.dp),
+        extraSmall = RoundedCornerShape(baseDimensions.cardRadiusS),
+        small = RoundedCornerShape(baseDimensions.cardRadiusS),
+        medium = RoundedCornerShape(baseDimensions.cardRadiusM),
+        large = RoundedCornerShape(baseDimensions.cardRadiusL),
+        extraLarge = RoundedCornerShape(baseDimensions.cardRadiusL)
     )
 
     MaterialExpressiveTheme(
@@ -147,9 +186,9 @@ fun SunnahAlHadiTheme(
         SharedTransitionLayout {
             CompositionLocalProvider(
                 LocalSharedTransitionScope provides this,
-                LocalDynamicDimensions provides dimensions,
+                LocalDynamicDimensions provides baseDimensions,
                 LocalAppTypography provides appTypography,
-                LocalScreenSize provides screenSize
+                LocalScreenSize provides screenSize,
             ) {
                 content()
             }
@@ -157,26 +196,41 @@ fun SunnahAlHadiTheme(
     }
 }
 
-// Usage examples:
+// =============================================================================
+// MIGRATION GUIDE - How to update your existing code
+// =============================================================================
+
 /*
-@Composable
-fun ExampleUsage() {
-    // For Material Design components - use MaterialTheme.typography
-    Text(
-        text = "Material Design Title",
-        style = MaterialTheme.typography.titleLarge
-    )
+MIGRATION STEPS:
 
-    // For app-specific content - use MaterialTheme.appTypography
-    Text(
-        text = "Sunnah Title",
-        style = MaterialTheme.appTypography.sunnahTitle
-    )
+1. Replace your existing typography calls:
+   OLD: MaterialTheme.typography.headlineLarge
+   NEW: MaterialTheme.appTypography.pageTitle
 
-    Text(
-        text = "Arabic text",
-        style = MaterialTheme.appTypography.arabicVerse
-    )
-}
+2. Replace dimension access:
+   OLD: MaterialTheme.dimensions.cardPadding
+   NEW: MaterialTheme.appDimensions.cardPaddingM
+
+3. Use screen-specific dimensions:
+   OLD: hardcoded values
+   NEW: MaterialTheme.homeScreenDimensions.headerTopMargin
+
+4. Typography mapping for your existing code:
+   - PAGE TITLE (64sp) → MaterialTheme.appTypography.pageTitle
+   - Settings Title (48sp) → MaterialTheme.appTypography.sectionHeader
+   - SARFRAZ (40sp) → MaterialTheme.appTypography.cardTitle
+   - Featured Topics (32sp) → MaterialTheme.appTypography.sectionHeader
+   - See All (24sp) → MaterialTheme.appTypography.buttonLabel
+   - Body text (24sp) → MaterialTheme.appTypography.bodyPrimary
+   - Arabic large (48sp) → MaterialTheme.appTypography.arabicTitle
+   - Arabic medium (32sp) → MaterialTheme.appTypography.arabicBody
+   - Arabic small (16sp) → MaterialTheme.appTypography.arabicReference
+
+5. Example usage in composables:
+   Text(
+       text = "ASSALAMUAILAIKUM",
+       style = MaterialTheme.appTypography.pageTitle,
+       modifier = Modifier.padding(top = MaterialTheme.homeScreenDimensions.greetingTopMargin)
+   )
 */
 

@@ -60,7 +60,7 @@ fun SpecialArabicCard(
             // Arabic content with RTL support
             BasicText(
                 text = arabicContent,
-                style = MaterialTheme.appTypography.arabicVerse.copy(
+                style = MaterialTheme.appTypography.arabicBody.copy(
                     textDirection = TextDirection.Rtl,
                     fontSize = 25.sp,
                     lineHeight = 30.sp,

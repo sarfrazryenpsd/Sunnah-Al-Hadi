@@ -279,7 +279,7 @@ fun SimpleTopicCard(
                 modifier = Modifier.fillMaxSize()
 
             ) {
-                Column(
+                /*Column(
                     verticalArrangement = Arrangement.Bottom, modifier = Modifier.padding(
                         start = LocalDynamicDimensions.current.cardPadding,
                         bottom = LocalDynamicDimensions.current.cardPadding
@@ -303,7 +303,7 @@ fun SimpleTopicCard(
                             maxFontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2
                         )
                     )
-                }
+                }*/
 
                 Image(
                     painter = rememberAsyncImagePainter(model = topicWithCount.imageRes),
