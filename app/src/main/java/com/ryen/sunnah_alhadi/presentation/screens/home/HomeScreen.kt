@@ -249,95 +249,13 @@ fun HomeScreenContent(
                 }
             }
 
+            item{
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             // Recent SOTDs Section
             if (uiState.recentSotd.isNotEmpty()) {
                 item {
-                    /*Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(
-                            text = "Recently Viewed",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            contentPadding = PaddingValues(horizontal = 4.dp)
-                        ) {
-                            items(
-                                items = uiState.recentSotd,
-                                key = { it.id }
-                            ) { sunnah ->
-                                SunnahCompactCard(
-                                    title = sunnah.title,
-                                    extraIcons = buildList {
-                                        // Add extra content icon if available
-                                        if (sunnah.extra != null) {
-                                            add {
-                                                Icon(
-                                                    imageVector = Icons.Default.Star,
-                                                    contentDescription = "Has extra content",
-                                                    modifier = Modifier.size(16.dp),
-                                                    tint = MaterialTheme.colorScheme.primary
-                                                )
-                                            }
-                                        }
-
-                                        // Add verses icon if contains verses
-                                        if (sunnah.body.any {
-                                                it.subtype.equals(
-                                                    ArabicSubtype.VERSE.name,
-                                                    ignoreCase = true
-                                                )
-                                            }) {
-                                            add {
-                                                Icon(
-                                                    painter = painterResource(R.drawable.ec_verse),
-                                                    contentDescription = "Contains verses",
-                                                    modifier = Modifier.size(16.dp),
-                                                    tint = MaterialTheme.colorScheme.secondary
-                                                )
-                                            }
-                                        }
-
-                                        if (sunnah.body.any {
-                                                it.subtype.equals(
-                                                    ArabicSubtype.SUPPLICATION.name,
-                                                    ignoreCase = true
-                                                )
-                                            }) {
-                                            add {
-                                                Icon(
-                                                    painter = painterResource(R.drawable.ec_supplication),
-                                                    contentDescription = "Contains verses",
-                                                    modifier = Modifier.size(16.dp),
-                                                    tint = MaterialTheme.colorScheme.secondary
-                                                )
-                                            }
-                                        }
-
-                                        // Add reference icon if has reference
-                                        if (sunnah.references != null) {
-                                            add {
-                                                Icon(
-                                                    painter = painterResource(R.drawable.ec_reference),
-                                                    contentDescription = "Has reference",
-                                                    modifier = Modifier.size(16.dp),
-                                                    tint = MaterialTheme.colorScheme.tertiary
-                                                )
-                                            }
-                                        }
-                                    },
-                                    borderColor = MaterialTheme.colorScheme.outline,
-                                    modifier = Modifier
-                                        .width(200.dp)
-                                        .clickable {
-                                            onEvent(HomeEvent.OpenSunnah(sunnah.id))
-                                        }
-                                )
-                            }
-                        }
-                    }*/
-
                     SunnahCompactCardContainer(
                         sunnahs = uiState.recentSotd,
                         onSunnahClick = { onEvent(HomeEvent.OpenSunnah(it)) },

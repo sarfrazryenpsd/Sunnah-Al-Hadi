@@ -49,8 +49,8 @@ fun SunnahCompactCard(
     Surface(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp)),
-        border = BorderStroke(2.dp, borderColor),
-        shape = RoundedCornerShape(20.dp),
+        border = BorderStroke(1.dp, borderColor),
+        shape = RoundedCornerShape(24.dp),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             // Using standard Text instead of custom BasicText
@@ -188,35 +188,5 @@ private fun ECIconPrev() {
             iconBackground = MaterialTheme.colorScheme.primaryContainer,
             borderColor = MaterialTheme.colorScheme.outline
         )
-    }
-}
-
-// Debug version to test basic rendering
-@Preview(showBackground = true)
-@Composable
-private fun SimpleCardTest() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(360.dp, 640.dp))
-    ) {
-        Surface(
-            modifier = Modifier
-                .padding(16.dp)
-                .wrapContentSize(),
-            tonalElevation = 2.dp,
-            border = BorderStroke(3.dp, Color.Red),
-            shape = RoundedCornerShape(8.dp),
-        ) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(
-                    text = "Test Card",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "If you see this, basic rendering works",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        }
     }
 }
