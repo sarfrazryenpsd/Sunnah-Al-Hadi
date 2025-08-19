@@ -6,7 +6,6 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -102,6 +101,27 @@ class AppTypographySizes(private val scaleFactors: ScaleFactors) {
     val labelLarge = (14 * scaleFactors.textScale).sp   // Tabs (was 28)
     val labelMedium = (12 * scaleFactors.textScale).sp  // Small labels (was 24)
     val labelSmall = (10 * scaleFactors.textScale).sp   // Captions (was 20)
+    val displayName = (28 * scaleFactors.textScale).sp    // SARFRAZ display name
+    val sunnahCardTitle = (20 * scaleFactors.textScale).sp       // Sunnah card titles
+    val featuredTopics = (22 * scaleFactors.textScale).sp        // "Featured Topics" text
+    val browseSubtitle = (22 * scaleFactors.textScale).sp        // Browse section subtitles
+    val seeAll = (14 * scaleFactors.textScale).sp               // "See All" links
+    val notificationType = (16 * scaleFactors.textScale).sp     // Notification type headers
+    val extraNotificationTitle = (16 * scaleFactors.textScale).sp // Extra & notification titles
+    val sunnahDetail = (14 * scaleFactors.textScale).sp         // Sunnah detail text
+    val reminderTime = (14 * scaleFactors.textScale).sp         // Reminder time text
+    val tabs = (14 * scaleFactors.textScale).sp                 // Tab labels
+    val topicSubtitleFilters = (14 * scaleFactors.textScale).sp // Topic subtitle & filters
+    val notificationSubtitle = (12 * scaleFactors.textScale).sp // Notification subtitles
+
+    // Arabic specific sizes
+    val topicMax = (40 * scaleFactors.textScale).sp             // Topic max Arabic text
+    val topicMin = (30 * scaleFactors.textScale).sp             // Topic min Arabic text
+    val homeSunnahTitle = (28 * scaleFactors.textScale).sp      // Home Sunnah title
+    val homeSalat = (16 * scaleFactors.textScale).sp            // Home Salat text
+    val homeSunnahHeading = (14 * scaleFactors.textScale).sp    // Home Sunnah heading
+    val homeSunnahDetail = (12 * scaleFactors.textScale).sp     // Home Sunnah detail
+    val sunnahReference = (10 * scaleFactors.textScale).sp      // Sunnah reference text
 
     // Arabic Typography (Amiri)
     val arabicLarge = (20 * scaleFactors.textScale).sp  // Main Arabic text (was 40)
@@ -218,6 +238,87 @@ object TypographyFactory {
 // =============================================================================
 
 class AppTypography internal constructor(private val sizes: AppTypographySizes) {
+
+    // Add these specific typography styles to your AppTypography class
+
+    // Figtree specific styles
+    val displayName: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.TITLE, sizes, FontWeight.Bold
+    ).copy(fontSize = sizes.displayName)
+
+    val sunnahCardTitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.TITLE, sizes, FontWeight.SemiBold
+    ).copy(fontSize = sizes.sunnahCardTitle)
+
+    val featuredTopics: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.TITLE, sizes, FontWeight.SemiBold
+    ).copy(fontSize = sizes.featuredTopics)
+
+    val browseSubtitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.BODY, sizes, FontWeight.Medium
+    ).copy(fontSize = sizes.browseSubtitle)
+
+    val seeAll: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.LABEL, sizes, FontWeight.Bold
+    ).copy(fontSize = sizes.seeAll)
+
+    val notificationType: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.BODY, sizes, FontWeight.SemiBold
+    ).copy(fontSize = sizes.notificationType)
+
+    val extraAndNotificationTitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.BODY, sizes, FontWeight.Medium
+    ).copy(fontSize = sizes.extraNotificationTitle)
+
+    val sunnahDetail: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.BODY, sizes, FontWeight.Normal
+    ).copy(fontSize = sizes.sunnahDetail)
+
+    val reminderTime: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.BODY, sizes, FontWeight.Light
+    ).copy(fontSize = sizes.reminderTime)
+
+    val tabs: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.LABEL, sizes, FontWeight.Bold
+    ).copy(fontSize = sizes.tabs)
+
+    val topicSubtitleFilters: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.BODY, sizes, FontWeight.SemiBold
+    ).copy(fontSize = sizes.topicSubtitleFilters)
+
+    val notificationSubtitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.LABEL, sizes, FontWeight.Light
+    ).copy(fontSize = sizes.notificationSubtitle)
+
+    // Amiri specific styles
+    val topicMax: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.ARABIC_LARGE, sizes, FontWeight.Normal
+    ).copy(fontSize = sizes.topicMax)
+
+    val topicMin: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.ARABIC_MEDIUM, sizes, FontWeight.Normal
+    ).copy(fontSize = sizes.topicMin)
+
+    val homeSunnahTitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.ARABIC_MEDIUM, sizes, FontWeight.Bold
+    ).copy(fontSize = sizes.homeSunnahTitle)
+
+    val homeSalat: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.ARABIC_MEDIUM, sizes, FontWeight.Bold
+    ).copy(fontSize = sizes.homeSalat)
+
+    val homeSunnahHeading: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.ARABIC_MEDIUM, sizes, FontWeight.Bold
+    ).copy(fontSize = sizes.homeSunnahHeading)
+
+    val homeSunnahDetail: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.ARABIC_SMALL, sizes, FontWeight.Bold
+    ).copy(fontSize = sizes.homeSunnahDetail)
+
+    val sunnahReference: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.ARABIC_SMALL, sizes, FontWeight.Light
+    ).copy(fontSize = sizes.sunnahReference)
+
 
     // Page-level typography
     val pageTitle: TextStyle = TypographyFactory.createTextStyle(

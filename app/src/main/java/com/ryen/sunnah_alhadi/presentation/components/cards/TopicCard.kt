@@ -27,14 +27,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.Category
@@ -57,8 +56,8 @@ fun TopicCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(dimensions.topicCardHeight),
-            //.width(dimensions.topicCardWidth),
+            .height(dimensions.featuredCardHeight)
+            .width(dimensions.featuredCardWidth),
         shape = RoundedCornerShape(24.dp)
     ) {
         Box(
@@ -79,33 +78,35 @@ fun TopicCard(
                 modifier = Modifier.fillMaxSize()
 
             ) {
-                /*Column(
+                Column(
                     verticalArrangement = Arrangement.Bottom, modifier = Modifier
                         .padding(
-                            start = LocalDynamicDimensions.current.cardPadding,
-                            bottom = LocalDynamicDimensions.current.cardPadding
+                            start = LocalDynamicDimensions.current.cardPaddingS,
+                            bottom = LocalDynamicDimensions.current.cardPaddingS
                         )
                         .weight(1f)
                 ) {
                     Text(
                         text = stringResource(id = R.string.sunnah_and_manner_of),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.appTypography.topicSubtitleFilters.copy(
+                            lineHeight = 12.sp,
+                        ),
                         color = MaterialTheme.colorScheme.scrim
                     )
                     BasicText(
                         text = category.topic,
-                        style = MaterialTheme.appTypography.topicHeading.copy(
-                            lineHeight = MaterialTheme.appTypography.topicHeading.lineHeight,
-                            fontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2,
-                            color = MaterialTheme.colorScheme.scrim
+                        style = MaterialTheme.appTypography.topicMax.copy(
+                            lineHeight = 32.sp,
+                            //fontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2,
+                            color = MaterialTheme.colorScheme.primary
                         ),
                         maxLines = 2,
                         autoSize = TextAutoSize.StepBased(
-                            minFontSize = MaterialTheme.appTypography.topicHeading.fontSize * .6,
-                            maxFontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2
+                            minFontSize = MaterialTheme.appTypography.topicMax.fontSize,
+                            maxFontSize = MaterialTheme.appTypography.topicMin.fontSize
                         )
                     )
-                }*/
+                }
 
                 Image(
                     painter = rememberAsyncImagePainter(model = topicSImage),

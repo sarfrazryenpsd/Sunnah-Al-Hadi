@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Sunnah-Al Hadi</string>
     <string name="sunnah_and_manner_of">Sunnah And Manner Of</string>
-    <string name="greeting">Assalamualaikum</string>
-    <string name="bismillahSalawat">ٱلْـحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ، وَٱلصَّلَاةُ وَٱلسَّلَامُ عَلَىٰ خَاتِمِ ٱلنَّبِيِّينَ، أَمَّا بَعْدُ، فَأَعُوذُ بِٱللَّهِ مِنَ ٱلشَّيْطَٰنِ ٱلرَّجِيمِ، بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</string>
+    <string name="greeting">ASSALAMUALAIKUM</string>
+    <string name="salawat">اَللّٰھُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلٰی سَیِّدِنَا مُحَمَّدٍ النَّبِیِّ الْاُمِّیِّ الْحَبِیْبِ الْعَالِی الْقَدْرِ الْعَظِیْمِ الْجَاہِ وَعَلٰی اٰلِہٖ وَصَحْبِہ وَسَلِّمِْ</string>
     <string name="disclaimer">Sunnahs and manners regarding different topics are being presented. Do not consider every Madani pearl presented to be a Sunnah. There is a possibility that these Madani pearls may contain sayings of pious predecessors besides Sunnahs. Remember the ruling that no deed can be declared ‘Sunnah of the beloved Prophet’ unless it is known for sure.</string>
     <string name="reportbug_heading">Help us improve Sunnah Al-Hadi by reporting any issues you encounter. JazakAllahu Khair!</string>
     <string name="notificationDialogue1">Allow Sunnah Al-Hadi to send you gentle daily %1$s reminders about the beautiful Sunnah of Prophet Muhammad ﷺ.</string>

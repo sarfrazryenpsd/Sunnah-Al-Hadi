@@ -1,13 +1,8 @@
 package com.ryen.sunnah_alhadi.ui.theme
 
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-
-val LocalDynamicDimensions = staticCompositionLocalOf<DynamicDimensions> {
-    error("No DynamicDimensions provided")
-}
 
 data class DynamicDimensions(
     // Base spacing (8dp grid system)
@@ -87,8 +82,8 @@ fun ScreenSize.toDynamicDimensions(): DynamicDimensions = when (this) {
         touchTarget = 48.dp,
 
         // Specific cards
-        featuredCardWidth = 280.dp,
-        featuredCardHeight = 140.dp,
+        featuredCardWidth = 350.dp,
+        featuredCardHeight = 160.dp,
         topicCardHeight = 160.dp,
         listItemHeight = 64.dp,
         compactItemHeight = 48.dp,

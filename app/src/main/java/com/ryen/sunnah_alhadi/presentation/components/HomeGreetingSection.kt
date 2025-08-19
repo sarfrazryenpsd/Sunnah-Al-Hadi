@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
+import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
 @Composable
 fun HomeGreetingSection(
@@ -30,17 +32,15 @@ fun HomeGreetingSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.Start
     ) {
         // Static Arabic greeting
         Text(
             text = stringResource(R.string.greeting),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Light
-            ),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.appTypography.browseSubtitle,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Normal,
             textAlign = TextAlign.Start
         )
 
@@ -48,9 +48,9 @@ fun HomeGreetingSection(
 
         // Dynamic username from onboarding
         Text(
-            text = userName.ifBlank { "Friend" },
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onSurface,
+            text = userName.ifBlank { "Friend" }.uppercase(),
+            style = MaterialTheme.appTypography.displayName,
+            color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Start
         )
     }

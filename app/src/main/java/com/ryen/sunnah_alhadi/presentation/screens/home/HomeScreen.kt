@@ -48,8 +48,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.Category
+import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
 import com.ryen.sunnah_alhadi.presentation.components.DisclaimerDialog
 import com.ryen.sunnah_alhadi.presentation.components.HomeGreetingSection
+import com.ryen.sunnah_alhadi.presentation.components.cards.GlowingCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.HomeSunnahCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.SpecialArabicCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.SunnahCompactCard
@@ -59,6 +61,8 @@ import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
+import com.ryen.sunnah_alhadi.ui.theme.appTypography
+import org.checkerframework.checker.units.qual.s
 
 @Composable
 fun HomeScreen(
@@ -76,6 +80,7 @@ fun HomeScreen(
                 is HomeEvent.NavigateToTopic -> {
                     onNavigateToTopic(event.categoryId)
                 }
+
                 else -> Unit
             }
         }
@@ -107,9 +112,17 @@ fun HomeScreenContent(
         // Main content
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(vertical = 24.dp)
+            contentPadding = PaddingValues(vertical = 32.dp)
         ) {
+            item {
+                CustomTopBar(
+                    onOrbClick = {},
+                    onInfoClick = {}
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
             // Greeting Section
             item {
                 HomeGreetingSection(
@@ -118,17 +131,33 @@ fun HomeScreenContent(
                 )
             }
 
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
             // Special Arabic Card
             item {
-                SpecialArabicCard(
-                    modifier = Modifier.fillMaxWidth()
+                GlowingCard(
+                    glowingColor = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.fillMaxWidth(),
+                    cornersRadius = 16.dp,
+                    glowingRadius = 24.dp,
+                    xShifting = 0.dp,
+                    yShifting = 0.dp
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
             // Featured Categories Section
             if (uiState.featuredCategories.isNotEmpty()) {
                 item {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -137,27 +166,27 @@ fun HomeScreenContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Featured Categories",
-                                style = MaterialTheme.typography.titleMedium,
+                                text = "Featured Topics",
+                                style = MaterialTheme.appTypography.featuredTopics,
                                 fontWeight = FontWeight.SemiBold
                             )
 
-                            TextButton(
-                                onClick = onNavigateToAllTopics
-                            ) {
-                                Text("View All")
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
+                            Text(
+                                text = "See All",
+                                style = MaterialTheme.appTypography.seeAll,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.clickable {
+                                    onNavigateToAllTopics
+                                }
+                            )
                         }
 
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.padding(horizontal = 6.dp)
                         ) {
+                            item {
+                                Spacer(modifier = Modifier.width(6.dp))
+                            }
                             items(
                                 items = uiState.featuredCategories,
                                 key = { it.id }
@@ -165,16 +194,24 @@ fun HomeScreenContent(
                                 TopicCard(
                                     category = category,
                                     numberOfSunnah = uiState.sunnahCount[category.id] ?: 0,
-                                    topicSImage = CategoryUtils.categoryImageMap[category.id] ?: R.drawable.ec_warning,
+                                    topicSImage = CategoryUtils.categoryImageMap[category.id]
+                                        ?: R.drawable.ec_warning,
                                     modifier = Modifier
                                         .clickable {
                                             onEvent(HomeEvent.NavigateToTopic(category.id))
                                         }
                                 )
                             }
+                            item {
+                                Spacer(modifier = Modifier.width(6.dp))
+                            }
                         }
                     }
                 }
+            }
+            
+            item{
+                Spacer(modifier = Modifier.height(36.dp))
             }
 
             // Home Sunnah Section

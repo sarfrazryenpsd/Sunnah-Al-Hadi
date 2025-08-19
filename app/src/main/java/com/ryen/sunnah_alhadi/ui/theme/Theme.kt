@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
@@ -111,6 +112,10 @@ val LocalAppTypography = compositionLocalOf<AppTypography> {
 
 val LocalScreenSize = compositionLocalOf<ScreenSize> {
     error("No ScreenSize provided")
+}
+
+val LocalDynamicDimensions = staticCompositionLocalOf<DynamicDimensions> {
+    error("No DynamicDimensions provided")
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)

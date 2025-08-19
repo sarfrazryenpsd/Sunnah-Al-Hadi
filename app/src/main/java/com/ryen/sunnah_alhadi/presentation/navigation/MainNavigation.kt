@@ -57,7 +57,6 @@ import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
-import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
 import com.ryen.sunnah_alhadi.presentation.common.LoadingIndicator
 import com.ryen.sunnah_alhadi.presentation.components.overlay.CardOverlay
 import com.ryen.sunnah_alhadi.presentation.components.overlay.OnboardingOverlayContent
@@ -183,10 +182,7 @@ private fun CompactScreenLayout(
 
     Scaffold(
         topBar = {
-            AppTopBar(
-                isTopLevel = backStack.lastOrNull() in topLevelDestinations,
-                onNavigateBack = { backStack.removeLastOrNull() }
-            )
+
         }
     ) { innerPadding ->
         Box(
@@ -397,19 +393,6 @@ private fun SideNavigationRail(
             )
         }
     }
-}
-
-@Composable
-private fun AppTopBar(
-    isTopLevel: Boolean,
-    onNavigateBack: () -> Unit
-) {
-    CustomTopBar(
-        isTopLevel = isTopLevel,
-        onNavigateBack = onNavigateBack,
-        onOrbClick = { },
-        onInfoClick = { }
-    )
 }
 
 // Helper function to get destination icons

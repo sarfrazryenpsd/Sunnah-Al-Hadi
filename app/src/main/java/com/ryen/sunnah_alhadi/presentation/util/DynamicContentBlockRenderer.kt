@@ -328,21 +328,13 @@ fun DynamicReferenceRenderer(
                 modifier = modifier.padding(top = topPadding),
                 verticalArrangement = Arrangement.spacedBy(itemSpacing)
             ) {
-                Text(
-                    text = "References:",
-                    style = MaterialTheme.appTypography.bodyPrimary.copy(
-                        fontStyle = FontStyle.Italic
-                    ),
-                    color = MaterialTheme.colorScheme.outline
-                )
-
                 references.forEach { reference ->
                     Text(
                         text = "• ${reference.source}",
-                        style = MaterialTheme.appTypography.bodyPrimary.copy(
-                            fontStyle = FontStyle.Italic
+                        style = MaterialTheme.appTypography.sunnahReference.copy(
+                            fontStyle = FontStyle.Italic,
                         ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
