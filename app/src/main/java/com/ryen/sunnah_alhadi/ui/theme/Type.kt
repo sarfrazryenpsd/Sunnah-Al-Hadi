@@ -111,12 +111,13 @@ class AppTypographySizes(private val scaleFactors: ScaleFactors) {
     val sunnahDetail = (14 * scaleFactors.textScale).sp         // Sunnah detail text
     val reminderTime = (14 * scaleFactors.textScale).sp         // Reminder time text
     val tabs = (14 * scaleFactors.textScale).sp                 // Tab labels
-    val topicSubtitleFilters = (14 * scaleFactors.textScale).sp // Topic subtitle & filters
+    val filters = (14 * scaleFactors.textScale).sp // Topic subtitle & filters
+    val sunnahSubtitle = (10 * scaleFactors.textScale).sp // Sunnah subtitles
     val notificationSubtitle = (12 * scaleFactors.textScale).sp // Notification subtitles
 
     // Arabic specific sizes
-    val topicMax = (40 * scaleFactors.textScale).sp             // Topic max Arabic text
-    val topicMin = (30 * scaleFactors.textScale).sp             // Topic min Arabic text
+    val topicMax = (32 * scaleFactors.textScale).sp             // Topic max Arabic text
+    val topicMin = (22 * scaleFactors.textScale).sp             // Topic min Arabic text
     val homeSunnahTitle = (28 * scaleFactors.textScale).sp      // Home Sunnah title
     val homeSalat = (16 * scaleFactors.textScale).sp            // Home Salat text
     val homeSunnahHeading = (14 * scaleFactors.textScale).sp    // Home Sunnah heading
@@ -262,6 +263,14 @@ class AppTypography internal constructor(private val sizes: AppTypographySizes) 
         TypographyConfig.TextRole.LABEL, sizes, FontWeight.Bold
     ).copy(fontSize = sizes.seeAll)
 
+    val sunnahCompactCardTitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.LABEL, sizes, FontWeight.Medium
+    ).copy(fontSize = sizes.seeAll)
+
+    val sunnahSubtitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.LABEL, sizes, FontWeight.Normal
+    ).copy(fontSize = sizes.sunnahSubtitle)
+
     val notificationType: TextStyle = TypographyFactory.createTextStyle(
         TypographyConfig.TextRole.BODY, sizes, FontWeight.SemiBold
     ).copy(fontSize = sizes.notificationType)
@@ -284,7 +293,7 @@ class AppTypography internal constructor(private val sizes: AppTypographySizes) 
 
     val topicSubtitleFilters: TextStyle = TypographyFactory.createTextStyle(
         TypographyConfig.TextRole.BODY, sizes, FontWeight.SemiBold
-    ).copy(fontSize = sizes.topicSubtitleFilters)
+    ).copy(fontSize = sizes.filters)
 
     val notificationSubtitle: TextStyle = TypographyFactory.createTextStyle(
         TypographyConfig.TextRole.LABEL, sizes, FontWeight.Light

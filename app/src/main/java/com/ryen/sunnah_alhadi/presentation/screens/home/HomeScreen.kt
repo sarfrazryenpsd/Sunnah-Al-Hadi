@@ -49,6 +49,7 @@ import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
+import com.ryen.sunnah_alhadi.presentation.common.SunnahCompactCardContainer
 import com.ryen.sunnah_alhadi.presentation.components.DisclaimerDialog
 import com.ryen.sunnah_alhadi.presentation.components.HomeGreetingSection
 import com.ryen.sunnah_alhadi.presentation.components.cards.GlowingCard
@@ -121,7 +122,7 @@ fun HomeScreenContent(
                 )
             }
             item {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
             // Greeting Section
             item {
@@ -137,14 +138,16 @@ fun HomeScreenContent(
 
             // Special Arabic Card
             item {
-                GlowingCard(
-                    glowingColor = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.fillMaxWidth(),
-                    cornersRadius = 16.dp,
-                    glowingRadius = 24.dp,
-                    xShifting = 0.dp,
-                    yShifting = 0.dp
-                )
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(12.dp)) {
+                    GlowingCard(
+                        glowingColor = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.fillMaxWidth(),
+                        cornersRadius = 16.dp,
+                        glowingRadius = 24.dp,
+                        xShifting = 0.dp,
+                        yShifting = 0.dp,
+                    )
+                }
             }
 
             item {
@@ -176,7 +179,7 @@ fun HomeScreenContent(
                                 style = MaterialTheme.appTypography.seeAll,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.clickable {
-                                    onNavigateToAllTopics
+                                    onNavigateToAllTopics()
                                 }
                             )
                         }
@@ -209,8 +212,8 @@ fun HomeScreenContent(
                     }
                 }
             }
-            
-            item{
+
+            item {
                 Spacer(modifier = Modifier.height(36.dp))
             }
 
@@ -222,10 +225,34 @@ fun HomeScreenContent(
                 )
             }
 
+            item {
+                Spacer(modifier = Modifier.height(36.dp))
+            }
+
+            item {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = "Recent",
+                        style = MaterialTheme.appTypography.featuredTopics,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Sunnah Of The Day",
+                        style = MaterialTheme.appTypography.notificationSubtitle,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
             // Recent SOTDs Section
             if (uiState.recentSotd.isNotEmpty()) {
                 item {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    /*Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(
                             text = "Recently Viewed",
                             style = MaterialTheme.typography.titleMedium,
@@ -309,7 +336,13 @@ fun HomeScreenContent(
                                 )
                             }
                         }
-                    }
+                    }*/
+
+                    SunnahCompactCardContainer(
+                        sunnahs = uiState.recentSotd,
+                        onSunnahClick = { onEvent(HomeEvent.OpenSunnah(it)) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
 
@@ -387,7 +420,7 @@ fun HomeScreenContent(
 @Composable
 private fun HomeScreenContentPrev() {
     CompositionLocalProvider(
-        LocalScreenSize provides ScreenSize.MEDIUM
+        LocalScreenSize provides ScreenSize.COMPACT
     ) {
         SunnahAlHadiTheme(
             windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))

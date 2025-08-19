@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,12 +27,19 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
@@ -41,6 +49,9 @@ import com.ryen.sunnah_alhadi.presentation.common.PreviewWrapperWithFullTheme
 import com.ryen.sunnah_alhadi.presentation.common.SunnahPreview
 import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicDimensions
+import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
+import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
+import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
 
@@ -88,22 +99,24 @@ fun TopicCard(
                 ) {
                     Text(
                         text = stringResource(id = R.string.sunnah_and_manner_of),
-                        style = MaterialTheme.appTypography.topicSubtitleFilters.copy(
-                            lineHeight = 12.sp,
-                        ),
-                        color = MaterialTheme.colorScheme.scrim
+                        style = MaterialTheme.appTypography.sunnahSubtitle,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.offset(y = (6).dp)
                     )
                     BasicText(
                         text = category.topic,
                         style = MaterialTheme.appTypography.topicMax.copy(
-                            lineHeight = 32.sp,
-                            //fontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            lineHeightStyle = LineHeightStyle(
+                                alignment = LineHeightStyle.Alignment.Center,
+                                trim = LineHeightStyle.Trim.Both // removes extra padding at top/bottom
+                            )
+
                         ),
                         maxLines = 2,
                         autoSize = TextAutoSize.StepBased(
-                            minFontSize = MaterialTheme.appTypography.topicMax.fontSize,
-                            maxFontSize = MaterialTheme.appTypography.topicMin.fontSize
+                            minFontSize = MaterialTheme.appTypography.topicMin.fontSize,
+                            maxFontSize = MaterialTheme.appTypography.topicMax.fontSize
                         )
                     )
                 }
@@ -180,12 +193,21 @@ fun PreviewSizes(
     }
 }
 
-@SunnahPreview
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview
+@PreviewScreenSizes
 @Composable
 fun TopicScreenCleanPreview() {
-    PreviewSizes { width ->
-        PreviewWrapperWithFullTheme(widthDp = width) {
-            TopicScreen(topics = previewDummyTopics(), userName = "Sarfraz")
+    CompositionLocalProvider(
+        LocalScreenSize provides ScreenSize.COMPACT
+    ) {
+        SunnahAlHadiTheme(
+            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
+        ) {
+            TopicScreen(
+                topics = previewDummyTopics(),
+                userName = "Sarfraz"
+            )
         }
     }
 }

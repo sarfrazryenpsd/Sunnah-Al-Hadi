@@ -1,6 +1,5 @@
 package com.ryen.sunnah_alhadi.domain.model
 
-import com.ryen.sunnah_alhadi.data.repository.BugReportException
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.Test

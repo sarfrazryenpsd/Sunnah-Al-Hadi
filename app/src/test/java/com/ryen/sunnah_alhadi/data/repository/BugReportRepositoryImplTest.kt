@@ -9,6 +9,7 @@ import com.ryen.sunnah_alhadi.data.local.datasource.dao.BugReportDao
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.BugReportEntity
 import com.ryen.sunnah_alhadi.data.model.toEntity
 import com.ryen.sunnah_alhadi.domain.model.BugReport
+import com.ryen.sunnah_alhadi.domain.model.BugReportException
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

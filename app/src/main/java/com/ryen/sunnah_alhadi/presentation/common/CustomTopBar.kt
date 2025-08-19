@@ -1,6 +1,7 @@
 package com.ryen.sunnah_alhadi.presentation.common
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -34,37 +35,41 @@ fun CustomTopBar(
     onInfoClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Box(
             contentAlignment = Alignment.Center,
-        ){
-            Image(
+        ) {
+            Icon(
                 painter = painterResource(id = R.drawable.sunnahlogo),
                 contentDescription = "Sunnah Logo",
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(40.dp)
             )
         }
         Box(
             contentAlignment = Alignment.Center,
         ) {
-            Row(){
-                IconButton(onClick = onOrbClick) {
-                    Icon(
-                        imageVector = Icons.Outlined.Favorite,
-                        contentDescription = "Sunnah of the Day",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                IconButton(onClick = onInfoClick) {
-                    Icon(
-                        imageVector = Icons.Outlined.Info,
-                        contentDescription = "Info",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Favorite,
+                    contentDescription = "Sunnah of the Day",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { onOrbClick() }
+                )
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = "Info",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { onInfoClick() }
+                )
             }
         }
     }

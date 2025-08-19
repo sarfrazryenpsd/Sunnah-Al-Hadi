@@ -58,7 +58,7 @@ fun SpecialArabicCard(
         modifier = modifier
             .wrapContentHeight()
             .fillMaxWidth()
-            .padding(12.dp)
+            //.padding(12.dp)
             .border(2.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
 
@@ -129,7 +129,7 @@ fun GlowingCard(
                             setShadowLayer(
                                 glowingRadius.toPx(),
                                 xShifting.toPx(), yShifting.toPx(),
-                                glowingColor.copy(alpha = 0.85f).toArgb()
+                                glowingColor.copy(alpha = 0.5f).toArgb()
                             )
                         }
                     )
@@ -145,7 +145,7 @@ fun GlowingCard(
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview(device = Devices.PHONE)
 @Composable
-private fun SpecialCardPrev() {
+private fun GlowCardPrev() {
     SunnahAlHadiTheme(
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
@@ -153,5 +153,16 @@ private fun SpecialCardPrev() {
             Color(0xFF00FF00),
 
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview(device = Devices.PHONE)
+@Composable
+private fun SpecialArabicCardPrev() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
+    ) {
+        SpecialArabicCard()
     }
 }
