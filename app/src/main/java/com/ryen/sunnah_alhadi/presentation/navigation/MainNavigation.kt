@@ -7,31 +7,29 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.AppBarRow
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FloatingToolbarDefaults
-import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -45,8 +43,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
@@ -57,6 +57,7 @@ import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
+import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.presentation.common.LoadingIndicator
 import com.ryen.sunnah_alhadi.presentation.components.overlay.CardOverlay
 import com.ryen.sunnah_alhadi.presentation.components.overlay.OnboardingOverlayContent
@@ -177,9 +178,6 @@ private fun CompactScreenLayout(
     topLevelDestinations: List<NavKey>,
     onSotdRequested: () -> Unit
 ) {
-    // State for toolbar expansion
-    var isToolbarExpanded by rememberSaveable { mutableStateOf(true) }
-
     Scaffold(
         topBar = {
 
@@ -197,12 +195,14 @@ private fun CompactScreenLayout(
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Bottom floating toolbar
-            BottomFloatingToolbar(
-                expanded = isToolbarExpanded,
+            // Custom bottom toolbar
+            CustomBottomBar(
                 topLevelDestinations = topLevelDestinations,
                 backStack = backStack,
-                onItemSelected = { isToolbarExpanded = true },
+                onItemSelected = { destination ->
+                    backStack.clear()
+                    backStack.add(destination)
+                },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)
@@ -295,59 +295,61 @@ private fun NavigationContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun BottomFloatingToolbar(
-    expanded: Boolean,
+fun CustomBottomBar(
     topLevelDestinations: List<NavKey>,
     backStack: SnapshotStateList<NavKey>,
-    onItemSelected: () -> Unit,
+    onItemSelected: (NavKey) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val toolbarColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
+    val currentDestination = backStack.lastOrNull()
 
-    HorizontalFloatingToolbar(
-        expanded = expanded,
-        modifier = modifier,
-        colors = toolbarColors,
-        content = {
-            AppBarRow(
-                overflowIndicator = { menuState ->
-                    IconButton(
-                        onClick = {
-                            if (menuState.isExpanded) {
-                                menuState.dismiss()
-                            } else {
-                                menuState.show()
-                            }
-                        }
+    Box(
+        modifier = modifier
+            .zIndex(1f)
+            .width(210.dp)
+            .height(70.dp)
+            .background(Color.Transparent),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer,
+            shape = RoundedCornerShape(32),
+            shadowElevation = 18.dp
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .height(80.dp)
+                    .width(240.dp)
+            ) {
+                topLevelDestinations.forEach { destination ->
+                    val selected = currentDestination == destination
+                    val selectedIconColor =
+                        if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+                    val bgColor =
+                        if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(80.dp)
+                            .clickable { onItemSelected(destination) }
+                            .background(bgColor, shape = RoundedCornerShape(32)),
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "More options"
+                            painter = painterResource(getDestinationIcon(destination)),
+                            contentDescription = destination.toString(),
+                            tint = selectedIconColor,
+                            modifier = Modifier.height(28.dp)
                         )
                     }
                 }
-            ) {
-                topLevelDestinations.forEach { destination ->
-                    clickableItem(
-                        onClick = {
-                            backStack.clear()
-                            backStack.add(destination)
-                            onItemSelected()
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = getDestinationIcon(destination),
-                                contentDescription = destination.toString()
-                            )
-                        },
-                        label = destination.toString()
-                    )
-                }
             }
         }
-    )
+    }
 }
 
 @Composable
@@ -381,7 +383,7 @@ private fun SideNavigationRail(
                 onClick = { onDestinationSelected(destination) },
                 icon = {
                     Icon(
-                        imageVector = getDestinationIcon(destination),
+                        painter = painterResource(getDestinationIcon(destination)),
                         contentDescription = destination.toString()
                     )
                 },
@@ -395,13 +397,14 @@ private fun SideNavigationRail(
     }
 }
 
-// Helper function to get destination icons
-private fun getDestinationIcon(destination: NavKey): ImageVector {
+
+// Helper function to get destination drawables (for CustomBottomBar)
+private fun getDestinationIcon(destination: NavKey): Int {
     return when (destination) {
-        is Home -> Icons.Filled.Home
-        is Browse -> Icons.AutoMirrored.Filled.List
-        is Preferences -> Icons.Filled.Person
-        else -> Icons.Filled.Info
+        is Home -> R.drawable.interface_home
+        is Browse -> R.drawable.interface_browse
+        is Preferences -> R.drawable.interface_preferences
+        else -> R.drawable.interface_home // fallback
     }
 }
 
@@ -480,7 +483,6 @@ private fun SnapshotStateList<NavKey>.clearDuplicateTopic(topicId: Int) {
         this.removeLastOrNull() // Remove the current TopicScreen from the stack
     }
 }
-
 
 enum class OverlayType {
     ONBOARDING,
