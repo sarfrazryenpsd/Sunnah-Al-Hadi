@@ -33,7 +33,7 @@ fun getExtraContentMetaInfo(type: ExtraContentType): ExtraContentMetaInfo {
 }
 
 @Composable
-fun buildMetaInfoIconsForSunnah(sunnah: Sunnah, boxSize: Dp = 20.dp): List<@Composable () -> Unit> {
+fun buildMetaInfoIconsForSunnah(sunnah: Sunnah): List<@Composable () -> Unit> {
     return buildList {
         // ExtraContent icons
         sunnah.extra
@@ -44,10 +44,7 @@ fun buildMetaInfoIconsForSunnah(sunnah: Sunnah, boxSize: Dp = 20.dp): List<@Comp
                 add {
                     ECIconBox(
                         iconColor = meta.colors.iconColor,
-                        iconBackground = meta.colors.iconBackground,
-                        borderColor = meta.colors.borderColor,
                         iconRes = meta.icon,
-                        boxSize = boxSize
                     )
                 }
             }
@@ -58,10 +55,7 @@ fun buildMetaInfoIconsForSunnah(sunnah: Sunnah, boxSize: Dp = 20.dp): List<@Comp
             add {
                 ECIconBox(
                     iconColor = style.iconColor,
-                    iconBackground = style.background,
-                    borderColor = style.border,
                     iconRes = style.icon,
-                    boxSize = boxSize
                 )
             }
         }
@@ -72,10 +66,7 @@ fun buildMetaInfoIconsForSunnah(sunnah: Sunnah, boxSize: Dp = 20.dp): List<@Comp
             add {
                 ECIconBox(
                     iconColor = style.iconColor,
-                    iconBackground = style.background,
-                    borderColor = style.border,
                     iconRes = style.icon,
-                    boxSize = boxSize
                 )
             }
         }
@@ -86,10 +77,7 @@ fun buildMetaInfoIconsForSunnah(sunnah: Sunnah, boxSize: Dp = 20.dp): List<@Comp
             add {
                 ECIconBox(
                     iconColor = style.iconColor,
-                    iconBackground = style.background,
-                    borderColor = style.border,
                     iconRes = style.icon,
-                    boxSize = boxSize
                 )
             }
         }

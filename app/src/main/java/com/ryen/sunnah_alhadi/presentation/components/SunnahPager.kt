@@ -301,7 +301,7 @@ private fun SunnahCardHeader(sunnah: Sunnah) {
         )
 
         // Metadata icons
-        val metaIcons = buildMetaInfoIconsForSunnah(sunnah, boxSize = 24.dp)
+        val metaIcons = buildMetaInfoIconsForSunnah(sunnah)
         if (metaIcons.isNotEmpty()) {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -378,10 +378,7 @@ private fun ExtraContentRenderer(
             ) {
                 ECIconBox(
                     iconColor = metaInfo.colors.iconColor,
-                    iconBackground = metaInfo.colors.iconBackground,
-                    borderColor = metaInfo.colors.borderColor,
                     iconRes = metaInfo.icon,
-                    boxSize = 20.dp
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))

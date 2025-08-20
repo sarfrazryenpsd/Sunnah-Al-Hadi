@@ -42,7 +42,6 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -60,8 +59,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
+import com.ryen.sunnah_alhadi.presentation.common.NestedNavAppBar
+import com.ryen.sunnah_alhadi.presentation.common.ScreenHeaderSection
+import com.ryen.sunnah_alhadi.presentation.common.SunnahGridCardContainer
 import com.ryen.sunnah_alhadi.presentation.components.SunnahPager
-import com.ryen.sunnah_alhadi.presentation.components.cards.SunnahCompactCard
+import com.ryen.sunnah_alhadi.presentation.components.cards.SunnahCardCompact
+import com.ryen.sunnah_alhadi.presentation.navigation.Topic
 import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.presentation.util.buildMetaInfoIconsForSunnah
 import com.ryen.sunnah_alhadi.ui.theme.DynamicDimensions
@@ -124,9 +127,15 @@ private fun TopicContent(
             .statusBarsPadding()
     ) {
         // Header with category name and gradient background
-        TopicHeader(
-            category = uiState.category,
-            onNavigateBack = onNavigateBack
+        NestedNavAppBar(
+            onNavigateBack = onNavigateBack,
+            onRefresh = {}
+        )
+
+        ScreenHeaderSection(
+            screen = Topic(""),
+            topic = uiState.category?.topic ?: "Loading",
+            modifier = Modifier.fillMaxWidth()
         )
 
         // Main content area
@@ -146,10 +155,8 @@ private fun TopicContent(
             }
 
             else -> {
-                SunnahGrid(
+                SunnahGridCardContainer(
                     sunnahs = uiState.sunnahs,
-                    categoryId = uiState.category?.id ?: 0,
-                    dimensions = dimensions,
                     screenSize = screenSize,
                     onSunnahClick = { index ->
                         onEvent(TopicUiEvent.SunnahCardClicked(index))
@@ -232,9 +239,9 @@ private fun SunnahGrid(
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(columns),
-        verticalItemSpacing = dimensions.cardSpacing,
-        horizontalArrangement = Arrangement.spacedBy(dimensions.cardSpacing),
-        contentPadding = PaddingValues(dimensions.cardSpacing),
+        verticalItemSpacing = 12.dp,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(16.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         itemsIndexed(sunnahs) { index, sunnah ->
@@ -255,7 +262,7 @@ private fun SunnahGridCard(
 ) {
     val gradient = CategoryUtils.categoryGradient(categoryId)
     val gradientColors = CategoryUtils.categoryGradientColors(categoryId)
-    val metaIcons = buildMetaInfoIconsForSunnah(sunnah, boxSize = 20.dp)
+    val metaIcons = buildMetaInfoIconsForSunnah(sunnah)
 
     // Create background with low opacity gradient + scrim overlay
     val cardModifier = Modifier
@@ -270,7 +277,7 @@ private fun SunnahGridCard(
         )
         .clickable { onClick() }
 
-    SunnahCompactCard(
+    SunnahCardCompact(
         title = sunnah.title,
         extraIcons = metaIcons,
         modifier = cardModifier,

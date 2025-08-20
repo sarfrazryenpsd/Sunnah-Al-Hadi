@@ -14,10 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -40,15 +36,14 @@ import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
 @Composable
-fun SunnahCompactCard(
+fun SunnahCardCompact(
     title: String,
     extraIcons: List<@Composable () -> Unit>,
     modifier: Modifier = Modifier,
     borderColor: Color,
 ) {
     Surface(
-        modifier = modifier
-            .clip(RoundedCornerShape(20.dp)),
+        modifier = modifier,
         border = BorderStroke(1.dp, borderColor),
         shape = RoundedCornerShape(24.dp),
     ) {
@@ -78,31 +73,14 @@ fun SunnahCompactCard(
 @Composable
 fun ECIconBox(
     iconColor: Color,
-    iconBackground: Color,
-    borderColor: Color,
     @DrawableRes iconRes: Int,
-    boxSize: Dp,
 ) {
-    Surface(
-        shape = RoundedCornerShape(4.dp),
-        border = BorderStroke(1.5.dp, borderColor),
-        color = iconBackground, // Use color instead of contentColor for background
-        modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .size(boxSize)
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Icon(
-                painter = painterResource(id = iconRes),
-                contentDescription = null,
-                tint = iconColor,
-                modifier = Modifier.padding(4.dp)
-            )
-        }
-    }
+    Icon(
+        painter = painterResource(id = iconRes),
+        contentDescription = null,
+        tint = iconColor,
+        modifier = Modifier.size(20.dp)
+    )
 }
 
 // Simplified preview with fallback colors
@@ -124,7 +102,7 @@ private fun SunnahCardCompactPrev() {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                SunnahCompactCard(
+                SunnahCardCompact(
                     title = "Walk Daily with Worshipful Intention",
                     borderColor = Color(0xFFE5C8EF),
                     extraIcons = listOf(
@@ -132,23 +110,17 @@ private fun SunnahCardCompactPrev() {
                             ECIconBox(
                                 iconRes = android.R.drawable.ic_menu_info_details, // Using system icon as fallback
                                 iconColor = MaterialTheme.colorScheme.primary,
-                                boxSize = 24.dp,
-                                iconBackground = MaterialTheme.colorScheme.primaryContainer,
-                                borderColor = MaterialTheme.colorScheme.outline
                             )
                         },
                         {
                             ECIconBox(
                                 iconRes = android.R.drawable.ic_menu_help, // Using system icon as fallback
                                 iconColor = MaterialTheme.colorScheme.secondary,
-                                boxSize = 24.dp,
-                                iconBackground = MaterialTheme.colorScheme.secondaryContainer,
-                                borderColor = MaterialTheme.colorScheme.outline
                             )
                         }
                     )
                 )
-                SunnahCompactCard(
+                SunnahCardCompact(
                     title = "Walk Daily with Worshipful Intention",
                     borderColor = Color(0xFFE5C8EF),
                     extraIcons = listOf(
@@ -156,18 +128,12 @@ private fun SunnahCardCompactPrev() {
                             ECIconBox(
                                 iconRes = android.R.drawable.ic_menu_info_details, // Using system icon as fallback
                                 iconColor = MaterialTheme.colorScheme.primary,
-                                boxSize = 24.dp,
-                                iconBackground = MaterialTheme.colorScheme.primaryContainer,
-                                borderColor = MaterialTheme.colorScheme.outline
                             )
                         },
                         {
                             ECIconBox(
                                 iconRes = android.R.drawable.ic_menu_help, // Using system icon as fallback
                                 iconColor = MaterialTheme.colorScheme.secondary,
-                                boxSize = 24.dp,
-                                iconBackground = MaterialTheme.colorScheme.secondaryContainer,
-                                borderColor = MaterialTheme.colorScheme.outline
                             )
                         }
                     )
@@ -184,9 +150,6 @@ private fun ECIconPrev() {
         ECIconBox(
             iconRes = android.R.drawable.ic_menu_info_details,
             iconColor = MaterialTheme.colorScheme.primary,
-            boxSize = 24.dp,
-            iconBackground = MaterialTheme.colorScheme.primaryContainer,
-            borderColor = MaterialTheme.colorScheme.outline
         )
     }
 }

@@ -92,8 +92,8 @@ fun TopicCard(
                 Column(
                     verticalArrangement = Arrangement.Bottom, modifier = Modifier
                         .padding(
-                            start = LocalDynamicDimensions.current.cardPaddingS,
-                            bottom = LocalDynamicDimensions.current.cardPaddingS
+                            start = dimensions.cardPaddingS,
+                            bottom = dimensions.cardPaddingS
                         )
                         .weight(1f)
                 ) {
@@ -101,7 +101,7 @@ fun TopicCard(
                         text = stringResource(id = R.string.sunnah_and_manner_of),
                         style = MaterialTheme.appTypography.sunnahSubtitle,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.offset(y = (6).dp)
+                        modifier = Modifier.offset(y = (8).dp)
                     )
                     BasicText(
                         text = category.topic,

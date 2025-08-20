@@ -41,12 +41,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
@@ -54,7 +52,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.Category // Assuming location
+import com.ryen.sunnah_alhadi.presentation.common.NestedNavAppBar
+import com.ryen.sunnah_alhadi.presentation.common.ScreenHeaderSection
 import com.ryen.sunnah_alhadi.presentation.components.OptimizedTopicsGrid
+import com.ryen.sunnah_alhadi.presentation.navigation.AllTopic
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import kotlin.math.PI
 import kotlin.math.cos
@@ -111,28 +112,28 @@ private fun AllTopicsContent(
         modifier = modifier.fillMaxSize()
     ) {
         // Top app bar with Islamic design elements
-        AllTopicsAppBar(
+        NestedNavAppBar(
             onNavigateBack = onNavigateBack,
             onRefresh = onRefresh
         )
+
+        //Spacer(modifier = Modifier.height(24.dp))
+
+        ScreenHeaderSection(
+            screen = AllTopic,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
 
         // Main content area
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.background,
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
-                        )
-                    )
+                    MaterialTheme.colorScheme.background
                 )
         ) {
-            // Islamic pattern background
-            IslamicPatternBackground(
-                modifier = Modifier.fillMaxSize()
-            )
 
             when {
                 uiState.isLoading -> {
@@ -171,53 +172,6 @@ private fun AllTopicsContent(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AllTopicsAppBar(
-    onNavigateBack: () -> Unit,
-    onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = {
-            Column {
-                Text(
-                    text = "Topics",
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-                Text(
-                    text = "Explore All Topics",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                    )
-                )
-            }
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Navigate Back"
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = onRefresh) {
-                Icon(
-                    imageVector = Icons.Filled.Refresh,
-                    contentDescription = "Refresh"
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent
-        ),
-        modifier = modifier
-    )
 }
 
 @Composable
@@ -475,7 +429,7 @@ private fun AllTopicsContentErrorPreview() {
 private fun AllTopicsContentWithDataPreview() {
     SunnahAlHadiTheme(
         windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(800.dp, 480.dp)
+            DpSize(360.dp, 640.dp)
         )
     ) {
         AllTopicsContent(
@@ -514,7 +468,7 @@ private fun AllTopicsAppBarPreview() {
             DpSize(800.dp, 480.dp)
         )
     ) {
-        AllTopicsAppBar(
+        NestedNavAppBar(
             onNavigateBack = {},
             onRefresh = {}
         )

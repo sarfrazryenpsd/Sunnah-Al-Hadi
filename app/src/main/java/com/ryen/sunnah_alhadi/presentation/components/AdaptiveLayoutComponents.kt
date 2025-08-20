@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -279,31 +281,35 @@ fun SimpleTopicCard(
                 modifier = Modifier.fillMaxSize()
 
             ) {
-                /*Column(
+                Column(
                     verticalArrangement = Arrangement.Bottom, modifier = Modifier.padding(
-                        start = LocalDynamicDimensions.current.cardPadding,
-                        bottom = LocalDynamicDimensions.current.cardPadding
+                        start = LocalDynamicDimensions.current.cardPaddingS,
+                        bottom = LocalDynamicDimensions.current.cardPaddingS
                     ).weight(1f)
                 ) {
                     Text(
                         text = stringResource(id = R.string.sunnah_and_manner_of),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.scrim
+                        style = MaterialTheme.appTypography.sunnahSubtitle,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.offset(y = (6).dp)
                     )
                     BasicText(
                         text = topicWithCount.category.topic,
-                        style = MaterialTheme.appTypography.topicHeading.copy(
-                            lineHeight = MaterialTheme.appTypography.topicHeading.lineHeight,
-                            fontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2,
-                            color = MaterialTheme.colorScheme.scrim
+                        style = MaterialTheme.appTypography.topicMax.copy(
+                            color = MaterialTheme.colorScheme.primary,
+                            lineHeightStyle = LineHeightStyle(
+                                alignment = LineHeightStyle.Alignment.Center,
+                                trim = LineHeightStyle.Trim.Both // removes extra padding at top/bottom
+                            )
+
                         ),
                         maxLines = 2,
                         autoSize = TextAutoSize.StepBased(
-                            minFontSize = MaterialTheme.appTypography.topicHeading.fontSize * .6,
-                            maxFontSize = MaterialTheme.appTypography.topicHeading.fontSize * 1.2
+                            minFontSize = MaterialTheme.appTypography.topicMin.fontSize,
+                            maxFontSize = MaterialTheme.appTypography.topicMax.fontSize
                         )
                     )
-                }*/
+                }
 
                 Image(
                     painter = rememberAsyncImagePainter(model = topicWithCount.imageRes),
@@ -458,7 +464,7 @@ fun ResponsiveTopicsLayoutExpandedPreview() {
 fun OptimizedTopicsGridCompactPreview() {
     SunnahAlHadiTheme(
         windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(800.dp, 480.dp)
+            DpSize(360.dp, 640.dp)
         )
     ) {
         OptimizedTopicsGrid(
@@ -503,7 +509,7 @@ fun OptimizedTopicsGridExpandedPreview() {
 fun SimpleTopicCardPreview() {
     SunnahAlHadiTheme(
         windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(800.dp, 480.dp)
+            DpSize(360.dp, 640.dp)
         )
     ) {
         SimpleTopicCard(

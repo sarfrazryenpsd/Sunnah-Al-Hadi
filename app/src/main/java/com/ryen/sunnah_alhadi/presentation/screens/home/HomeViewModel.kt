@@ -12,6 +12,7 @@ import com.ryen.sunnah_alhadi.domain.useCase.sotd.GetCurrentSotdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.MarkSotdAsSeenUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.ShouldShowSotdCardUseCase
 import com.ryen.sunnah_alhadi.presentation.screens.allTopics.AllTopicsUiEvent
+import com.ryen.sunnah_alhadi.presentation.screens.topic.TopicUiEvent
 import com.ryen.sunnah_alhadi.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -89,9 +90,26 @@ class HomeViewModel @Inject constructor(
                     _eventFlow.emit(event) // emit navigation event
                 }
             }
-            is HomeEvent.OpenSunnah -> { /* Handle navigation */ }
             is HomeEvent.HandleNotificationLaunch -> handleNotificationLaunch()
             is HomeEvent.AutoShowSotdCheck -> autoShowSotdCheck()
+            is HomeEvent.SunnahCardClicked -> {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isPagerVisible = true,
+                        selectedSunnahIndex = event.index
+                    )
+                }
+            }
+            is HomeEvent.ClosePager -> {
+                _uiState.update { currentState ->
+                    currentState.copy(isPagerVisible = false)
+                }
+            }
+            is HomeEvent.PagerPageChanged -> {
+                _uiState.update { currentState ->
+                    currentState.copy(selectedSunnahIndex = event.index)
+                }
+            }
         }
     }
 

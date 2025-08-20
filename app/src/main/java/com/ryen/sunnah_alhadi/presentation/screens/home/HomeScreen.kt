@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Card
@@ -29,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -41,10 +43,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.Category
+import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
-import com.ryen.sunnah_alhadi.presentation.common.SunnahCompactCardContainer
-import com.ryen.sunnah_alhadi.presentation.components.DisclaimerDialog
 import com.ryen.sunnah_alhadi.presentation.common.ScreenHeaderSection
+import com.ryen.sunnah_alhadi.presentation.common.SunnahGridCardContainer
+import com.ryen.sunnah_alhadi.presentation.components.DisclaimerDialog
+import com.ryen.sunnah_alhadi.presentation.components.SunnahPager
 import com.ryen.sunnah_alhadi.presentation.components.cards.GlowingCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.HomeSunnahCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.TopicCard
@@ -83,12 +87,26 @@ fun HomeScreen(
         }
     }
 
-    HomeScreenContent(
-        uiState = uiState,
-        onEvent = viewModel::onEvent,
-        onNavigateToAllTopics = onNavigateToAllTopics,
-        modifier = modifier
-    )
+    val onEventCallback = remember { viewModel::onEvent }
+
+    Box(modifier = modifier.fillMaxSize()){
+        HomeScreenContent(
+            uiState = uiState,
+            onEvent = viewModel::onEvent,
+            onNavigateToAllTopics = onNavigateToAllTopics,
+            modifier = modifier
+        )
+        if (uiState.isPagerVisible) {
+            SunnahPager(
+                sunnahs = uiState.recentSotd,
+                initialPage = uiState.selectedSunnahIndex,
+                onDismiss = { viewModel.onEvent(HomeEvent.ClosePager) },
+                onPageChanged = { index ->
+                    onEventCallback(HomeEvent.PagerPageChanged(index))
+                }
+            )
+        }
+    }
 
 }
 
@@ -99,6 +117,7 @@ fun HomeScreenContent(
     onEvent: (HomeEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val screenSize = LocalScreenSize.current
     Box(modifier = modifier.fillMaxSize()) {
         // Main content
         LazyColumn(
@@ -246,10 +265,11 @@ fun HomeScreenContent(
 
             // Recent SOTDs Section
             if (uiState.recentSotd.isNotEmpty()) {
-                item {
-                    SunnahCompactCardContainer(
+                itemsIndexed(uiState.recentSotd) { index: Int, sunnah: Sunnah ->
+                    SunnahGridCardContainer(
                         sunnahs = uiState.recentSotd,
-                        onSunnahClick = { onEvent(HomeEvent.OpenSunnah(it)) },
+                        onSunnahClick = { onEvent(HomeEvent.SunnahCardClicked(index)) },
+                        screenSize = screenSize,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

@@ -18,6 +18,8 @@ data class HomeUiState(
     val sotd: Sunnah? = null,
     val recentSotd: List<Sunnah> = emptyList(),
     val homeSunnah: Sunnah = homeSunnahConst,
+    val isPagerVisible: Boolean = false,
+    val selectedSunnahIndex: Int = 0
 )
 
 val homeSunnahConst: Sunnah = Sunnah(
