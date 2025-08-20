@@ -44,7 +44,7 @@ fun SunnahCardCompact(
 ) {
     Surface(
         modifier = modifier,
-        border = BorderStroke(1.dp, borderColor),
+        border = BorderStroke(2.dp, borderColor),
         shape = RoundedCornerShape(24.dp),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {

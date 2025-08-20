@@ -105,7 +105,7 @@ class AppTypographySizes(private val scaleFactors: ScaleFactors) {
 
     val searchPlaceholder = (14 * scaleFactors.textScale).sp  // Search placeholder
 
-    val browseTitle = (32 * scaleFactors.textScale).sp        // Browse section titles
+    val browseTitle = (44 * scaleFactors.textScale).sp        // Browse section titles
     val sunnahCardTitle = (20 * scaleFactors.textScale).sp       // Sunnah card titles
     val featuredTopics = (22 * scaleFactors.textScale).sp        // "Featured Topics" text
     val browseSubtitle = (22 * scaleFactors.textScale).sp        // Browse section subtitles

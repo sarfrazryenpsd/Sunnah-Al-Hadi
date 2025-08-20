@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -29,6 +30,7 @@ import com.ryen.sunnah_alhadi.domain.model.ContentBlock
 import com.ryen.sunnah_alhadi.domain.model.ContentType
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.presentation.components.cards.SunnahCardCompact
+import com.ryen.sunnah_alhadi.presentation.components.cards.innerShadow
 import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.presentation.util.buildMetaInfoIconsForSunnah
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
@@ -46,10 +48,17 @@ fun SunnahGridCardContainer(
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = modifier
+            .clip(RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp))
             .height(600.dp)
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(36.dp)
+            )
+            .innerShadow(
+                shape = RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                blur = 12.dp,
+                offsetX = 0.dp,
+                offsetY = 0.dp,
             )
     ) {
         val columns = when (screenSize) {

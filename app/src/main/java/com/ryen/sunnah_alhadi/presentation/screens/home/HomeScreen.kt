@@ -265,10 +265,10 @@ fun HomeScreenContent(
 
             // Recent SOTDs Section
             if (uiState.recentSotd.isNotEmpty()) {
-                itemsIndexed(uiState.recentSotd) { index: Int, sunnah: Sunnah ->
+                item {
                     SunnahGridCardContainer(
                         sunnahs = uiState.recentSotd,
-                        onSunnahClick = { onEvent(HomeEvent.SunnahCardClicked(index)) },
+                        onSunnahClick = { idx -> onEvent(HomeEvent.SunnahCardClicked(idx)) },
                         screenSize = screenSize,
                         modifier = Modifier.fillMaxWidth()
                     )

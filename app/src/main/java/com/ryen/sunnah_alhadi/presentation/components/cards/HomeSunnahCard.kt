@@ -60,7 +60,6 @@ fun HomeSunnahCard(
                 blur = 12.dp,
                 offsetX = 0.dp,
                 offsetY = 0.dp,
-
             )
     ) {
         Column(

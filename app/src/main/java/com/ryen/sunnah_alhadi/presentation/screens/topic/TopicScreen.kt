@@ -124,7 +124,6 @@ private fun TopicContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()
     ) {
         // Header with category name and gradient background
         NestedNavAppBar(

@@ -6,13 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,7 +30,11 @@ class MainActivity : ComponentActivity() {
 
 
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.auto(0,0)
+            statusBarStyle = SystemBarStyle.auto(
+                lightScrim = Color.Transparent.toArgb(), // For light backgrounds
+                darkScrim = Color.Black.copy(alpha = 0.2f).toArgb(), // Adjust scrim if needed
+                detectDarkMode = { /* Use true for dark mode detection */ false }
+            )
         )
         setContent {
 
