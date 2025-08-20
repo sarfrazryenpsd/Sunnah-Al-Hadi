@@ -102,15 +102,21 @@ class AppTypographySizes(private val scaleFactors: ScaleFactors) {
     val labelMedium = (12 * scaleFactors.textScale).sp  // Small labels (was 24)
     val labelSmall = (10 * scaleFactors.textScale).sp   // Captions (was 20)
     val displayName = (28 * scaleFactors.textScale).sp    // SARFRAZ display name
+
+    val searchPlaceholder = (14 * scaleFactors.textScale).sp  // Search placeholder
+
+    val browseTitle = (32 * scaleFactors.textScale).sp        // Browse section titles
     val sunnahCardTitle = (20 * scaleFactors.textScale).sp       // Sunnah card titles
     val featuredTopics = (22 * scaleFactors.textScale).sp        // "Featured Topics" text
     val browseSubtitle = (22 * scaleFactors.textScale).sp        // Browse section subtitles
+
+    val settings = (30 * scaleFactors.textScale).sp               // Settings text
     val seeAll = (14 * scaleFactors.textScale).sp               // "See All" links
     val notificationType = (16 * scaleFactors.textScale).sp     // Notification type headers
     val extraNotificationTitle = (16 * scaleFactors.textScale).sp // Extra & notification titles
     val sunnahDetail = (14 * scaleFactors.textScale).sp         // Sunnah detail text
     val reminderTime = (14 * scaleFactors.textScale).sp         // Reminder time text
-    val tabs = (14 * scaleFactors.textScale).sp                 // Tab labels
+    val tabs = (12 * scaleFactors.textScale).sp                 // Tab labels
     val filters = (14 * scaleFactors.textScale).sp // Topic subtitle & filters
     val sunnahSubtitle = (10 * scaleFactors.textScale).sp // Sunnah subtitles
     val notificationSubtitle = (12 * scaleFactors.textScale).sp // Notification subtitles
@@ -259,9 +265,25 @@ class AppTypography internal constructor(private val sizes: AppTypographySizes) 
         TypographyConfig.TextRole.BODY, sizes, FontWeight.Medium
     ).copy(fontSize = sizes.browseSubtitle)
 
+    val browseTitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.TITLE, sizes, FontWeight.Bold
+    ).copy(fontSize = sizes.browseTitle)
+
+    val topicsSubtitle: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.BODY, sizes, FontWeight.Medium
+    ).copy(fontSize = sizes.tabs)
+
     val seeAll: TextStyle = TypographyFactory.createTextStyle(
         TypographyConfig.TextRole.LABEL, sizes, FontWeight.Bold
     ).copy(fontSize = sizes.seeAll)
+
+    val searchPlaceHolder: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.LABEL, sizes, FontWeight.Normal
+    ).copy(fontSize = sizes.searchPlaceholder)
+
+    val settings: TextStyle = TypographyFactory.createTextStyle(
+        TypographyConfig.TextRole.BODY, sizes, FontWeight.Bold
+    ).copy(fontSize = sizes.settings)
 
     val sunnahCompactCardTitle: TextStyle = TypographyFactory.createTextStyle(
         TypographyConfig.TextRole.LABEL, sizes, FontWeight.Medium

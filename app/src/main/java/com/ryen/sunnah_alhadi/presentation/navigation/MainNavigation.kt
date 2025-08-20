@@ -2,10 +2,15 @@
 
 package com.ryen.sunnah_alhadi.presentation.navigation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -178,8 +184,9 @@ private fun CompactScreenLayout(
     topLevelDestinations: List<NavKey>,
     onSotdRequested: () -> Unit
 ) {
+    val isBottomBarVisible = backStack.lastOrNull()?.let { it in topLevelDestinations } ?: false
     Scaffold(
-        topBar = {
+        bottomBar = {
 
         }
     ) { innerPadding ->
@@ -194,19 +201,29 @@ private fun CompactScreenLayout(
                 onSotdRequested = onSotdRequested,
                 modifier = Modifier.fillMaxSize()
             )
-
             // Custom bottom toolbar
-            CustomBottomBar(
-                topLevelDestinations = topLevelDestinations,
-                backStack = backStack,
-                onItemSelected = { destination ->
-                    backStack.clear()
-                    backStack.add(destination)
-                },
+            AnimatedVisibility(
+                visible = isBottomBarVisible,
+                enter = slideInVertically(
+                    initialOffsetY = { it },
+                ),
+                exit = slideOutVertically(
+                    targetOffsetY = { it },
+                ),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)
-            )
+            ) {
+                CustomBottomBar(
+                    topLevelDestinations = topLevelDestinations,
+                    backStack = backStack,
+                    onItemSelected = { destination ->
+                        backStack.clear()
+                        backStack.add(destination)
+                    }
+                )
+            }
+
         }
     }
 }
@@ -321,8 +338,8 @@ fun CustomBottomBar(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .height(80.dp)
-                    .width(240.dp)
+                    .height(70.dp)
+                    .width(210.dp)
             ) {
                 topLevelDestinations.forEach { destination ->
                     val selected = currentDestination == destination
@@ -333,10 +350,11 @@ fun CustomBottomBar(
 
                     Box(
                         modifier = Modifier
+                            .clip(RoundedCornerShape(32))
                             .weight(1f)
                             .height(80.dp)
-                            .clickable { onItemSelected(destination) }
-                            .background(bgColor, shape = RoundedCornerShape(32)),
+                            .background(bgColor)
+                            .clickable { onItemSelected(destination) },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(

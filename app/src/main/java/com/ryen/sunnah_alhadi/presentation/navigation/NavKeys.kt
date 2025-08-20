@@ -12,9 +12,6 @@ data object AllTopic : NavKey
 data object Browse : NavKey
 
 @Serializable
-data object Saved : NavKey
-
-@Serializable
 data object Preferences : NavKey
 
 @Serializable
