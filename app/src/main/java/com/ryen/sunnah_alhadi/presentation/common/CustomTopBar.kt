@@ -31,8 +31,7 @@ import com.ryen.sunnah_alhadi.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTopBar(
-    onOrbClick: () -> Unit,
-    onInfoClick: () -> Unit
+    actionContents: @Composable () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -41,48 +40,22 @@ fun CustomTopBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.sunnahlogo),
-                contentDescription = "Sunnah Logo",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(40.dp)
-            )
-        }
-        Box(
-            contentAlignment = Alignment.Center,
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Favorite,
-                    contentDescription = "Sunnah of the Day",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable { onOrbClick() }
-                )
-                Icon(
-                    imageVector = Icons.Outlined.Info,
-                    contentDescription = "Info",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable { onInfoClick() }
-                )
-            }
-        }
+        Icon(
+            painter = painterResource(id = R.drawable.sunnahlogo),
+            contentDescription = "Sunnah Logo",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(40.dp)
+        )
+        actionContents()
     }
 }
+
 
 
 @Preview
 @Composable
 fun CustomTopBarPreview() {
-    CustomTopBar(
-        onOrbClick = {},
-        onInfoClick = {}
-    )
+    CustomTopBar()
 }
 
 

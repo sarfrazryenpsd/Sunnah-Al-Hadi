@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -87,7 +89,7 @@ fun HomeScreen(
 
     val onEventCallback = remember { viewModel::onEvent }
 
-    Box(modifier = modifier.fillMaxSize()){
+    Box(modifier = modifier.fillMaxSize()) {
         HomeScreenContent(
             uiState = uiState,
             onEvent = viewModel::onEvent,
@@ -124,8 +126,12 @@ fun HomeScreenContent(
         ) {
             item {
                 CustomTopBar(
-                    onOrbClick = {},
-                    onInfoClick = {}
+                    actionContents = {
+                        ActionItems(
+                            onOrbClick = {},
+                            onInfoClick = {}
+                        )
+                    }
                 )
             }
             item {
@@ -259,7 +265,7 @@ fun HomeScreenContent(
                     }
                 }
 
-                item{
+                item {
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
@@ -337,6 +343,30 @@ fun HomeScreenContent(
                 onDismiss = { onEvent(HomeEvent.ToggleDisclaimer) }
             )
         }
+    }
+}
+
+@Composable
+private fun ActionItems(
+    onOrbClick: () -> Unit,
+    onInfoClick: () -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Favorite,
+            contentDescription = "Sunnah of the Day",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable { onOrbClick() }
+        )
+        Icon(
+            imageVector = Icons.Outlined.Info,
+            contentDescription = "Info",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable { onInfoClick() }
+        )
     }
 }
 

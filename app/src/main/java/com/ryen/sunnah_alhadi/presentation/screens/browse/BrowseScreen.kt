@@ -2,7 +2,6 @@
 
 package com.ryen.sunnah_alhadi.presentation.screens.browse
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
@@ -18,7 +17,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -35,6 +33,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -53,7 +52,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -113,9 +111,6 @@ fun BrowseScreen(
         uiState = uiState,
         screenSize = screenSize,
         dimensions = dimensions,
-        onSunnahCardClicked = { sunnah ->
-            viewModel.onEvent(BrowseUiEvent.SunnahCardClicked(sunnah))
-        },
         onSunnahCardClickedByIndex = { index -> // New callback for index-based clicks
             viewModel.onEvent(BrowseUiEvent.SunnahCardClickedByIndex(index))
         },
@@ -151,134 +146,132 @@ fun BrowseScreenContent(
     uiState: BrowseUiState,
     screenSize: ScreenSize,
     dimensions: DynamicDimensions,
-    onSunnahCardClicked: (Sunnah) -> Unit = {},
     onSunnahCardClickedByIndex: (Int) -> Unit = {}, // New parameter
     onTabChanged: (BrowseTab) -> Unit = {},
     onSearchQueryChanged: (String) -> Unit = {},
     onClearSearch: () -> Unit = {},
     onRetryLoading: () -> Unit = {},
     onFilterToggled: (FilterType) -> Unit = {},
-    useGridContainer: Boolean = true // Parameter to choose between old and new implementation
 ) {
     val colorList = listOf(Color(0xFFFFCDC4), Color(0xFFFFEAD3))
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(vertical = 32.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp))
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = colorList,
-                        start = Offset(500f, -500f),
-                        end = Offset(-100f, 200f)
-                    )
-                )
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+        item{
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 32.dp)
-            ) {
-                CustomTopBar(
-                    onOrbClick = {},
-                    onInfoClick = {}
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                ScreenHeaderSection(
-                    screen = Browse,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(12.dp)) {
-                    BrowseSearchBar(
-                        searchQuery = uiState.searchQuery,
-                        onSearchQueryChanged = { onSearchQueryChanged(it) },
-                        onClearSearch = onClearSearch
+                    .clip(RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp))
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = colorList,
+                            start = Offset(500f, -500f),
+                            end = Offset(-100f, 200f)
+                        )
                     )
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 32.dp)
+                ) {
+                    CustomTopBar()
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    ScreenHeaderSection(
+                        screen = Browse,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(12.dp)) {
+                        BrowseSearchBar(
+                            searchQuery = uiState.searchQuery,
+                            onSearchQueryChanged = { onSearchQueryChanged(it) },
+                            onClearSearch = onClearSearch
+                        )
+                    }
                 }
             }
         }
 
-        BrowseTabBar(
-            currentTab = uiState.currentTab,
-            onTabChanged = onTabChanged,
-            modifier = modifier
-        )
+        item {
+            BrowseTabBar(
+                currentTab = uiState.currentTab,
+                onTabChanged = onTabChanged,
+                modifier = modifier
+            )
+        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        item { Spacer(modifier = Modifier.height(16.dp)) }
 
-        BrowseFilterChips(
-            selectedFilters = uiState.selectedFilters,
-            onFilterToggled = { filter -> onFilterToggled(filter) },
-            modifier = modifier
-        )
+        item {
+            BrowseFilterChips(
+                selectedFilters = uiState.selectedFilters,
+                onFilterToggled = { filter -> onFilterToggled(filter) },
+                modifier = modifier
+            )
+        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        item { Spacer(modifier = Modifier.height(16.dp)) }
 
         when {
             uiState.isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
 
             uiState.error != null -> {
                 // Error state UI
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(text = uiState.error)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = onRetryLoading) {
-                        Text("Retry")
+                item {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(text = uiState.error)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = onRetryLoading) {
+                            Text("Retry")
+                        }
                     }
                 }
             }
 
             uiState.filteredSunnahs.isEmpty() -> {
                 // Empty state UI
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No Sunnahs found")
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No Sunnahs found")
+                    }
                 }
             }
 
-            useGridContainer -> {
-                // Use the new enhanced container
-                SunnahGridCardContainer(
-                    sunnahs = uiState.filteredSunnahs,
-                    onSunnahClick = onSunnahCardClickedByIndex, // Use index-based callback
-                    screenSize = screenSize,
-                    searchQuery = uiState.searchQuery, // Pass search query for highlighting
-                    showAnimations = true, // Enable animations
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
             else -> {
-                // Fallback to original implementation
-                BrowseSunnahGrid(
-                    sunnahs = uiState.filteredSunnahs,
-                    searchQuery = uiState.searchQuery,
-                    onSunnahCardClicked = onSunnahCardClicked,
-                    modifier = Modifier.weight(1f)
-                )
+                // Use the new enhanced container
+                item {
+                    SunnahGridCardContainer(
+                        sunnahs = uiState.filteredSunnahs,
+                        onSunnahClick = onSunnahCardClickedByIndex, // Use index-based callback
+                        screenSize = screenSize,
+                        searchQuery = uiState.searchQuery, // Pass search query for highlighting
+                        showAnimations = true, // Enable animations
+                    )
+                }
             }
         }
     }
@@ -354,7 +347,6 @@ fun BrowseScreenContentPreview() {
                 ),
                 screenSize = ScreenSize.COMPACT,
                 dimensions = dynamicDimensions,
-                onSunnahCardClicked = {},
                 onTabChanged = {},
                 onSearchQueryChanged = {},
                 onClearSearch = {},

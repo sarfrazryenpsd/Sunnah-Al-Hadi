@@ -37,7 +37,6 @@ class BrowseViewModel @Inject constructor(
             is BrowseUiEvent.TabChanged -> handleTabChanged(event.tab)
             is BrowseUiEvent.SearchQueryChanged -> handleSearchQueryChanged(event.query)
             is BrowseUiEvent.FilterToggled -> handleFilterToggled(event.filter)
-            is BrowseUiEvent.SunnahCardClicked -> handleSunnahCardClicked(event.sunnah)
             is BrowseUiEvent.SunnahCardClickedByIndex -> handleSunnahCardClickedByIndex(event.index) // New event handler
             is BrowseUiEvent.RetryLoading -> loadInitialData()
             is BrowseUiEvent.ClearSearch -> handleClearSearch()
@@ -101,20 +100,6 @@ class BrowseViewModel @Inject constructor(
     private fun handlePagerPageChanged(index: Int) {
         _uiState.update {
             it.copy(selectedSunnahIndex = index)
-        }
-    }
-
-    // Keep original method for backward compatibility
-    private fun handleSunnahCardClicked(sunnah: Sunnah) {
-        val currentState = _uiState.value
-        val currentList = currentState.filteredSunnahs
-        val selectedIndex = currentList.indexOfFirst { it.id == sunnah.id }
-
-        _uiState.update {
-            it.copy(
-                isPagerVisible = true,
-                selectedSunnahIndex = selectedIndex.coerceAtLeast(0)
-            )
         }
     }
 

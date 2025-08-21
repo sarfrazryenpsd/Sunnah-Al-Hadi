@@ -63,7 +63,7 @@ fun SunnahGridCardContainer(
         contentAlignment = Alignment.TopCenter,
         modifier = modifier
             .clip(RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp))
-            .height(600.dp)
+            .height(640.dp)
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant,
             )

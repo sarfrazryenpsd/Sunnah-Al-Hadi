@@ -4,11 +4,14 @@ package com.ryen.sunnah_alhadi.presentation.screens.preferences
 
 import android.content.Context
 import android.os.Build
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -44,6 +47,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -54,6 +58,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.presentation.NotificationPermissionHandler
+import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
+import com.ryen.sunnah_alhadi.presentation.common.ScreenHeaderSection
 import com.ryen.sunnah_alhadi.presentation.components.BugReportDialog
 import com.ryen.sunnah_alhadi.presentation.components.ContentDisplayDialog
 import com.ryen.sunnah_alhadi.presentation.components.NotificationPermissionDialog
@@ -64,6 +70,8 @@ import com.ryen.sunnah_alhadi.presentation.components.PreferenceSwitch
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceTextField
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceVerticalItem
 import com.ryen.sunnah_alhadi.presentation.components.ThemeSegmentedButton
+import com.ryen.sunnah_alhadi.presentation.navigation.Home
+import com.ryen.sunnah_alhadi.presentation.navigation.Preferences
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
 import kotlinx.coroutines.delay
@@ -95,25 +103,93 @@ fun PreferencesScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            PreferencesTopBar(
-                successMessage = uiState.successMessage
-            )
+
+    // Handle error display
+    uiState.error?.let { error ->
+        LaunchedEffect(error) {
+            // Show error snackbar or handle error display
+            viewModel.onEvent(PreferencesEvent.ClearError)
         }
-    ) { paddingValues ->
+    }
+
+    PreferencesScreenContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        context = context
+    )
+
+    // Dialogs
+    PreferencesDialogs(
+        uiState = uiState,
+        onEvent = viewModel::onEvent
+    )
+}
+
+@Preview
+@Composable
+fun PreferencesScreenContentPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(
+                width = 360.dp,
+                height = 640.dp
+            )
+        )
+    ) {
+        PreferencesScreenContent(
+            uiState = PreferencesUiState(
+                isLoading = false,
+                userPreferences = UserPreferences(),
+                appVersion = "1.0.0",
+                buildNumber = "1",
+                hasNotificationPermission = true
+            ),
+            onEvent = {},
+            context = LocalContext.current
+        )
+    }
+}
+
+
+@Composable
+fun PreferencesScreenContent(
+    uiState: PreferencesUiState,
+    onEvent: (PreferencesEvent) -> Unit,
+    context: Context
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = 32.dp)
         ) {
+            item {
+                CustomTopBar()
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            // Greeting Section
+            item {
+                ScreenHeaderSection(
+                    screen = Preferences,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
             // Account Section
             item {
                 AccountSection(
                     uiState = uiState,
-                    onEvent = viewModel::onEvent
+                    onEvent = onEvent
                 )
             }
 
@@ -121,7 +197,7 @@ fun PreferencesScreen(
             item {
                 AppearanceSection(
                     uiState = uiState,
-                    onEvent = viewModel::onEvent
+                    onEvent = onEvent
                 )
             }
 
@@ -129,7 +205,7 @@ fun PreferencesScreen(
             item {
                 NotificationsSection(
                     uiState = uiState,
-                    onEvent = viewModel::onEvent
+                    onEvent = onEvent
                 )
             }
 
@@ -137,7 +213,7 @@ fun PreferencesScreen(
             item {
                 AboutSection(
                     uiState = uiState,
-                    onEvent = viewModel::onEvent
+                    onEvent = onEvent
                 )
             }
 
@@ -145,7 +221,7 @@ fun PreferencesScreen(
             item {
                 SupportSection(
                     uiState = uiState,
-                    onEvent = viewModel::onEvent,
+                    onEvent = onEvent,
                     context = context
                 )
             }
@@ -155,20 +231,6 @@ fun PreferencesScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
-
-        // Handle error display
-        uiState.error?.let { error ->
-            LaunchedEffect(error) {
-                // Show error snackbar or handle error display
-                viewModel.onEvent(PreferencesEvent.ClearError)
-            }
-        }
-
-        // Dialogs
-        PreferencesDialogs(
-            uiState = uiState,
-            onEvent = viewModel::onEvent
-        )
     }
 }
 
@@ -300,7 +362,13 @@ private fun NotificationsSection(
                     trailingContent = {
                         NotificationTimeDropdown(
                             selectedTime = preferences.sotdNotificationTime,
-                            onTimeSelected = { onEvent(PreferencesEvent.UpdateNotificationTime(it)) },
+                            onTimeSelected = {
+                                onEvent(
+                                    PreferencesEvent.UpdateNotificationTime(
+                                        it
+                                    )
+                                )
+                            },
                             enabled = preferences.isSotdNotificationEnabled
                         )
                     }
@@ -553,7 +621,12 @@ private fun getUsernameCharacterCount(username: String): String {
 @Composable
 private fun NotificationSectionPreview() {
     SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(width = 400.dp, height = 900.dp))
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(
+                width = 400.dp,
+                height = 900.dp
+            )
+        )
     ) {
         NotificationsSection(
             uiState = PreferencesUiState(
@@ -578,7 +651,12 @@ private fun NotificationSectionPreview() {
 @Composable
 private fun AppearenceSectionPrev() {
     SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(width = 400.dp, height = 900.dp))
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(
+                width = 400.dp,
+                height = 900.dp
+            )
+        )
     ) {
 
         AppearanceSection(
@@ -597,7 +675,12 @@ private fun AppearenceSectionPrev() {
 @Composable
 private fun AccountSectionPrev() {
     SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(width = 400.dp, height = 900.dp))
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(
+                width = 400.dp,
+                height = 900.dp
+            )
+        )
     ) {
 
         AccountSection(
