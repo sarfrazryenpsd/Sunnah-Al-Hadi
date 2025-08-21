@@ -270,6 +270,7 @@ fun SimpleTopicCard(
         ) {
             SunnahCountBadge(
                 count = topicWithCount.sunnahCount,
+                categoryId = topicWithCount.category.id,
                 modifier = Modifier
                     .padding(8.dp)
                     .size(24.dp)

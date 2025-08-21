@@ -157,7 +157,6 @@ fun BrowseScreenContent(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 32.dp)
     ) {
         item{
             Box(
@@ -683,7 +682,7 @@ private fun BrowseFilterChip(
             .height(48.dp)
             .clip(RoundedCornerShape(12.dp))
             .border(
-                width = 2.dp,
+                width = 1.dp,
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(12.dp)
             )

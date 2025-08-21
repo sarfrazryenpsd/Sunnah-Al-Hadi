@@ -136,6 +136,8 @@ private fun TopicContent(
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Main content area
         when {
             uiState.isLoading -> {

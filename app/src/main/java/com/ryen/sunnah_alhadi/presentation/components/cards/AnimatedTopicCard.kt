@@ -65,6 +65,7 @@ import com.ryen.sunnah_alhadi.presentation.components.parallaxEffect
 import com.ryen.sunnah_alhadi.presentation.components.scaleInAnimation
 import com.ryen.sunnah_alhadi.presentation.screens.allTopics.TopicWithCount
 import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
+import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils.darken
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicDimensions
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
@@ -137,6 +138,7 @@ fun AnimatedTopicCard(
                 // Sunnah count badge with enhanced styling
                 SunnahCountBadge(
                     count = topicWithCount.sunnahCount,
+                    categoryId = topicWithCount.category.id,
                     modifier = Modifier.padding(top = 12.dp, start = 12.dp)
                 )
 
@@ -147,10 +149,8 @@ fun AnimatedTopicCard(
                 ) {
                     // Text content column
                     TopicTextContent(
-                        categoryName = topicWithCount.category.topic,
-                        modifier = Modifier
-                            .weight(1f)
-                            //.padding(dimensions.cardPadding)
+                        categoryName = topicWithCount.category.topic, modifier = Modifier.weight(1f)
+                        //.padding(dimensions.cardPadding)
                     )
 
                     // Animated 3D illustration
@@ -173,26 +173,20 @@ fun AnimatedTopicCard(
 
 @Composable
 fun SunnahCountBadge(
-    count: Int, modifier: Modifier = Modifier
+    categoryId: Int, count: Int, modifier: Modifier = Modifier
 ) {
+    val bgColor = CategoryUtils.categoryGradientColors(categoryId).first().darken(0.3f)
     Box(
         contentAlignment = Alignment.Center, modifier = modifier
             .size(36.dp)
             .background(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFFB0D6FF), Color(0xFF7FB8E5)
-                    )
-                ), shape = CircleShape
-            )
-            .border(
-                width = 1.dp, color = Color.White.copy(alpha = 0.3f), shape = CircleShape
+                color = bgColor, shape = CircleShape
             )
     ) {
         Text(
             text = "$count", style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.SemiBold, color = Color(0xFF1565C0)
-            )
+            ), color = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -266,9 +260,8 @@ private fun Animated3DImage(
             painter = rememberAsyncImagePainter(model = imageRes),
             contentDescription = contentDescription,
             contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .fillMaxHeight()
-                //.size(LocalDynamicDimensions.current.imageSize)
+            modifier = Modifier.fillMaxHeight()
+            //.size(LocalDynamicDimensions.current.imageSize)
         )
     }
 }
@@ -335,7 +328,7 @@ private fun SunnahCountBadgePreview() {
             DpSize(800.dp, 480.dp)
         )
     ) {
-        SunnahCountBadge(count = 10)
+        SunnahCountBadge(count = 10, categoryId = 1, modifier = Modifier)
     }
 }
 

@@ -286,7 +286,7 @@ class AppTypography internal constructor(private val sizes: AppTypographySizes) 
     ).copy(fontSize = sizes.settings)
 
     val sunnahCompactCardTitle: TextStyle = TypographyFactory.createTextStyle(
-        TypographyConfig.TextRole.LABEL, sizes, FontWeight.Medium
+        TypographyConfig.TextRole.LABEL, sizes, FontWeight.SemiBold
     ).copy(fontSize = sizes.seeAll)
 
     val sunnahSubtitle: TextStyle = TypographyFactory.createTextStyle(

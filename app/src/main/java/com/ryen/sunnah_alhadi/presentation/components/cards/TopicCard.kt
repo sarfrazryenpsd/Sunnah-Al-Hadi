@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.Image
 import coil3.compose.rememberAsyncImagePainter
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.Category
@@ -78,6 +79,7 @@ fun TopicCard(
         ) {
             SunnahCountBadge(
                 count = numberOfSunnah,
+                categoryId = category.id,
                 modifier = Modifier
                     .padding(8.dp)
                     .size(24.dp)

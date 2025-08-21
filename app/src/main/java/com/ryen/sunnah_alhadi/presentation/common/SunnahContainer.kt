@@ -47,6 +47,7 @@ import com.ryen.sunnah_alhadi.presentation.components.cards.innerShadow
 import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.presentation.util.buildMetaInfoIconsForSunnah
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
+import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
 
 @Composable
@@ -167,10 +168,7 @@ fun SunnahCardCompactWithHighlight(
             HighlightedText(
                 text = title,
                 searchQuery = searchQuery,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    lineHeight = 20.sp
-                ),
+                style = MaterialTheme.appTypography.sunnahCompactCardTitle,
                 modifier = Modifier.fillMaxWidth()
             )
 

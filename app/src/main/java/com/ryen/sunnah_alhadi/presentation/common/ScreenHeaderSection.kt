@@ -64,7 +64,9 @@ fun ScreenHeaderSection(
             ScreenHeader(
                 title = topic,
                 subtitle = "Sunnah And Manner Of",
-                titleStyle = MaterialTheme.appTypography.browseTitle,
+                titleStyle = MaterialTheme.appTypography.browseTitle.copy(
+                    lineHeight = 48.sp
+                ),
                 subtitleStyle = MaterialTheme.appTypography.topicsSubtitle
             )
         }
@@ -98,7 +100,7 @@ fun ScreenHeaderSection(
         Text(
             text = screenHeader.title,
             style = screenHeader.titleStyle,
-            lineHeight = 32.sp,
+            //lineHeight = 32.sp,
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Start
         )
