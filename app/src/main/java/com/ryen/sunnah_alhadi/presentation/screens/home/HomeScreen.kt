@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Card
@@ -43,7 +42,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.Category
-import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
 import com.ryen.sunnah_alhadi.presentation.common.ScreenHeaderSection
 import com.ryen.sunnah_alhadi.presentation.common.SunnahGridCardContainer
@@ -239,32 +237,32 @@ fun HomeScreenContent(
                 Spacer(modifier = Modifier.height(36.dp))
             }
 
-            item {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Text(
-                        text = "Recent",
-                        style = MaterialTheme.appTypography.featuredTopics,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = "Sunnah Of The Day",
-                        style = MaterialTheme.appTypography.notificationSubtitle,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
-            item{
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            // Recent SOTDs Section
             if (uiState.recentSotd.isNotEmpty()) {
+                // Recent SOTDs Section
+                item {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            text = "Recent",
+                            style = MaterialTheme.appTypography.featuredTopics,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Sunnah Of The Day",
+                            style = MaterialTheme.appTypography.notificationSubtitle,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
+                item{
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 item {
                     SunnahGridCardContainer(
                         sunnahs = uiState.recentSotd,

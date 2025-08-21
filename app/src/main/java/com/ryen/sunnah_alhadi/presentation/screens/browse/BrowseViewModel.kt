@@ -38,6 +38,7 @@ class BrowseViewModel @Inject constructor(
             is BrowseUiEvent.SearchQueryChanged -> handleSearchQueryChanged(event.query)
             is BrowseUiEvent.FilterToggled -> handleFilterToggled(event.filter)
             is BrowseUiEvent.SunnahCardClicked -> handleSunnahCardClicked(event.sunnah)
+            is BrowseUiEvent.SunnahCardClickedByIndex -> handleSunnahCardClickedByIndex(event.index) // New event handler
             is BrowseUiEvent.RetryLoading -> loadInitialData()
             is BrowseUiEvent.ClearSearch -> handleClearSearch()
             is BrowseUiEvent.ClearAllFilters -> handleClearAllFilters()
@@ -103,7 +104,7 @@ class BrowseViewModel @Inject constructor(
         }
     }
 
-    // 5. MODIFY handleSunnahCardClicked method in BrowseViewModel
+    // Keep original method for backward compatibility
     private fun handleSunnahCardClicked(sunnah: Sunnah) {
         val currentState = _uiState.value
         val currentList = currentState.filteredSunnahs
@@ -117,6 +118,15 @@ class BrowseViewModel @Inject constructor(
         }
     }
 
+    // New method to handle index-based clicks
+    private fun handleSunnahCardClickedByIndex(index: Int) {
+        _uiState.update {
+            it.copy(
+                isPagerVisible = true,
+                selectedSunnahIndex = index.coerceAtLeast(0)
+            )
+        }
+    }
 
     private fun handleTabChanged(tab: BrowseTab) {
         _uiState.update { currentState ->
@@ -176,7 +186,6 @@ class BrowseViewModel @Inject constructor(
             )
         }
     }
-
 
     private fun handleClearSearch() {
         _uiState.update { currentState ->

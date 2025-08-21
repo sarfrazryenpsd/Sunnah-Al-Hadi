@@ -2,6 +2,7 @@
 
 package com.ryen.sunnah_alhadi.presentation.screens.browse
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
@@ -17,7 +18,9 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,19 +28,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -50,6 +47,8 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -85,6 +84,7 @@ import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
 import com.ryen.sunnah_alhadi.presentation.common.ScreenHeaderSection
+import com.ryen.sunnah_alhadi.presentation.common.SunnahGridCardContainer
 import com.ryen.sunnah_alhadi.presentation.components.SunnahPager
 import com.ryen.sunnah_alhadi.presentation.components.cards.innerShadow
 import com.ryen.sunnah_alhadi.presentation.navigation.Browse
@@ -116,13 +116,20 @@ fun BrowseScreen(
         onSunnahCardClicked = { sunnah ->
             viewModel.onEvent(BrowseUiEvent.SunnahCardClicked(sunnah))
         },
+        onSunnahCardClickedByIndex = { index -> // New callback for index-based clicks
+            viewModel.onEvent(BrowseUiEvent.SunnahCardClickedByIndex(index))
+        },
         onTabChanged = { tab ->
             viewModel.onEvent(BrowseUiEvent.TabChanged(tab))
         },
         onSearchQueryChanged = { query ->
             viewModel.onEvent(BrowseUiEvent.SearchQueryChanged(query))
         },
+        onClearSearch = { viewModel.onEvent(BrowseUiEvent.ClearSearch) },
         onRetryLoading = { viewModel.onEvent(BrowseUiEvent.RetryLoading) },
+        onFilterToggled = { filter ->
+            viewModel.onEvent(BrowseUiEvent.FilterToggled(filter))
+        },
         modifier = modifier,
     )
 
@@ -140,14 +147,18 @@ fun BrowseScreen(
 
 @Composable
 fun BrowseScreenContent(
+    modifier: Modifier = Modifier,
     uiState: BrowseUiState,
     screenSize: ScreenSize,
     dimensions: DynamicDimensions,
-    onSunnahCardClicked: (Sunnah) -> Unit,
-    onSearchQueryChanged: (String) -> Unit,
-    onTabChanged: (BrowseTab) -> Unit,
-    onRetryLoading: () -> Unit,
-    modifier: Modifier = Modifier,
+    onSunnahCardClicked: (Sunnah) -> Unit = {},
+    onSunnahCardClickedByIndex: (Int) -> Unit = {}, // New parameter
+    onTabChanged: (BrowseTab) -> Unit = {},
+    onSearchQueryChanged: (String) -> Unit = {},
+    onClearSearch: () -> Unit = {},
+    onRetryLoading: () -> Unit = {},
+    onFilterToggled: (FilterType) -> Unit = {},
+    useGridContainer: Boolean = true // Parameter to choose between old and new implementation
 ) {
     val colorList = listOf(Color(0xFFFFCDC4), Color(0xFFFFEAD3))
 
@@ -158,7 +169,6 @@ fun BrowseScreenContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
                 .clip(RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp))
                 .background(
                     brush = Brush.linearGradient(
@@ -191,8 +201,8 @@ fun BrowseScreenContent(
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(12.dp)) {
                     BrowseSearchBar(
                         searchQuery = uiState.searchQuery,
-                        onSearchQueryChanged = {},
-                        onClearSearch = {}
+                        onSearchQueryChanged = { onSearchQueryChanged(it) },
+                        onClearSearch = onClearSearch
                     )
                 }
             }
@@ -203,6 +213,74 @@ fun BrowseScreenContent(
             onTabChanged = onTabChanged,
             modifier = modifier
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        BrowseFilterChips(
+            selectedFilters = uiState.selectedFilters,
+            onFilterToggled = { filter -> onFilterToggled(filter) },
+            modifier = modifier
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        when {
+            uiState.isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            uiState.error != null -> {
+                // Error state UI
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(text = uiState.error)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = onRetryLoading) {
+                        Text("Retry")
+                    }
+                }
+            }
+
+            uiState.filteredSunnahs.isEmpty() -> {
+                // Empty state UI
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No Sunnahs found")
+                }
+            }
+
+            useGridContainer -> {
+                // Use the new enhanced container
+                SunnahGridCardContainer(
+                    sunnahs = uiState.filteredSunnahs,
+                    onSunnahClick = onSunnahCardClickedByIndex, // Use index-based callback
+                    screenSize = screenSize,
+                    searchQuery = uiState.searchQuery, // Pass search query for highlighting
+                    showAnimations = true, // Enable animations
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            else -> {
+                // Fallback to original implementation
+                BrowseSunnahGrid(
+                    sunnahs = uiState.filteredSunnahs,
+                    searchQuery = uiState.searchQuery,
+                    onSunnahCardClicked = onSunnahCardClicked,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
     }
 }
 
@@ -279,6 +357,8 @@ fun BrowseScreenContentPreview() {
                 onSunnahCardClicked = {},
                 onTabChanged = {},
                 onSearchQueryChanged = {},
+                onClearSearch = {},
+                onFilterToggled = {_ -> },
                 onRetryLoading = {}
             )
         }
@@ -298,7 +378,7 @@ private fun BrowseSearchBar(
             .clip(RoundedCornerShape(50))
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceTint)
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -311,7 +391,7 @@ private fun BrowseSearchBar(
         Spacer(modifier = Modifier.width(12.dp))
 
         BasicTextField(
-            value = searchQuery,
+            value = searchQuery.take(25),
             onValueChange = onSearchQueryChanged,
             modifier = Modifier.weight(1f),
             singleLine = true,
@@ -338,7 +418,7 @@ private fun BrowseSearchBar(
         ) {
             IconButton(
                 onClick = onClearSearch,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(16.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Clear,
@@ -392,7 +472,6 @@ private fun BrowseTabBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             BrowseTab.entries.forEach { tab ->
                 val isSelected = currentTab == tab
@@ -405,29 +484,33 @@ private fun BrowseTabBar(
                     BrowseTab.ALL_SUNNAH -> "All Sunnah"
                     BrowseTab.SAVED -> "Saved"
                 }
-
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .weight(1f)
-                        //.fillMaxWidth()
                         .background(tabColor)
                         .clickable { onTabChanged(tab) },
 
                     ) {
-                    Text(
-                        text = tabTitle,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = if (isSelected) {
+                    val textColor by animateColorAsState(
+                        targetValue = if (isSelected) {
                             MaterialTheme.colorScheme.onPrimary
                         } else {
                             MaterialTheme.colorScheme.onSurfaceVariant
                         },
+                        animationSpec = tween(300),
+                        label = "text_color"
+                    )
+                    Text(
+                        text = tabTitle,
+                        style = MaterialTheme.appTypography.tabs,
+                        color = textColor,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                         modifier = Modifier.padding(vertical = 12.dp)
                     )
                 }
+
             }
         }
     }
@@ -539,11 +622,15 @@ private fun AnimatedBrowseTabBar(
 @Preview
 @Composable
 fun BrowseTabBarPreview() {
-    BrowseTabBar(
-        currentTab = BrowseTab.ALL_SUNNAH,
-        onTabChanged = {},
-        modifier = Modifier.fillMaxWidth()
-    )
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(360.dp, 640.dp))
+    ){
+        BrowseTabBar(
+            currentTab = BrowseTab.ALL_SUNNAH,
+            onTabChanged = {},
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 }
 
 
@@ -552,72 +639,44 @@ fun BrowseTabBarPreview() {
 private fun BrowseFilterChips(
     selectedFilters: Set<FilterType>,
     onFilterToggled: (FilterType) -> Unit,
-    onClearAllFilters: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Filters",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        items(
+            items = FilterType.entries,
+            key = { it.name }
+        ) { filter ->
+            BrowseFilterChip(
+                filter = filter,
+                isSelected = selectedFilters.contains(filter),
+                onClick = { onFilterToggled(filter) }
             )
-
-            AnimatedVisibility(
-                visible = selectedFilters.isNotEmpty(),
-                enter = slideInHorizontally() + fadeIn(),
-                exit = slideOutHorizontally() + fadeOut()
-            ) {
-                TextButton(
-                    onClick = onClearAllFilters,
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "Clear All",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-        }
-
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(
-                items = FilterType.entries,
-                key = { it.name }
-            ) { filter ->
-                BrowseFilterChip(
-                    filter = filter,
-                    isSelected = selectedFilters.contains(filter),
-                    onClick = { onFilterToggled(filter) }
-                )
-            }
         }
     }
+
 }
 
 @Preview
 @Composable
 fun BrowseFilterChipsPreview() {
-    BrowseFilterChips(
-        selectedFilters = setOf(FilterType.HAS_VERSES, FilterType.HAS_SUPPLICATIONS),
-        onFilterToggled = {},
-        onClearAllFilters = {},
-        modifier = Modifier.fillMaxWidth()
-    )
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(360.dp, 640.dp))
+    ){
+        BrowseFilterChips(
+            selectedFilters = setOf(FilterType.HAS_VERSES, FilterType.HAS_SUPPLICATIONS),
+            onFilterToggled = {},
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 }
 
 // Individual Filter Chip Component
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun BrowseFilterChip(
     filter: FilterType,
@@ -625,28 +684,25 @@ private fun BrowseFilterChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val animatedWidth by animateDpAsState(
-        targetValue = if (isSelected) 120.dp else 48.dp,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-        label = "chip_width"
-    )
 
-    Card(
+    Box(
         modifier = modifier
-            .width(animatedWidth)
+            .wrapContentWidth()
             .height(48.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .border(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .background(
+                if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    Color.Transparent
+                }
+            )
             .clickable { onClick() },
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceContainer
-            }
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 3.dp else 1.dp
-        )
     ) {
         Row(
             modifier = Modifier
@@ -655,9 +711,14 @@ private fun BrowseFilterChip(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = filter.icon,
-                style = MaterialTheme.typography.bodyLarge,
+            Icon(
+                painter = painterResource(filter.icon),
+                contentDescription = filter.displayName,
+                tint = if (isSelected) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.primary
+                },
                 modifier = Modifier.size(20.dp)
             )
 
@@ -670,11 +731,11 @@ private fun BrowseFilterChip(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = filter.displayName,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.appTypography.topicSubtitleFilters,
                         color = if (isSelected) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
+                            MaterialTheme.colorScheme.primaryContainer
                         } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                            MaterialTheme.colorScheme.primary
                         },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -688,12 +749,16 @@ private fun BrowseFilterChip(
 @Preview
 @Composable
 fun BrowseFilterChipPreview() {
-    BrowseFilterChip(
-        filter = FilterType.HAS_VERSES,
-        isSelected = true,
-        onClick = {},
-        modifier = Modifier
-    )
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(360.dp, 640.dp))
+    ){
+        BrowseFilterChip(
+            filter = FilterType.HAS_VERSES,
+            isSelected = true,
+            onClick = {},
+            modifier = Modifier
+        )
+    }
 }
 
 // Content Section Component
