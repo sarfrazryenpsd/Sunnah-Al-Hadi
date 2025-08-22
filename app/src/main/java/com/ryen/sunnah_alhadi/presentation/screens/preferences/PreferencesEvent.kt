@@ -5,6 +5,10 @@ import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
 
 sealed class PreferencesEvent {
     data class UpdateUsername(val username: String) : PreferencesEvent()
+    data class SaveUsername(val username: String) : PreferencesEvent()
+
+    data object DismissUsernameDialog : PreferencesEvent()
+
     data class UpdateDynamicTheme(val enabled: Boolean) : PreferencesEvent()
     data class UpdateThemeMode(val themeMode: ThemeMode) : PreferencesEvent()
     data class UpdateSotdNotification(val enabled: Boolean) : PreferencesEvent()
@@ -12,6 +16,8 @@ sealed class PreferencesEvent {
     data object RequestNotificationPermission : PreferencesEvent()
     data object DismissPermissionDialog : PreferencesEvent()
     data object ShowBugReportDialog : PreferencesEvent()
+
+    data object ShowUserNameDialog : PreferencesEvent()
     data object DismissBugReportDialog : PreferencesEvent()
     data class SubmitBugReport(val description: String, val email: String) : PreferencesEvent()
     data object ShowPrivacyPolicyDialog : PreferencesEvent()

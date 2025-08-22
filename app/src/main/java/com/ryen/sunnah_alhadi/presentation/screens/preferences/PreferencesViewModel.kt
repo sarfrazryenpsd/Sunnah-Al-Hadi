@@ -1,10 +1,8 @@
 package com.ryen.sunnah_alhadi.presentation.screens.preferences
 
-import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
@@ -17,7 +15,6 @@ import com.ryen.sunnah_alhadi.domain.useCase.bugReport.SubmitBugReportUseCase
 import com.ryen.sunnah_alhadi.platform.scheduler.SotdNotificationScheduler
 import com.ryen.sunnah_alhadi.presentation.util.validateUsername
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
-import com.ryen.sunnah_alhadi.util.NotificationPermissionUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
@@ -50,6 +47,8 @@ class PreferencesViewModel @Inject constructor(
     fun onEvent(event: PreferencesEvent) {
         when (event) {
             is PreferencesEvent.UpdateUsername -> updateUsername(event.username)
+            is PreferencesEvent.SaveUsername -> saveUsername(event.username)
+            PreferencesEvent.DismissUsernameDialog -> dismissUsernameDialog()
             is PreferencesEvent.UpdateDynamicTheme -> updateDynamicTheme(event.enabled)
             is PreferencesEvent.UpdateThemeMode -> updateThemeMode(event.themeMode)
             is PreferencesEvent.UpdateSotdNotification -> updateSotdNotification(event.enabled)
@@ -57,6 +56,7 @@ class PreferencesViewModel @Inject constructor(
             PreferencesEvent.RequestNotificationPermission -> requestNotificationPermission()
             PreferencesEvent.DismissPermissionDialog -> dismissPermissionDialog()
             PreferencesEvent.ShowBugReportDialog -> showBugReportDialog()
+            PreferencesEvent.ShowUserNameDialog -> showUserNameDialog()
             PreferencesEvent.DismissBugReportDialog -> dismissBugReportDialog()
             is PreferencesEvent.SubmitBugReport -> submitBugReport(event.description, event.email)
             PreferencesEvent.ShowPrivacyPolicyDialog -> showPrivacyPolicyDialog()
@@ -130,22 +130,32 @@ class PreferencesViewModel @Inject constructor(
 
     private fun updateUsername(username: String) {
         val validation = validateUsername(username)
-        _uiState.update { it.copy(usernameValidation = validation) }
+        _uiState.update {
+            it.copy(
+                usernameValidation = validation,
+                username = username
+            )
+        }
+    }
 
-        if (validation.isValid) {
-            viewModelScope.launch {
-                try {
-                    updateUserPreferencesUseCase(
-                        UserPreferencesUpdate(username = username.trim())
-                    )
-                    showSuccessMessage("Username updated successfully")
-                } catch (e: Exception) {
-                    _uiState.update {
-                        it.copy(error = "Failed to update username: ${e.localizedMessage}")
-                    }
+    private fun saveUsername(username: String) {
+        viewModelScope.launch {
+            try {
+                updateUserPreferencesUseCase(
+                    UserPreferencesUpdate(username = username.trim())
+                )
+                _uiState.update { it.copy(showUsernameDialog = false) }
+                showSuccessMessage("Username updated successfully")
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = "Failed to update username: ${e.localizedMessage}")
                 }
             }
         }
+    }
+
+    private fun dismissUsernameDialog() {
+        _uiState.update { it.copy(showUsernameDialog = false) }
     }
 
     // ✅ CLEAN ARCHITECTURE: Only update preferences, ThemeViewModel handles UI automatically
@@ -297,6 +307,10 @@ class PreferencesViewModel @Inject constructor(
         _uiState.update { it.copy(showBugReportDialog = true) }
     }
 
+    private fun showUserNameDialog() {
+        _uiState.update { it.copy(showUsernameDialog = true) }
+    }
+
     private fun dismissBugReportDialog() {
         _uiState.update {
             it.copy(
@@ -312,6 +326,7 @@ class PreferencesViewModel @Inject constructor(
             BugReportField.DESCRIPTION -> {
                 _uiState.update { it.copy(bugReportDescription = value) }
             }
+
             BugReportField.EMAIL -> {
                 _uiState.update { it.copy(bugReportEmail = value) }
             }
@@ -323,7 +338,8 @@ class PreferencesViewModel @Inject constructor(
             try {
                 _uiState.update { it.copy(isBugReportSubmitting = true) }
 
-                val deviceInfo = "${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE})"
+                val deviceInfo =
+                    "${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE})"
 
                 val result = submitBugReportUseCase(
                     description = description,
@@ -351,7 +367,8 @@ class PreferencesViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isBugReportSubmitting = false,
-                                error = exception.message ?: "Failed to submit bug report. Please try again."
+                                error = exception.message
+                                    ?: "Failed to submit bug report. Please try again."
                             )
                         }
                     }

@@ -2,8 +2,10 @@
 
 package com.ryen.sunnah_alhadi.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -49,6 +51,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -57,6 +60,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
@@ -67,6 +71,7 @@ import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.presentation.util.ValidationResult
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
+import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
 @Composable
 fun PreferenceSection(
@@ -74,22 +79,21 @@ fun PreferenceSection(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Column(modifier = modifier) {
+    Column(modifier = modifier.padding(horizontal = 16.dp)) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.appTypography.notificationType,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
         )
 
-        Card(
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(horizontal = 16.dp)
         ) {
             Column(
                 modifier = Modifier.padding(vertical = 8.dp),
@@ -120,14 +124,14 @@ fun PreferenceHorizontalItem(
         modifier = modifier
             .fillMaxWidth()
             .then(clickableModifier)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 6.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-           modifier = Modifier.weight(1f)
-        ){
+            modifier = Modifier.weight(1f)
+        ) {
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = null,
@@ -144,7 +148,9 @@ fun PreferenceHorizontalItem(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.appTypography.extraAndNotificationTitle.copy(
+                        fontWeight = FontWeight.Normal
+                    ),
                     color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(
                         alpha = 0.38f
                     )
@@ -153,7 +159,7 @@ fun PreferenceHorizontalItem(
                 subtitle?.let {
                     Text(
                         text = it,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.appTypography.notificationSubtitle,
                         color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(
                             alpha = 0.38f
                         )
@@ -189,7 +195,7 @@ fun PreferenceVerticalItem(
         modifier = modifier
             .fillMaxWidth()
             .then(clickableModifier)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 6.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.Start
     ) {
         Row(
@@ -211,7 +217,9 @@ fun PreferenceVerticalItem(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.appTypography.extraAndNotificationTitle.copy(
+                        fontWeight = FontWeight.Normal
+                    ),
                     color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(
                         alpha = 0.38f
                     )
@@ -220,7 +228,7 @@ fun PreferenceVerticalItem(
                 subtitle?.let {
                     Text(
                         text = it,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.appTypography.notificationSubtitle,
                         color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(
                             alpha = 0.38f
                         )
@@ -253,7 +261,9 @@ fun PreferenceSwitch(
         iconColor = iconColor,
         enabled = enabled,
         modifier = modifier,
-        onClick = if (enabled) { { onCheckedChange(!checked) } } else null,
+        onClick = if (enabled) {
+            { onCheckedChange(!checked) }
+        } else null,
         trailingContent = {
             Switch(
                 checked = checked,
@@ -435,6 +445,86 @@ fun NotificationTimeDropdown(
             }
         }
     }
+}
+
+@Composable
+fun UserNameDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    username: String,
+    placeholder: String,
+    usernameError: String?,
+    isUserNameValid: Boolean,
+    onUsernameChange: (String) -> Unit,
+    onSave: (String) -> Unit
+) {
+    if (!showDialog) return
+
+    val usernameState = remember { mutableStateOf(username) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Change name",
+                style = MaterialTheme.typography.headlineSmall
+            )
+        },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Let's personalize your experience.\nWhat is your good name?",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                OutlinedTextField(
+                    value = usernameState.value,
+                    onValueChange = {
+                        usernameState.value = it
+                        onUsernameChange(it)
+                    },
+                    label = { Text("Name") },
+                    isError = usernameError != null,
+                    supportingText = {
+                        usernameError?.let { error ->
+                            Text(
+                                text = error,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        } ?: Text(
+                            text = "Enter your preferred name for the app",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onSave(usernameState.value)
+                },
+                enabled = isUserNameValid
+            ) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+            ) {
+                Text("Cancel")
+            }
+        },
+        properties = DialogProperties(
+            dismissOnClickOutside = false,
+            dismissOnBackPress = false
+        )
+    )
 }
 
 @Composable
@@ -634,7 +724,11 @@ fun NotificationPermissionDialog(
     )
 }
 
-private fun highlightText(fullText: String, target: String, highlightStyle: SpanStyle): AnnotatedString {
+private fun highlightText(
+    fullText: String,
+    target: String,
+    highlightStyle: SpanStyle
+): AnnotatedString {
     val start = fullText.indexOf(target)
     return buildAnnotatedString {
         if (start >= 0) {
@@ -650,28 +744,25 @@ private fun highlightText(fullText: String, target: String, highlightStyle: Span
 }
 
 
-
-
-
 //-------------------------------------------------------------Previews----------------------------------------------------------------------------------
 
 @Preview(showBackground = true)
 @Composable
 private fun PreferenceTextFieldPreview() {
-        SunnahAlHadiTheme(
-            windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-        ) {
-            PreferenceTextField(
-                title = "Title",
-                value = "Value",
-                onValueChange = {},
-                leadingIcon = Icons.Default.Person,
-                iconColor = MaterialTheme.colorScheme.primary,
-                validation = ValidationResult(true, null),
-                characterCount = "10/20",
-                placeholder = "Placeholder"
-            )
-        }
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
+    ) {
+        PreferenceTextField(
+            title = "Title",
+            value = "Value",
+            onValueChange = {},
+            leadingIcon = Icons.Default.Person,
+            iconColor = MaterialTheme.colorScheme.primary,
+            validation = ValidationResult(true, null),
+            characterCount = "10/20",
+            placeholder = "Placeholder"
+        )
+    }
 }
 
 @Preview(showBackground = true)
@@ -798,7 +889,7 @@ private fun BugReportDialoguePrev() {
 private fun ContentDisplayPrev() {
     SunnahAlHadiTheme(
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) { 
+    ) {
         ContentDisplayDialog(
             title = "Title",
             content = "Content",

@@ -54,7 +54,7 @@ fun ScreenHeaderSection(
         }
         is AllTopic -> {
             ScreenHeader(
-                title = "TOPICS",
+                title = "Topics",
                 subtitle = "Explore All",
                 titleStyle = MaterialTheme.appTypography.browseTitle,
                 subtitleStyle = MaterialTheme.appTypography.topicsSubtitle

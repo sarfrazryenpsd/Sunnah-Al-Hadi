@@ -99,18 +99,21 @@ fun OnboardingCard(
                     usernameError = uiState.usernameError,
                     onUsernameChange = { onEvent(OnboardingEvent.UpdateUsername(it)) }
                 )
+
                 OnboardingStep.THEME -> ThemeCard(
                     selectedTheme = uiState.selectedTheme,
                     isDynamicThemeEnabled = uiState.isDynamicThemeEnabled,
                     onThemeSelect = { onEvent(OnboardingEvent.SelectTheme(it)) },
                     onDynamicThemeToggle = { onEvent(OnboardingEvent.ToggleDynamicTheme(it)) }
                 )
+
                 OnboardingStep.NOTIFICATION -> NotificationCard(
                     isNotificationEnabled = uiState.isNotificationEnabled,
                     selectedTime = uiState.selectedNotificationTime,
                     onNotificationToggle = { onEvent(OnboardingEvent.ToggleNotification(it)) },
                     onTimeSelect = { onEvent(OnboardingEvent.SelectNotificationTime(it)) }
                 )
+
                 OnboardingStep.WELCOME -> WelcomeCard(
                     username = uiState.username
                 )
@@ -135,7 +138,7 @@ fun OnboardingCard(
 }
 
 @Composable
-private fun UsernameCard(
+fun UsernameCard(
     username: String,
     usernameError: String?,
     onUsernameChange: (String) -> Unit
@@ -157,6 +160,7 @@ private fun UsernameCard(
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface
         )
+
 
         Text(
             text = "Let's personalize your experience.\nWhat is your good name?",
@@ -195,6 +199,21 @@ private fun UsernameCard(
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun UsernameCardPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(360.dp, 640.dp))
+    ) {
+        UsernameCard(
+            username = "",
+            usernameError = null,
+            onUsernameChange = {}
+        )
+    }
+}
+
 
 @Composable
 private fun ThemeCard(
@@ -246,7 +265,9 @@ private fun ThemeCard(
         // Dynamic theme toggle (only on Android 12+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             HorizontalDivider(
-                Modifier, DividerDefaults.Thickness, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                Modifier,
+                DividerDefaults.Thickness,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
             )
 
             Row(
@@ -419,7 +440,9 @@ private fun NotificationCard(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 HorizontalDivider(
-                    Modifier, DividerDefaults.Thickness, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    Modifier,
+                    DividerDefaults.Thickness,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                 )
 
                 Text(
@@ -614,7 +637,8 @@ private fun OnboardingNavigationButtons(
     ) {
         if (canGoToPrevious) {
             TextButton(
-                onClick = onPrevious
+                onClick = onPrevious,
+                modifier = Modifier.padding(end = 24.dp)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
@@ -629,7 +653,7 @@ private fun OnboardingNavigationButtons(
         if (currentStep == OnboardingStep.WELCOME) {
             Button(
                 onClick = onComplete,
-                modifier = Modifier.fillMaxWidth(if (canGoToPrevious) 0.6f else 1f)
+                modifier = Modifier.fillMaxWidth(if (canGoToPrevious) 1f else 1f)
             ) {
                 BasicText(
                     text = "Get Started",
@@ -669,13 +693,64 @@ private fun OnboardingNavigationButtons(
 
 @Preview(showBackground = true)
 @Composable
-fun OnboardingNavigationButtonPrev() {
+fun OnboardingNavigationButtonPrev1() {
     SunnahAlHadiTheme(
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp)),
     ) {
         OnboardingNavigationButtons(
             currentStep = OnboardingStep.WELCOME,
             canProceedToNext = false,
+            canGoToPrevious = true,
+            onNext = {},
+            onPrevious = {},
+            onComplete = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun OnboardingNavigationButtonPrev2() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp)),
+    ) {
+        OnboardingNavigationButtons(
+            currentStep = OnboardingStep.USERNAME,
+            canProceedToNext = true,
+            canGoToPrevious = false,
+            onNext = {},
+            onPrevious = {},
+            onComplete = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun OnboardingNavigationButtonPrev3() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp)),
+    ) {
+        OnboardingNavigationButtons(
+            currentStep = OnboardingStep.THEME,
+            canProceedToNext = true,
+            canGoToPrevious = true,
+            onNext = {},
+            onPrevious = {},
+            onComplete = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun OnboardingNavigationButtonPrev4() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp)),
+    ) {
+        OnboardingNavigationButtons(
+            currentStep = OnboardingStep.NOTIFICATION,
+            canProceedToNext = true,
             canGoToPrevious = true,
             onNext = {},
             onPrevious = {},
@@ -730,6 +805,7 @@ fun ThemeCardPrev() {
         )
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun WelcomeCardPrev() {

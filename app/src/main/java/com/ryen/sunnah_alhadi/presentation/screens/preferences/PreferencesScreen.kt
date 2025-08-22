@@ -5,7 +5,7 @@ package com.ryen.sunnah_alhadi.presentation.screens.preferences
 import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NotificationsActive
@@ -32,12 +33,12 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -47,12 +48,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -70,7 +74,7 @@ import com.ryen.sunnah_alhadi.presentation.components.PreferenceSwitch
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceTextField
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceVerticalItem
 import com.ryen.sunnah_alhadi.presentation.components.ThemeSegmentedButton
-import com.ryen.sunnah_alhadi.presentation.navigation.Home
+import com.ryen.sunnah_alhadi.presentation.components.UserNameDialog
 import com.ryen.sunnah_alhadi.presentation.navigation.Preferences
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
@@ -126,6 +130,7 @@ fun PreferencesScreen(
 }
 
 @Preview
+@PreviewScreenSizes
 @Composable
 fun PreferencesScreenContentPreview() {
     SunnahAlHadiTheme(
@@ -138,8 +143,9 @@ fun PreferencesScreenContentPreview() {
     ) {
         PreferencesScreenContent(
             uiState = PreferencesUiState(
+                username = "Muhammed",
                 isLoading = false,
-                userPreferences = UserPreferences(),
+                userPreferences = UserPreferences(username = "Muhammed"),
                 appVersion = "1.0.0",
                 buildNumber = "1",
                 hasNotificationPermission = true
@@ -185,13 +191,7 @@ fun PreferencesScreenContent(
             item {
                 Spacer(modifier = Modifier.height(12.dp))
             }
-            // Account Section
-            item {
-                AccountSection(
-                    uiState = uiState,
-                    onEvent = onEvent
-                )
-            }
+
 
             // Appearance Section
             item {
@@ -199,6 +199,10 @@ fun PreferencesScreenContent(
                     uiState = uiState,
                     onEvent = onEvent
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
             // Notifications Section
@@ -209,12 +213,20 @@ fun PreferencesScreenContent(
                 )
             }
 
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
             // About Section
             item {
                 AboutSection(
                     uiState = uiState,
                     onEvent = onEvent
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
             // Support & Feedback Section
@@ -289,8 +301,26 @@ private fun AppearanceSection(
     uiState: PreferencesUiState,
     onEvent: (PreferencesEvent) -> Unit
 ) {
-    PreferenceSection(title = "Appearance") {
+    PreferenceSection(title = "Personalization") {
         uiState.userPreferences?.let { preferences ->
+
+            PreferenceHorizontalItem(
+                title = preferences.username,
+                subtitle = "Your name to display in app",
+                leadingIcon = Icons.Default.Person,
+                iconColor = Color.Black, // Deep Purple
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.Rounded.Edit,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                    )
+                },
+                modifier = Modifier.clickable {
+                    onEvent(PreferencesEvent.ShowUserNameDialog)
+                }
+            )
+
             // Theme Mode Selection
             PreferenceVerticalItem(
                 title = "Theme",
@@ -329,7 +359,7 @@ private fun NotificationsSection(
     uiState: PreferencesUiState,
     onEvent: (PreferencesEvent) -> Unit
 ) {
-    PreferenceSection(title = "Notifications") {
+    PreferenceSection(title = "Notification") {
         uiState.userPreferences?.let { preferences ->
             // Sunnah of the Day Notifications
             PreferenceSwitch(
@@ -567,11 +597,24 @@ private fun PreferencesDialogs(
     uiState: PreferencesUiState,
     onEvent: (PreferencesEvent) -> Unit
 ) {
+
     // Permission Dialog
     NotificationPermissionDialog(
         showDialog = uiState.showPermissionDialog,
         onDismiss = { onEvent(PreferencesEvent.DismissPermissionDialog) },
         onConfirm = { onEvent(PreferencesEvent.RequestNotificationPermission) }
+    )
+
+    //Username change Dialog
+    UserNameDialog(
+        showDialog = uiState.showUsernameDialog,
+        onDismiss = { onEvent(PreferencesEvent.DismissUsernameDialog) },
+        username = uiState.username,
+        placeholder = uiState.userPreferences?.username ?: "",
+        usernameError = uiState.usernameValidation.errorMessage,
+        isUserNameValid = uiState.usernameValidation.isValid,
+        onUsernameChange = { onEvent(PreferencesEvent.UpdateUsername(it)) },
+        onSave = { onEvent(PreferencesEvent.SaveUsername(it)) }
     )
 
     // Bug Report Dialog
