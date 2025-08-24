@@ -12,7 +12,6 @@ data class HomeUiState(
     val featuredCategories: List<Category> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
-    val showSotd: Boolean = false,
     val showDisclaimer: Boolean = false,
     val sunnahCount: Map<Int, Int> = emptyMap(),
     val sotd: Sunnah? = null,

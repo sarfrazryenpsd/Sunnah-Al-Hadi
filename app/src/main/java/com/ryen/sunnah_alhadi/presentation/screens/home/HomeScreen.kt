@@ -62,7 +62,7 @@ import com.ryen.sunnah_alhadi.ui.theme.appTypography
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    onSotdRequested: () -> Unit = {},
+    onSotdRequested: (SotdOverlayRequest) -> Unit = {},
     onNavigateToAllTopics: () -> Unit = {},
     onNavigateToTopic: (Int) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
@@ -81,9 +81,10 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(uiState.showSotd) {
-        if (uiState.showSotd) {
-            onSotdRequested()
+    // ✅ NEW: Listen to SOTD overlay requests
+    LaunchedEffect(Unit) {
+        viewModel.sotdOverlayRequest.collect { request ->
+            onSotdRequested(request)
         }
     }
 
@@ -131,8 +132,8 @@ fun HomeScreenContent(
                 CustomTopBar(
                     actionContents = {
                         ActionItems(
-                            onOrbClick = {},
-                            onInfoClick = {}
+                            onOrbClick = { onEvent(HomeEvent.ToggleSotd) },
+                            onInfoClick = {onEvent(HomeEvent.ToggleDisclaimer)}
                         )
                     }
                 )

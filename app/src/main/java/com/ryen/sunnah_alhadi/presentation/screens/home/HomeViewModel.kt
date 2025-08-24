@@ -50,6 +50,10 @@ class HomeViewModel @Inject constructor(
     private val _eventFlow = MutableSharedFlow<HomeEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
+    // ✅ NEW: Separate flow for SOTD overlay requests
+    private val _sotdOverlayRequest = MutableSharedFlow<SotdOverlayRequest>()
+    val sotdOverlayRequest = _sotdOverlayRequest.asSharedFlow()
+
     init {
         loadHomeData()
         // ✅ Move heavy operations off main thread
@@ -80,8 +84,8 @@ class HomeViewModel @Inject constructor(
 
     fun onEvent(event: HomeEvent) {
         when (event) {
-            is HomeEvent.ToggleSotd -> toggleSotdOverlay()
-            is HomeEvent.DismissSotd -> dismissSotdOverlay()
+            is HomeEvent.ToggleSotd -> requestSotdOverlay(SotdOverlayRequest.Manual)
+            is HomeEvent.DismissSotd -> {}
             is HomeEvent.MarkSotdAsSeen -> markSotdAsSeen()
             is HomeEvent.ToggleDisclaimer -> toggleDisclaimer()
             is HomeEvent.NavigateToTopic -> {
@@ -115,7 +119,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun requestSotdOverlay(request: SotdOverlayRequest) {
+        viewModelScope.launch {
+            _sotdOverlayRequest.emit(request)
+        }
+    }
+
     // ✅ Separate method for auto-show check
+    // ✅ UPDATED: Auto-show check now emits request instead of updating state
     private fun autoShowSotdCheck() {
         viewModelScope.launch(ioDispatcher) {
             try {
@@ -126,15 +137,15 @@ class HomeViewModel @Inject constructor(
                         sotdState.currentSotd != null &&
                         !sotdState.isSeen
 
-                withContext(Dispatchers.Main) {
-                    if (shouldAutoShow) {
+                if (shouldAutoShow) {
+                    // ✅ Update SOTD data but don't trigger overlay here
+                    withContext(Dispatchers.Main) {
                         _uiState.update {
-                            it.copy(
-                                sotd = sotdState.currentSotd,
-                                showSotd = true
-                            )
+                            it.copy(sotd = sotdState.currentSotd)
                         }
                     }
+                    // ✅ Emit auto-show request
+                    _sotdOverlayRequest.emit(SotdOverlayRequest.AutoShow)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -146,6 +157,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    // ✅ UPDATED: Notification launch now emits request
     fun handleNotificationLaunch() {
         viewModelScope.launch(ioDispatcher) {
             try {
@@ -154,12 +166,11 @@ class HomeViewModel @Inject constructor(
                 if (sotdState.currentSotd != null) {
                     withContext(Dispatchers.Main) {
                         _uiState.update {
-                            it.copy(
-                                sotd = sotdState.currentSotd,
-                                showSotd = true
-                            )
+                            it.copy(sotd = sotdState.currentSotd)
                         }
                     }
+                    // ✅ Emit notification request
+                    _sotdOverlayRequest.emit(SotdOverlayRequest.FromNotification)
                 } else {
                     // Generate new SOTD if none exists
                     generateNewSotdIdUseCase()
@@ -167,11 +178,12 @@ class HomeViewModel @Inject constructor(
 
                     withContext(Dispatchers.Main) {
                         _uiState.update {
-                            it.copy(
-                                sotd = newSotdState.currentSotd,
-                                showSotd = newSotdState.currentSotd != null
-                            )
+                            it.copy(sotd = newSotdState.currentSotd)
                         }
+                    }
+
+                    if (newSotdState.currentSotd != null) {
+                        _sotdOverlayRequest.emit(SotdOverlayRequest.FromNotification)
                     }
                 }
             } catch (e: Exception) {
@@ -246,7 +258,6 @@ class HomeViewModel @Inject constructor(
                                     featuredCategories = homeData.featuredCategories,
                                     recentSotd = recentSotd,
                                     sotd = finalSotdState.currentSotd,
-                                    showSotd = false // Don't auto-show here, let MainNavigation handle it
                                 )
                             }
                         }
@@ -274,24 +285,6 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun toggleSotdOverlay() {
-        val currentState = _uiState.value
-        _uiState.update{
-            it.copy(
-                showSotd = !currentState.showSotd
-            )
-        }
-    }
-
-    private fun dismissSotdOverlay() {
-        _uiState.update{
-            it.copy(
-                showSotd = false
-            )
-        }
-        markSotdAsSeen()
     }
 
     private fun markSotdAsSeen() {
@@ -327,4 +320,10 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+}
+
+sealed class SotdOverlayRequest {
+    object AutoShow : SotdOverlayRequest()
+    object FromNotification : SotdOverlayRequest()
+    object Manual : SotdOverlayRequest()
 }

@@ -77,9 +77,6 @@ fun SotdCardContainer(
         if (isFromNotification) {
             // From notification - ensure current SOTD is loaded
             homeViewModel.onEvent(HomeEvent.HandleNotificationLaunch)
-        } else {
-            // Auto-show - toggle current SOTD
-            homeViewModel.onEvent(HomeEvent.ToggleSotd)
         }
     }
 

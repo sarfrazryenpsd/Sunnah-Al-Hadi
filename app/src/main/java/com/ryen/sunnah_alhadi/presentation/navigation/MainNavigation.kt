@@ -5,7 +5,6 @@ package com.ryen.sunnah_alhadi.presentation.navigation
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
@@ -72,6 +71,7 @@ import com.ryen.sunnah_alhadi.presentation.components.overlay.SotdCardContainer
 import com.ryen.sunnah_alhadi.presentation.screens.allTopics.AllTopicsScreen
 import com.ryen.sunnah_alhadi.presentation.screens.browse.BrowseScreen
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeScreen
+import com.ryen.sunnah_alhadi.presentation.screens.home.SotdOverlayRequest
 import com.ryen.sunnah_alhadi.presentation.screens.preferences.PreferencesScreen
 import com.ryen.sunnah_alhadi.presentation.screens.topic.TopicScreen
 import com.ryen.sunnah_alhadi.presentation.util.PagerVisibilityState
@@ -84,11 +84,9 @@ fun MainNavigation(
     showOnboarding: Boolean,
     isFromNotification: Boolean = false,
 ) {
-    // Screen size detection
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val isCompact = !windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
 
-    // Navigation state
     val backStack = rememberNavBackStack(Home)
     val topLevelDestinations = listOf(Home, Browse, Preferences)
 
@@ -97,12 +95,12 @@ fun MainNavigation(
     var currentOverlay by rememberSaveable { mutableStateOf<OverlayType?>(null) }
     var isInitializing by remember { mutableStateOf(true) }
 
-    // ✅ Handle initial loading to prevent flash
+    // ✅ Handle initial loading
     LaunchedEffect(showOnboarding) {
         isInitializing = false
     }
 
-    // ✅ Initialize overlay state based on conditions
+    // ✅ Initialize overlay state
     LaunchedEffect(showOnboarding) {
         currentOverlay = if (showOnboarding) {
             OverlayType.ONBOARDING
@@ -110,25 +108,38 @@ fun MainNavigation(
             null
         }
     }
-    // ✅ Handle onboarding completion -> SOTD sequence
-    LaunchedEffect(onboardingCompleted, isFromNotification) {
-        if (!isInitializing && onboardingCompleted) {
-            // Wait for smooth transition
-            delay(300)
 
-            currentOverlay = if (isFromNotification) {
-                OverlayType.SOTD_FROM_NOTIFICATION
-            } else {
-                // Check if should auto-show SOTD (handled in HomeViewModel)
-                OverlayType.SOTD_AUTO_SHOW
+    // ✅ Handle post-onboarding flow
+    LaunchedEffect(onboardingCompleted, isFromNotification) {
+        if (!isInitializing && onboardingCompleted && isFromNotification) {
+            delay(300) // Smooth transition
+            currentOverlay = OverlayType.SOTD_FROM_NOTIFICATION
+        }
+    }
+
+    // ✅ SOTD overlay request handler
+    val handleSotdRequest = { request: SotdOverlayRequest ->
+        when (request) {
+            is SotdOverlayRequest.AutoShow -> {
+                // Only auto-show if no other overlay is active
+                if (currentOverlay == null) {
+                    currentOverlay = OverlayType.SOTD_AUTO_SHOW
+                }
+            }
+            is SotdOverlayRequest.FromNotification -> {
+                currentOverlay = OverlayType.SOTD_FROM_NOTIFICATION
+            }
+            is SotdOverlayRequest.Manual -> {
+                currentOverlay = OverlayType.SOTD_MANUAL
             }
         }
     }
+
     if (isInitializing) {
         LoadingIndicator()
     }
 
-    // ✅ Onboarding overlay (highest priority)
+    // ✅ Overlay management
     CardOverlay(
         showOverlay = currentOverlay != null,
         onDismiss = { currentOverlay == null },
@@ -147,7 +158,8 @@ fun MainNavigation(
                 }
 
                 OverlayType.SOTD_FROM_NOTIFICATION,
-                OverlayType.SOTD_AUTO_SHOW -> {
+                OverlayType.SOTD_AUTO_SHOW,
+                OverlayType.SOTD_MANUAL -> {
                     SotdCardContainer(
                         isFromNotification = currentOverlay == OverlayType.SOTD_FROM_NOTIFICATION,
                         onDismiss = {
@@ -156,8 +168,7 @@ fun MainNavigation(
                     )
                 }
 
-                null -> { /* No overlay */
-                }
+                null -> { /* No overlay */ }
             }
         }
     ) {
@@ -166,13 +177,13 @@ fun MainNavigation(
             CompactScreenLayout(
                 backStack = backStack,
                 topLevelDestinations = topLevelDestinations,
-                onSotdRequested = { currentOverlay = OverlayType.SOTD_AUTO_SHOW }
+                onSotdRequested = handleSotdRequest
             )
         } else {
             ExpandedScreenLayout(
                 backStack = backStack,
                 topLevelDestinations = topLevelDestinations,
-                onSotdRequested = { currentOverlay = OverlayType.SOTD_AUTO_SHOW }
+                onSotdRequested = handleSotdRequest
             )
         }
     }
@@ -184,7 +195,7 @@ fun MainNavigation(
 private fun CompactScreenLayout(
     backStack: SnapshotStateList<NavKey>,
     topLevelDestinations: List<NavKey>,
-    onSotdRequested: () -> Unit
+    onSotdRequested: (SotdOverlayRequest) -> Unit
 ) {
     val baseBottomBarVisible = backStack.lastOrNull()?.let { it in topLevelDestinations } ?: false
     val isPagerVisible by PagerVisibilityState.isPagerVisible.collectAsStateWithLifecycle()
@@ -240,7 +251,7 @@ private fun CompactScreenLayout(
 private fun ExpandedScreenLayout(
     backStack: SnapshotStateList<NavKey>,
     topLevelDestinations: List<NavKey>,
-    onSotdRequested: () -> Unit
+    onSotdRequested: (SotdOverlayRequest) -> Unit
 ) {
     // State for navigation rail expansion
     var isNavRailExpanded by rememberSaveable { mutableStateOf(false) }
@@ -268,7 +279,7 @@ private fun ExpandedScreenLayout(
 @Composable
 private fun NavigationContent(
     backStack: SnapshotStateList<NavKey>,
-    onSotdRequested: () -> Unit,
+    onSotdRequested: (SotdOverlayRequest) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val twoPaneStrategy = remember { TwoPaneSceneStrategy<NavKey>() }
@@ -435,7 +446,7 @@ private fun getDestinationIcon(destination: NavKey): Int {
 }
 
 // Entry provider factory function
-private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequested: () -> Unit) =
+private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequested: (SotdOverlayRequest) -> Unit) =
     entryProvider<NavKey> {
         entry<Home>(
             metadata = TwoPaneScene.twoPane()
@@ -513,5 +524,6 @@ private fun SnapshotStateList<NavKey>.clearDuplicateTopic(topicId: Int) {
 enum class OverlayType {
     ONBOARDING,
     SOTD_FROM_NOTIFICATION,
-    SOTD_AUTO_SHOW
+    SOTD_AUTO_SHOW,
+    SOTD_MANUAL
 }
