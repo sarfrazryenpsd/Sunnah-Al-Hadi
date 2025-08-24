@@ -11,13 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewFontScale
@@ -42,6 +44,11 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
@@ -133,7 +140,7 @@ fun HomeScreenContent(
                     actionContents = {
                         ActionItems(
                             onOrbClick = { onEvent(HomeEvent.ToggleSotd) },
-                            onInfoClick = {onEvent(HomeEvent.ToggleDisclaimer)}
+                            onInfoClick = { onEvent(HomeEvent.ToggleDisclaimer) }
                         )
                     }
                 )
@@ -355,15 +362,23 @@ private fun ActionItems(
     onOrbClick: () -> Unit,
     onInfoClick: () -> Unit,
 ) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.leaf))
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever,
+        speed = 1f
+    )
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Icon(
-            imageVector = Icons.Outlined.Favorite,
-            contentDescription = "Sunnah of the Day",
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.clickable { onOrbClick() }
+        LottieAnimation(
+            composition = composition,
+            progress = { progress },
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .clickable { onOrbClick() }
         )
         Icon(
             imageVector = Icons.Outlined.Info,

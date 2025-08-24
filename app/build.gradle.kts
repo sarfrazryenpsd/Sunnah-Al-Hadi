@@ -64,11 +64,6 @@ android {
     }
 }
 
-/*configurations.all {
-    resolutionStrategy {
-        force("com.google.protobuf:protobuf-javalite:3.24.4") // ✅ Compatible with Firebase
-    }
-}*/
 
 
 protobuf {
@@ -122,6 +117,8 @@ dependencies {
     implementation(libs.datastore.proto)
     implementation(libs.datastore.core)
     implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.lottie)
 
     implementation (platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
