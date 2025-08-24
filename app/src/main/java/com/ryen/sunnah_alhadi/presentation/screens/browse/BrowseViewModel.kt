@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.useCase.GetAllSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetBookmarkedSunnahsFlowUseCase
+import com.ryen.sunnah_alhadi.domain.useCase.ToggleBookmarkUseCase
+import com.ryen.sunnah_alhadi.presentation.util.PagerVisibilityState
 import com.ryen.sunnah_alhadi.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -19,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BrowseViewModel @Inject constructor(
     private val getAllSunnahsUseCase: GetAllSunnahsUseCase,
-    private val getBookmarkedSunnahsFlowUseCase: GetBookmarkedSunnahsFlowUseCase
+    private val getBookmarkedSunnahsFlowUseCase: GetBookmarkedSunnahsFlowUseCase,
+    private val toggleBookmarkUseCase: ToggleBookmarkUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(BrowseUiState())
@@ -43,6 +46,7 @@ class BrowseViewModel @Inject constructor(
             is BrowseUiEvent.ClearAllFilters -> handleClearAllFilters()
             is BrowseUiEvent.ClosePager -> handleClosePager()
             is BrowseUiEvent.PagerPageChanged -> handlePagerPageChanged(event.index)
+            is BrowseUiEvent.ToggleBookmark -> toggleBookmark(event.sunnahId)
         }
     }
 
@@ -57,19 +61,29 @@ class BrowseViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = false, error = "Failed to load sunnahs") }
                     return@launch
                 }
-                val allSunnahs = allSunnahsResult.data
+                val staticAllSunnahs = allSunnahsResult.data
 
-                // Observe bookmarked sunnahs (unwrap inside collect)
+                // Observe bookmarked sunnahs and merge bookmark status with all sunnahs
                 getBookmarkedSunnahsFlowUseCase().collect { bookmarkedResult ->
                     if (bookmarkedResult is Result.Success) {
                         val bookmarkedSunnahs = bookmarkedResult.data
+                        val bookmarkedIds = bookmarkedSunnahs.map { it.id }.toSet()
+
+                        // Create dynamic all sunnahs with updated bookmark status
+                        val updatedAllSunnahs = staticAllSunnahs.map { sunnah ->
+                            sunnah.copy(isBookmarked = bookmarkedIds.contains(sunnah.id))
+                        }
 
                         _uiState.update { currentState ->
                             currentState.copy(
-                                allSunnahs = allSunnahs,
+                                allSunnahs = updatedAllSunnahs,
                                 bookmarkedSunnahs = bookmarkedSunnahs,
                                 filteredSunnahs = filterSunnahs(
-                                    getCurrentTabSunnahs(currentState.currentTab, allSunnahs, bookmarkedSunnahs),
+                                    getCurrentTabSunnahs(
+                                        currentState.currentTab,
+                                        updatedAllSunnahs,
+                                        bookmarkedSunnahs
+                                    ),
                                     currentState.searchQuery,
                                     currentState.selectedFilters
                                 ),
@@ -77,7 +91,12 @@ class BrowseViewModel @Inject constructor(
                             )
                         }
                     } else {
-                        _uiState.update { it.copy(isLoading = false, error = "Failed to load bookmarks") }
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                error = "Failed to load bookmarks"
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -91,10 +110,61 @@ class BrowseViewModel @Inject constructor(
         }
     }
 
+    private fun toggleBookmark(sunnahId: String) {
+        viewModelScope.launch {
+            try {
+                val currentState = _uiState.value
+                val isCurrentlyInSavedTab = currentState.currentTab == BrowseTab.SAVED
+                val currentIndex = currentState.selectedSunnahIndex
+
+                // Check if we're about to remove the currently viewed bookmark
+                val currentSunnah = currentState.filteredSunnahs.getOrNull(currentIndex)
+                val isRemovingCurrentBookmark = isCurrentlyInSavedTab &&
+                        currentSunnah?.id == sunnahId &&
+                        currentSunnah.isBookmarked
+
+                // Perform the actual toggle
+                toggleBookmarkUseCase(sunnahId)
+
+                // Handle index adjustment for saved tab removals
+                if (isRemovingCurrentBookmark) {
+                    val newSize = currentState.filteredSunnahs.size - 1 // Size after removal
+
+                    when {
+                        newSize == 0 -> {
+                            // No bookmarks left, close pager immediately to prevent flash
+                            _uiState.update {
+                                it.copy(
+                                    isPagerVisible = false,
+                                    selectedSunnahIndex = 0
+                                )
+                            }
+                            PagerVisibilityState.setPagerVisibility(false)
+                        }
+                        currentIndex >= newSize -> {
+                            // Current index will be out of bounds, adjust it
+                            val newIndex = newSize - 1
+                            _uiState.update { it.copy(selectedSunnahIndex = newIndex) }
+                        }
+                    }
+                }
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Failed to toggle bookmark: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
     private fun handleClosePager() {
         _uiState.update {
             it.copy(isPagerVisible = false, selectedSunnahIndex = 0)
         }
+        PagerVisibilityState.setPagerVisibility(false)
     }
 
     private fun handlePagerPageChanged(index: Int) {
@@ -107,18 +177,20 @@ class BrowseViewModel @Inject constructor(
     private fun handleSunnahCardClickedByIndex(index: Int) {
         _uiState.update {
             it.copy(
-                isPagerVisible = true,
-                selectedSunnahIndex = index.coerceAtLeast(0)
+                isPagerVisible = true, selectedSunnahIndex = index.coerceAtLeast(0)
             )
         }
+        PagerVisibilityState.setPagerVisibility(true)
     }
 
     private fun handleTabChanged(tab: BrowseTab) {
         _uiState.update { currentState ->
-            val tabSunnahs = getCurrentTabSunnahs(tab, currentState.allSunnahs, currentState.bookmarkedSunnahs)
+            val tabSunnahs =
+                getCurrentTabSunnahs(tab, currentState.allSunnahs, currentState.bookmarkedSunnahs)
             currentState.copy(
-                currentTab = tab,
-                filteredSunnahs = filterSunnahs(tabSunnahs, currentState.searchQuery, currentState.selectedFilters)
+                currentTab = tab, filteredSunnahs = filterSunnahs(
+                    tabSunnahs, currentState.searchQuery, currentState.selectedFilters
+                )
             )
         }
     }
@@ -139,9 +211,7 @@ class BrowseViewModel @Inject constructor(
     private fun performSearch(query: String) {
         val currentState = _uiState.value
         val tabSunnahs = getCurrentTabSunnahs(
-            currentState.currentTab,
-            currentState.allSunnahs,
-            currentState.bookmarkedSunnahs
+            currentState.currentTab, currentState.allSunnahs, currentState.bookmarkedSunnahs
         )
 
         _uiState.update {
@@ -160,9 +230,7 @@ class BrowseViewModel @Inject constructor(
             }
 
             val tabSunnahs = getCurrentTabSunnahs(
-                currentState.currentTab,
-                currentState.allSunnahs,
-                currentState.bookmarkedSunnahs
+                currentState.currentTab, currentState.allSunnahs, currentState.bookmarkedSunnahs
             )
 
             currentState.copy(
@@ -175,9 +243,7 @@ class BrowseViewModel @Inject constructor(
     private fun handleClearSearch() {
         _uiState.update { currentState ->
             val tabSunnahs = getCurrentTabSunnahs(
-                currentState.currentTab,
-                currentState.allSunnahs,
-                currentState.bookmarkedSunnahs
+                currentState.currentTab, currentState.allSunnahs, currentState.bookmarkedSunnahs
             )
 
             currentState.copy(
@@ -190,9 +256,7 @@ class BrowseViewModel @Inject constructor(
     private fun handleClearAllFilters() {
         _uiState.update { currentState ->
             val tabSunnahs = getCurrentTabSunnahs(
-                currentState.currentTab,
-                currentState.allSunnahs,
-                currentState.bookmarkedSunnahs
+                currentState.currentTab, currentState.allSunnahs, currentState.bookmarkedSunnahs
             )
 
             currentState.copy(
@@ -204,14 +268,12 @@ class BrowseViewModel @Inject constructor(
 
     // Core filtering logic - combines search and content filters
     private fun filterSunnahs(
-        sunnahs: List<Sunnah>,
-        query: String,
-        filters: Set<FilterType>
+        sunnahs: List<Sunnah>, query: String, filters: Set<FilterType>
     ): List<Sunnah> {
         return sunnahs.filter { sunnah ->
             // Title search (case-insensitive, minimum 2 characters)
-            val matchesSearch = query.length < 2 ||
-                    sunnah.title.contains(query.trim(), ignoreCase = true)
+            val matchesSearch =
+                query.length < 2 || sunnah.title.contains(query.trim(), ignoreCase = true)
 
             // Apply content filters (AND logic)
             val matchesFilters = if (filters.isEmpty()) true else {
@@ -223,9 +285,7 @@ class BrowseViewModel @Inject constructor(
     }
 
     private fun getCurrentTabSunnahs(
-        tab: BrowseTab,
-        allSunnahs: List<Sunnah>,
-        bookmarkedSunnahs: List<Sunnah>
+        tab: BrowseTab, allSunnahs: List<Sunnah>, bookmarkedSunnahs: List<Sunnah>
     ): List<Sunnah> {
         return when (tab) {
             BrowseTab.ALL_SUNNAH -> allSunnahs
@@ -241,39 +301,47 @@ class BrowseViewModel @Inject constructor(
                     block.subtype.equals("verse", ignoreCase = true)
                 }
             }
+
             FilterType.HAS_SUPPLICATIONS -> {
                 sunnah.body.any { block ->
                     block.subtype.equals("supplication", ignoreCase = true)
                 }
             }
+
             FilterType.HAS_REFERENCES -> {
                 !sunnah.references.isNullOrEmpty()
             }
-            FilterType.HAS_PARABLES-> {
+
+            FilterType.HAS_PARABLES -> {
                 !sunnah.extra.isNullOrEmpty() && sunnah.extra.any { extra ->
                     extra.type.name.equals("parable", ignoreCase = true)
                 }
             }
+
             FilterType.HAS_NOTES -> {
                 !sunnah.extra.isNullOrEmpty() && sunnah.extra.any { extra ->
                     extra.type.name.equals("notes", ignoreCase = true)
                 }
             }
+
             FilterType.HAS_BENEFITS -> {
                 !sunnah.extra.isNullOrEmpty() && sunnah.extra.any { extra ->
                     extra.type.name.equals("benefit", ignoreCase = true)
                 }
             }
+
             FilterType.HAS_WARNINGS -> {
                 !sunnah.extra.isNullOrEmpty() && sunnah.extra.any { extra ->
                     extra.type.name.equals("warning", ignoreCase = true)
                 }
             }
+
             FilterType.HAS_EXPLANATION -> {
                 !sunnah.extra.isNullOrEmpty() && sunnah.extra.any { extra ->
                     extra.type.name.equals("explanation", ignoreCase = true)
                 }
             }
+
             FilterType.HAS_SCHOLARLY_EXPLANATION -> {
                 !sunnah.extra.isNullOrEmpty() && sunnah.extra.any { extra ->
                     extra.type.name.equals("scholarly_explanation", ignoreCase = true)

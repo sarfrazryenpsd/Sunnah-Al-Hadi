@@ -105,7 +105,6 @@ fun CardOverlay(
 fun OnboardingOverlayContent(
     onDismiss: () -> Unit,
     onComplete: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val onboardingViewModel: OnboardingViewModel = hiltViewModel()
     val uiState by onboardingViewModel.uiState.collectAsState()

@@ -6,6 +6,8 @@ sealed class HomeEvent{
 
     data object ToggleSotd : HomeEvent()
     data object ToggleDisclaimer : HomeEvent()
+
+    data class ToggleBookmark(val sunnahId: String): HomeEvent()
     data object DismissSotd: HomeEvent()
     data object MarkSotdAsSeen: HomeEvent()
     data class  NavigateToTopic(val categoryId: Int) : HomeEvent()

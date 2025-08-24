@@ -34,8 +34,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,12 +48,14 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
@@ -84,6 +91,7 @@ fun SunnahPager(
     sunnahs: List<Sunnah>,
     initialPage: Int = 0,
     onDismiss: () -> Unit,
+    onBookmarkClick: (String) -> Unit,
     onPageChanged: (Int) -> Unit
 ) {
     // Prevent crashes with empty lists or invalid indices
@@ -97,6 +105,22 @@ fun SunnahPager(
         initialPage = safeInitialPage,
         pageCount = { sunnahs.size }
     )
+
+    // Handle case where current page becomes invalid due to list changes
+    LaunchedEffect(sunnahs.size) {
+        when {
+            sunnahs.isEmpty() -> {
+                // No items left, dismiss immediately to prevent flash
+                onDismiss()
+            }
+            pagerState.currentPage >= sunnahs.size -> {
+                // Current page is out of bounds, navigate to last valid page
+                val newPage = (sunnahs.size - 1).coerceAtLeast(0)
+                pagerState.scrollToPage(newPage)
+                onPageChanged(newPage)
+            }
+        }
+    }
 
     // Optimize page change handling
     LaunchedEffect(pagerState.currentPage) {
@@ -143,15 +167,19 @@ fun SunnahPager(
                 // Optimize page loading
                 beyondViewportPageCount = 5
             ) { page ->
-                // Memoize cards to prevent unnecessary recomposition
-                key(sunnahs[page].id) {
-                    SunnahPagerCard(
-                        sunnah = sunnahs[page],
-                        pagerState = pagerState,
-                        page = page,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                // FIXED: Safe access with bounds checking in the pager itself
+                if (page < sunnahs.size && sunnahs.isNotEmpty()) {
+                    // Memoize cards to prevent unnecessary recomposition
+                    key(sunnahs[page].id) {
+                        SunnahPagerCard(
+                            sunnah = sunnahs[page],
+                            pagerState = pagerState,
+                            page = page,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
+                // Remove the else block to prevent flash - let the LaunchedEffect handle empty states
             }
 
             // Conditional indicators for better performance
@@ -161,7 +189,40 @@ fun SunnahPager(
                     pageCount = sunnahs.size,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(16.dp)
+                        .padding(top = 32.dp)
+                )
+            }
+        }
+
+        // FIXED: Safe index access with bounds checking
+        val currentPage by remember {
+            derivedStateOf { pagerState.currentPage }
+        }
+
+        // Only show bookmark button if we have a valid current page
+        if (currentPage < sunnahs.size) {
+            val currentSunnah = sunnahs[currentPage]
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 48.dp, end = 40.dp)
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .clickable {
+                        onBookmarkClick(currentSunnah.id)
+                    }
+            ) {
+                Icon(
+                    imageVector = if (currentSunnah.isBookmarked) {
+                        Icons.Filled.Bookmark
+                    } else {
+                        Icons.Outlined.BookmarkBorder
+                    },
+                    contentDescription = if (currentSunnah.isBookmarked) "Remove Bookmark" else "Add Bookmark",
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -184,7 +245,7 @@ private fun SunnahPagerCard(
     val cardModifier = modifier
         .graphicsLayer {
             // Cinematic parallax
-            if(shouldApplyEffects){
+            if (shouldApplyEffects) {
                 translationX = size.width * (startOffset * 0.99f)
                 alpha = (2f - startOffset) / 2f
 
@@ -192,7 +253,7 @@ private fun SunnahPagerCard(
                 val scale = 1f - (startOffset * 0.1f)
                 scaleX = scale
                 scaleY = scale
-            } else{
+            } else {
                 alpha = 1f
                 scaleX = 1f
                 scaleY = 1f
@@ -215,16 +276,38 @@ private fun SunnahPagerCard(
             } else Modifier
         )
 
-    Surface(
-        modifier = cardModifier,
-        shape = RoundedCornerShape(16.dp),
-        tonalElevation = 8.dp,
-        shadowElevation = 12.dp
+    Column(
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
     ) {
-        SunnahFullCard(
-            sunnah = sunnah,
-            modifier = Modifier.fillMaxSize()
-        )
+        Surface(
+            modifier = cardModifier,
+            shape = RoundedCornerShape(16.dp),
+            tonalElevation = 8.dp,
+            shadowElevation = 12.dp
+        ) {
+            SunnahFullCard(
+                sunnah = sunnah,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(Color.Gray)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Bookmark,
+                contentDescription = "Bookmark",
+                tint = Color.White
+            )
+        }
     }
 }
 
@@ -327,22 +410,26 @@ private fun ContentBlockRenderer(
                     textAlign = TextAlign.Center,
                     lineHeight = 1.8.em
                 )
+
                 "supplication" -> MaterialTheme.typography.headlineSmall.copy(
                     textAlign = TextAlign.Right,
                     lineHeight = 1.6.em
                 )
+
                 else -> MaterialTheme.typography.bodyLarge.copy(
                     textAlign = TextAlign.Right,
                     lineHeight = 1.5.em
                 )
             }
         }
+
         ContentType.ENGLISH_TEXT -> {
             when (contentBlock.subtype.lowercase()) {
                 "translation" -> MaterialTheme.typography.bodyLarge.copy(
                     fontStyle = MaterialTheme.appTypography.bodyPrimary.fontStyle,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
+
                 else -> MaterialTheme.typography.bodyLarge
             }
         }
@@ -478,9 +565,23 @@ data class SampleMetaInfo(
 private fun previewGetExtraContentMetaInfo(type: SampleExtraContentType): SampleMetaInfo {
     // Basic placeholder logic
     val colors = when (type) {
-        SampleExtraContentType.BENEFIT -> SampleMetaInfoColors(Color.Green, Color.Green.copy(alpha = 0.1f), Color.Green.copy(alpha = 0.3f))
-        SampleExtraContentType.WARNING -> SampleMetaInfoColors(Color.Red, Color.Red.copy(alpha = 0.1f), Color.Red.copy(alpha = 0.3f))
-        else -> SampleMetaInfoColors(Color.Gray, Color.Gray.copy(alpha = 0.1f), Color.Gray.copy(alpha = 0.3f))
+        SampleExtraContentType.BENEFIT -> SampleMetaInfoColors(
+            Color.Green,
+            Color.Green.copy(alpha = 0.1f),
+            Color.Green.copy(alpha = 0.3f)
+        )
+
+        SampleExtraContentType.WARNING -> SampleMetaInfoColors(
+            Color.Red,
+            Color.Red.copy(alpha = 0.1f),
+            Color.Red.copy(alpha = 0.3f)
+        )
+
+        else -> SampleMetaInfoColors(
+            Color.Gray,
+            Color.Gray.copy(alpha = 0.1f),
+            Color.Gray.copy(alpha = 0.3f)
+        )
     }
     return SampleMetaInfo(
         icon = android.R.drawable.ic_dialog_info, // Placeholder icon
@@ -542,6 +643,7 @@ fun SunnahPagerPreview() {
             sunnahs = listOf(sampleSunnah1, sampleSunnah2),
             initialPage = 0,
             onDismiss = {},
+            onBookmarkClick = {},
             onPageChanged = {}
         )
     }
@@ -553,15 +655,17 @@ fun SunnahPagerCard_ActivePreview() {
     SunnahAlHadiTheme(
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
-        val pagerState = rememberPagerState(initialPage = 0, pageCount = {1})
+        val pagerState = rememberPagerState(initialPage = 0, pageCount = { 1 })
         // To simulate active, ensure page = 0 and pagerState.currentPage = 0, offset = 0
         // For the preview, we explicitly set the pagerState for this card'''s context
 
 
-        Box(modifier = Modifier
-            .padding(32.dp)
-            .fillMaxHeight(0.7f)) {
-             SunnahPagerCard(
+        Box(
+            modifier = Modifier
+                .padding(32.dp)
+                .fillMaxHeight(0.7f)
+        ) {
+            SunnahPagerCard(
                 sunnah = sampleSunnah1,
                 pagerState = pagerState,
                 page = 0, // This card is page 0
@@ -579,12 +683,14 @@ fun SunnahPagerCard_BlurredPreview() {
     ) {
         // Simulate this card (page 1) being to the right of the current page (page 0)
         // So, currentPage = 0, this card'''s page = 1. Offset will be -1 + offsetFraction
-        val pagerState = rememberPagerState(initialPage = 0, pageCount = {1})
+        val pagerState = rememberPagerState(initialPage = 0, pageCount = { 1 })
 
 
-        Box(modifier = Modifier
-            .padding(32.dp)
-            .fillMaxHeight(0.7f)) {
+        Box(
+            modifier = Modifier
+                .padding(32.dp)
+                .fillMaxHeight(0.7f)
+        ) {
             SunnahPagerCard(
                 sunnah = sampleSunnah2,
                 pagerState = pagerState, // Pager is on page 0, fractionally moving to 1
@@ -652,7 +758,8 @@ fun ExtraContentRendererPreview_Benefit() {
     ) {
         Surface {
             // Temporarily use the previewGetExtraContentMetaInfo for ExtraContentRenderer
-            val originalGetMetaInfo = @Composable { type: ExtraContentType -> getExtraContentMetaInfo(type) }
+            val originalGetMetaInfo =
+                @Composable { type: ExtraContentType -> getExtraContentMetaInfo(type) }
             val previewMetaInfo = @Composable { type: ExtraContentType ->
                 // This is a hack for preview. Ideally, your domain ExtraContentType matches SampleExtraContentType
                 // or you provide a proper mock for MetaInfo based on your actual ExtraContentType.
@@ -660,7 +767,7 @@ fun ExtraContentRendererPreview_Benefit() {
                 previewGetExtraContentMetaInfo(SampleExtraContentType.BENEFIT)
             }
             // This preview will use the mocked getExtraContentMetaInfo
-             ExtraContentRenderer(extraContent = sampleExtraContentBenefit)
+            ExtraContentRenderer(extraContent = sampleExtraContentBenefit)
         }
     }
 }
@@ -672,7 +779,7 @@ fun ExtraContentRendererPreview_Warning() {
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
         Surface {
-             ExtraContentRenderer(extraContent = sampleExtraContentWarning)
+            ExtraContentRenderer(extraContent = sampleExtraContentWarning)
         }
     }
 }
@@ -696,9 +803,13 @@ fun PagerIndicatorsPreview() {
     SunnahAlHadiTheme(
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
-        val pagerState = rememberPagerState(initialPage = 1, pageCount= {3})
+        val pagerState = rememberPagerState(initialPage = 1, pageCount = { 3 })
         Surface(color = Color.DarkGray.copy(alpha = 0.5f)) { // Added background for visibility
-            PagerIndicators(pagerState = pagerState, pageCount = 5, modifier = Modifier.padding(16.dp))
+            PagerIndicators(
+                pagerState = pagerState,
+                pageCount = 5,
+                modifier = Modifier.padding(16.dp)
+            )
         }
     }
 }

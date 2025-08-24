@@ -1,7 +1,5 @@
 package com.ryen.sunnah_alhadi.presentation.screens.browse
 
-import com.ryen.sunnah_alhadi.domain.model.Sunnah
-
 sealed class BrowseUiEvent {
     data class TabChanged(val tab: BrowseTab) : BrowseUiEvent()
     data class SearchQueryChanged(val query: String) : BrowseUiEvent()
@@ -9,6 +7,7 @@ sealed class BrowseUiEvent {
     data class SunnahCardClickedByIndex(val index: Int) : BrowseUiEvent()
     object ClosePager : BrowseUiEvent()
     data class PagerPageChanged(val index: Int) : BrowseUiEvent()
+    data class ToggleBookmark(val sunnahId: String) : BrowseUiEvent()
     object RetryLoading : BrowseUiEvent()
     object ClearSearch : BrowseUiEvent()
     object ClearAllFilters : BrowseUiEvent()

@@ -135,6 +135,9 @@ fun BrowseScreen(
             onDismiss = { viewModel.onEvent(BrowseUiEvent.ClosePager) },
             onPageChanged = { index ->
                 viewModel.onEvent(BrowseUiEvent.PagerPageChanged(index))
+            },
+            onBookmarkClick = { sunnahId ->
+                viewModel.onEvent(BrowseUiEvent.ToggleBookmark(sunnahId))
             }
         )
     }

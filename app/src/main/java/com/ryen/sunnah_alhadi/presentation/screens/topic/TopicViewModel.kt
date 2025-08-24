@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryen.sunnah_alhadi.domain.useCase.GetTopicWithSunnahsUseCase
+import com.ryen.sunnah_alhadi.domain.useCase.ToggleBookmarkUseCase
 import com.ryen.sunnah_alhadi.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TopicViewModel @Inject constructor(
     private val getTopicWithSunnahsUseCase: GetTopicWithSunnahsUseCase,
+    private val toggleBookmarkUseCase: ToggleBookmarkUseCase,
 ) : ViewModel() {
 
     private var categoryId: Int = 0
@@ -41,6 +43,10 @@ class TopicViewModel @Inject constructor(
                     )
                 }
             }
+            is TopicUiEvent.ToggleBookmark -> {
+                toggleBookmark(event.sunnahId)
+            }
+
             is TopicUiEvent.ClosePager -> {
                 _uiState.update { currentState ->
                     currentState.copy(isPagerVisible = false)
@@ -86,6 +92,21 @@ class TopicViewModel @Inject constructor(
                     it.copy(
                         isLoading = false,
                         error = e.message ?: "Unknown error occurred"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun toggleBookmark(sunnah: String) {
+        viewModelScope.launch {
+            try {
+                toggleBookmarkUseCase(sunnah)
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false, error = "Failed to toggle bookmark: ${e.message}"
                     )
                 }
             }

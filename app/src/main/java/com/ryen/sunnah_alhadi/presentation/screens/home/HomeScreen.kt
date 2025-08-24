@@ -103,6 +103,9 @@ fun HomeScreen(
                 onDismiss = { viewModel.onEvent(HomeEvent.ClosePager) },
                 onPageChanged = { index ->
                     onEventCallback(HomeEvent.PagerPageChanged(index))
+                },
+                onBookmarkClick = { sunnahId ->
+                    onEventCallback(HomeEvent.ToggleBookmark(sunnahId))
                 }
             )
         }

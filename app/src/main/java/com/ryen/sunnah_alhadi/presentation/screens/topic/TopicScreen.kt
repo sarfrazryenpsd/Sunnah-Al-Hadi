@@ -106,6 +106,9 @@ fun TopicScreen(
                 onDismiss = { viewModel.onEvent(TopicUiEvent.ClosePager) },
                 onPageChanged = { index ->
                     onEventCallback(TopicUiEvent.PagerPageChanged(index))
+                },
+                onBookmarkClick = { sunnahId ->
+                    onEventCallback(TopicUiEvent.ToggleBookmark(sunnahId))
                 }
             )
         }

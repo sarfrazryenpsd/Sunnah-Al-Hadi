@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
@@ -73,6 +74,7 @@ import com.ryen.sunnah_alhadi.presentation.screens.browse.BrowseScreen
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeScreen
 import com.ryen.sunnah_alhadi.presentation.screens.preferences.PreferencesScreen
 import com.ryen.sunnah_alhadi.presentation.screens.topic.TopicScreen
+import com.ryen.sunnah_alhadi.presentation.util.PagerVisibilityState
 import kotlinx.coroutines.delay
 
 
@@ -184,7 +186,11 @@ private fun CompactScreenLayout(
     topLevelDestinations: List<NavKey>,
     onSotdRequested: () -> Unit
 ) {
-    val isBottomBarVisible = backStack.lastOrNull()?.let { it in topLevelDestinations } ?: false
+    val baseBottomBarVisible = backStack.lastOrNull()?.let { it in topLevelDestinations } ?: false
+    val isPagerVisible by PagerVisibilityState.isPagerVisible.collectAsStateWithLifecycle()
+
+    // Bottom bar is visible if we're on a top level destination AND pager is not visible
+    val isBottomBarVisible = baseBottomBarVisible && !isPagerVisible
     Scaffold(
         bottomBar = {
 
@@ -206,9 +212,11 @@ private fun CompactScreenLayout(
                 visible = isBottomBarVisible,
                 enter = slideInVertically(
                     initialOffsetY = { it },
+                    animationSpec = tween(durationMillis = 100)
                 ),
                 exit = slideOutVertically(
                     targetOffsetY = { it },
+                    animationSpec = tween(durationMillis = 100)
                 ),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

@@ -4,15 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryen.sunnah_alhadi.domain.useCase.GetHomeDataUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetRecentlyViewedSunnahsUseCase
-import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahCountsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
+import com.ryen.sunnah_alhadi.domain.useCase.ToggleBookmarkUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.GetCurrentSotdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.MarkSotdAsSeenUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.ShouldShowSotdCardUseCase
-import com.ryen.sunnah_alhadi.presentation.screens.allTopics.AllTopicsUiEvent
-import com.ryen.sunnah_alhadi.presentation.screens.topic.TopicUiEvent
+import com.ryen.sunnah_alhadi.presentation.util.PagerVisibilityState
 import com.ryen.sunnah_alhadi.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -36,12 +35,12 @@ class HomeViewModel @Inject constructor(
     private val getHomeDataUseCase: GetHomeDataUseCase,
     private val getCurrentSotdUseCase: GetCurrentSotdUseCase,
     private val getUserPreferencesFlowUseCase: GetUserPreferencesFlowUseCase,
-    private val getSunnahByIdUseCase: GetSunnahByIdUseCase,
     private val getSunnahCountsUseCase: GetSunnahCountsUseCase,
     private val getRecentlyViewedSunnahsUseCase: GetRecentlyViewedSunnahsUseCase,
     private val shouldShowSotdCardUseCase: ShouldShowSotdCardUseCase,
     private val markSotdAsSeenUseCase: MarkSotdAsSeenUseCase,
     private val generateNewSotdIdUseCase: GenerateNewSotdIdUseCase,
+    private val toggleBookmarkUseCase: ToggleBookmarkUseCase,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -90,6 +89,7 @@ class HomeViewModel @Inject constructor(
                     _eventFlow.emit(event) // emit navigation event
                 }
             }
+            is HomeEvent.ToggleBookmark -> toggleBookmark(event.sunnahId)
             is HomeEvent.HandleNotificationLaunch -> handleNotificationLaunch()
             is HomeEvent.AutoShowSotdCheck -> autoShowSotdCheck()
             is HomeEvent.SunnahCardClicked -> {
@@ -99,11 +99,13 @@ class HomeViewModel @Inject constructor(
                         selectedSunnahIndex = event.index
                     )
                 }
+                PagerVisibilityState.setPagerVisibility(true)
             }
             is HomeEvent.ClosePager -> {
                 _uiState.update { currentState ->
                     currentState.copy(isPagerVisible = false)
                 }
+                PagerVisibilityState.setPagerVisibility(false)
             }
             is HomeEvent.PagerPageChanged -> {
                 _uiState.update { currentState ->
@@ -308,6 +310,21 @@ class HomeViewModel @Inject constructor(
             it.copy(
                 showDisclaimer = !currentState.showDisclaimer
             )
+        }
+    }
+
+    private fun toggleBookmark(sunnah: String) {
+        viewModelScope.launch(ioDispatcher) {
+            try {
+                toggleBookmarkUseCase(sunnah)
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false, error = "Failed to toggle bookmark: ${e.message}"
+                    )
+                }
+            }
         }
     }
 }
