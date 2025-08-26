@@ -178,7 +178,7 @@ fun BrowseScreenContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 32.dp)
+                        .padding(top = 48.dp)
                 ) {
                     CustomTopBar()
 

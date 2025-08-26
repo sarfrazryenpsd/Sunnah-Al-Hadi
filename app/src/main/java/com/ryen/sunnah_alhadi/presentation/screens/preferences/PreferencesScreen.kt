@@ -171,7 +171,7 @@ fun PreferencesScreenContent(
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(vertical = 32.dp)
+            contentPadding = PaddingValues(vertical = 48.dp)
         ) {
             item {
                 CustomTopBar()

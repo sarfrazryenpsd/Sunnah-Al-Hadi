@@ -95,6 +95,10 @@ fun HomeScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(HomeEvent.AutoShowSotdCheck)
+    }
+
     val onEventCallback = remember { viewModel::onEvent }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -133,7 +137,7 @@ fun HomeScreenContent(
         // Main content
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(vertical = 32.dp)
+            contentPadding = PaddingValues(vertical = 48.dp)
         ) {
             item {
                 CustomTopBar(
@@ -362,7 +366,7 @@ private fun ActionItems(
     onOrbClick: () -> Unit,
     onInfoClick: () -> Unit,
 ) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.leaf))
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.sotd_dark))
     val progress by animateLottieCompositionAsState(
         composition = composition,
         iterations = LottieConstants.IterateForever,
@@ -430,3 +434,5 @@ private fun HomeScreenContentPrev() {
         }
     }
 }
+
+

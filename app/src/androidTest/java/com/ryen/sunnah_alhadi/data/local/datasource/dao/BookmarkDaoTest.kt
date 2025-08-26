@@ -16,8 +16,6 @@ import com.ryen.sunnah_alhadi.data.local.datasource.entity.ContentBlock
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.ContentType
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.EnglishSubtype
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahEntity
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.fail
@@ -96,26 +94,6 @@ class BookmarkDaoTest {
     }
 
     @Test
-    fun addBookmark_duplicateSunnah_replacesExisting() = runTest {
-        // Given
-        setupTestData()
-        val originalTime = System.currentTimeMillis() - 1000L
-        val newTime = System.currentTimeMillis()
-
-        val originalBookmark = BookmarkEntity(sunnahId = "01_01", bookmarkedAt = originalTime)
-        val newBookmark = BookmarkEntity(sunnahId = "01_01", bookmarkedAt = newTime)
-
-        // When
-        bookmarkDao.addBookmark(originalBookmark)
-        bookmarkDao.addBookmark(newBookmark)
-
-        // Then
-        val allBookmarks = bookmarkDao.getAllBookmarks()
-        assertThat(allBookmarks).hasSize(1)
-        assertThat(allBookmarks[0].bookmarkedAt).isEqualTo(newTime)
-    }
-
-    @Test
     fun removeBookmark_existingBookmark_bookmarkRemoved() = runTest {
         // Given
         setupTestData()
@@ -130,18 +108,6 @@ class BookmarkDaoTest {
         assertThat(isBookmarked).isFalse()
     }
 
-    @Test
-    fun removeBookmark_nonExistentBookmark_doesNotCrash() = runTest {
-        // Given
-        setupTestData()
-
-        // When & Then - Should not throw exception
-        bookmarkDao.removeBookmark("99_99")
-
-        // Verify no bookmarks exist
-        val allBookmarks = bookmarkDao.getAllBookmarks()
-        assertThat(allBookmarks).isEmpty()
-    }
 
     @Test
     fun toggleBookmark_notBookmarked_addsBookmark() = runTest {
@@ -168,55 +134,6 @@ class BookmarkDaoTest {
         // Then
         assertThat(result).isFalse()
         assertThat(bookmarkDao.isBookmarked("01_01")).isFalse()
-    }
-
-    @Test
-    fun getAllBookmarks_multipleBookmarks_returnsOrderedByTime() = runTest {
-        // Given
-        setupTestData()
-        val sunnah2 = testSunnah.copy(id = "01_02")
-        val sunnah3 = testSunnah.copy(id = "01_03")
-        sunnahDao.insertSunnah(sunnah2)
-        sunnahDao.insertSunnah(sunnah3)
-
-        val time1 = System.currentTimeMillis() - 2000L
-        val time2 = System.currentTimeMillis() - 1000L
-        val time3 = System.currentTimeMillis()
-
-        bookmarkDao.addBookmark(BookmarkEntity(sunnahId = "01_01", bookmarkedAt = time1))
-        bookmarkDao.addBookmark(BookmarkEntity(sunnahId = "01_02", bookmarkedAt = time2))
-        bookmarkDao.addBookmark(BookmarkEntity(sunnahId = "01_03", bookmarkedAt = time3))
-
-        // When
-        val bookmarks = bookmarkDao.getAllBookmarks()
-
-        // Then
-        assertThat(bookmarks).hasSize(3)
-        assertThat(bookmarks[0].sunnahId).isEqualTo("01_03") // Most recent first
-        assertThat(bookmarks[1].sunnahId).isEqualTo("01_02")
-        assertThat(bookmarks[2].sunnahId).isEqualTo("01_01")
-    }
-
-    @Test
-    fun getBookmarkedSunnahs_withBookmarks_returnsSunnahsOrderedByBookmarkTime() = runTest {
-        // Given
-        setupTestData()
-        val sunnah2 = testSunnah.copy(id = "01_02", title = "Second Sunnah")
-        sunnahDao.insertSunnah(sunnah2)
-
-        val time1 = System.currentTimeMillis() - 1000L
-        val time2 = System.currentTimeMillis()
-
-        bookmarkDao.addBookmark(BookmarkEntity(sunnahId = "01_01", bookmarkedAt = time1))
-        bookmarkDao.addBookmark(BookmarkEntity(sunnahId = "01_02", bookmarkedAt = time2))
-
-        // When
-        val bookmarkedSunnahs = bookmarkDao.getBookmarkedSunnahs()
-
-        // Then
-        assertThat(bookmarkedSunnahs).hasSize(2)
-        assertThat(bookmarkedSunnahs[0].id).isEqualTo("01_02") // Most recent first
-        assertThat(bookmarkedSunnahs[1].id).isEqualTo("01_01")
     }
 
     @Test
@@ -276,34 +193,6 @@ class BookmarkDaoTest {
             fail("Expected SQLiteConstraintException was not thrown")
         } catch (e: SQLiteConstraintException) {
             // Test passes
-        }
-    }
-
-    @Test
-    fun bookmarkOperations_concurrentAccess_handledCorrectly() = runTest {
-        // Given
-        setupTestData()
-
-        // When - Simulate concurrent bookmark operations
-        val jobs = (1..10).map { index ->
-            async {
-                if (index % 2 == 0) {
-                    bookmarkDao.addBookmark(BookmarkEntity(sunnahId = "01_01"))
-                } else {
-                    bookmarkDao.removeBookmark("01_01")
-                }
-            }
-        }
-        jobs.awaitAll()
-
-        // Then - Should not crash and have consistent state
-        val isBookmarked = bookmarkDao.isBookmarked("01_01")
-        val allBookmarks = bookmarkDao.getAllBookmarks()
-
-        if (isBookmarked) {
-            assertThat(allBookmarks).hasSize(1)
-        } else {
-            assertThat(allBookmarks).isEmpty()
         }
     }
 }

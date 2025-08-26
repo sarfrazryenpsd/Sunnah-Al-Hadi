@@ -12,6 +12,7 @@ import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.common.truth.Truth
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -172,7 +173,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun isNotificationScheduled_should_return_true_when_work_is_enqueued() {
+    fun isNotificationScheduled_should_return_true_when_work_is_enqueued() = runTest {
         // Given
         scheduler.scheduleNotification(NotificationTime.MORNING)
 
@@ -184,7 +185,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun isNotificationScheduled_should_return_false_when_no_work_is_scheduled() {
+    fun isNotificationScheduled_should_return_false_when_no_work_is_scheduled() = runTest {
         // Given - no work scheduled
 
         // When
@@ -195,7 +196,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun isNotificationScheduled_should_return_false_when_work_is_cancelled() {
+    fun isNotificationScheduled_should_return_false_when_work_is_cancelled() = runTest {
         // Given
         scheduler.scheduleNotification(NotificationTime.MORNING)
         scheduler.cancelNotification()
@@ -208,7 +209,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun getScheduledNotificationInfo_should_return_work_info_when_scheduled() {
+    fun getScheduledNotificationInfo_should_return_work_info_when_scheduled() = runTest {
         // Given
         scheduler.scheduleNotification(NotificationTime.MORNING)
 
@@ -221,7 +222,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun getScheduledNotificationInfo_should_return_null_when_no_work_is_scheduled() {
+    fun getScheduledNotificationInfo_should_return_null_when_no_work_is_scheduled() = runTest {
         // Given - no work scheduled
 
         // When
@@ -232,7 +233,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun rescheduleOnTimezoneChange_should_reschedule_only_when_already_scheduled() {
+    fun rescheduleOnTimezoneChange_should_reschedule_only_when_already_scheduled() = runTest {
         // Given - no initial schedule
         val initiallyScheduled = scheduler.isNotificationScheduled()
         Truth.assertThat(initiallyScheduled).isFalse()
@@ -246,7 +247,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun rescheduleOnTimezoneChange_should_reschedule_when_already_scheduled() {
+    fun rescheduleOnTimezoneChange_should_reschedule_when_already_scheduled() = runTest {
         // Given - initial schedule
         scheduler.scheduleNotification(NotificationTime.MORNING)
         val initialWorkInfos = workManager.getWorkInfosForUniqueWork("sotd_notification_work").get()
@@ -262,7 +263,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun calculateInitialDelay_should_return_positive_delay_for_future_time() {
+    fun calculateInitialDelay_should_return_positive_delay_for_future_time() = runTest {
         // This test verifies the private method behavior through public API
         // Given - schedule for a future time
         scheduler.scheduleNotification(NotificationTime.MORNING)
@@ -276,7 +277,7 @@ class SotdNotificationSchedulerTest {
     }
 
     @Test
-    fun schedule_should_handle_work_manager_exceptions_gracefully() {
+    fun schedule_should_handle_work_manager_exceptions_gracefully() = runTest {
         try {
             scheduler.scheduleNotification(NotificationTime.MORNING)
             scheduler.cancelNotification()

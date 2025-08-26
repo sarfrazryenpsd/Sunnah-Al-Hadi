@@ -12,12 +12,15 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
 import com.ryen.sunnah_alhadi.platform.worker.SotdNotificationWorker
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class SotdNotificationScheduler @Inject constructor(private val context: Context) {
+class SotdNotificationScheduler @Inject constructor(@param:ApplicationContext private val context: Context) {
 
     companion object {
         private const val WORK_NAME = "sotd_notification_work"
@@ -64,7 +67,10 @@ class SotdNotificationScheduler @Inject constructor(private val context: Context
             workRequest
         )
 
-        Log.d("SotdScheduler", "Scheduled notification for ${notificationTime.name} with ${initialDelay}ms delay")
+        Log.d(
+            "SotdScheduler",
+            "Scheduled notification for ${notificationTime.name} with ${initialDelay}ms delay"
+        )
     }
 
     private fun calculateInitialDelay(notificationTime: NotificationTime): Long {
@@ -89,34 +95,29 @@ class SotdNotificationScheduler @Inject constructor(private val context: Context
         Log.d("SotdScheduler", "Cancelled SOTD notifications")
     }
 
-    fun isNotificationScheduled(): Boolean {
-        return try {
+    suspend fun isNotificationScheduled(): Boolean = withContext(Dispatchers.IO) {
+        try {
             val workInfos = workManager.getWorkInfosForUniqueWork(WORK_NAME).get()
-            workInfos.any {
-                it.state == WorkInfo.State.ENQUEUED ||
-                        it.state == WorkInfo.State.RUNNING
-            }
+            workInfos.any { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING }
         } catch (e: Exception) {
             Log.e("SotdScheduler", "Error checking notification status", e)
             false
         }
     }
 
-    fun getScheduledNotificationInfo(): WorkInfo? {
-        return try {
+    suspend fun getScheduledNotificationInfo(): WorkInfo? = withContext(Dispatchers.IO) {
+        try {
             val workInfos = workManager.getWorkInfosForUniqueWork(WORK_NAME).get()
-            workInfos.firstOrNull {
-                it.state == WorkInfo.State.ENQUEUED ||
-                        it.state == WorkInfo.State.RUNNING
-            }
+            workInfos.firstOrNull { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING }
         } catch (e: Exception) {
             Log.e("SotdScheduler", "Error getting notification info", e)
             null
         }
     }
 
+
     // Add method to reschedule on timezone change
-    fun rescheduleOnTimezoneChange(notificationTime: NotificationTime) {
+    suspend fun rescheduleOnTimezoneChange(notificationTime: NotificationTime) {
         if (isNotificationScheduled()) {
             scheduleNotification(notificationTime)
         }

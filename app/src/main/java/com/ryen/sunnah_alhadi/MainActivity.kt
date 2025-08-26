@@ -54,14 +54,14 @@ class MainActivity : ComponentActivity() {
                 themeMode = themeUiState.themeMode,
                 isDynamicColorEnabled = themeUiState.isDynamicThemeEnabled
             ) {
-                val showOnboarding by themeViewModel.shouldShowOnboardingFlow().collectAsState(initial = null)
+                val themeState by themeViewModel.uiState.collectAsState(initial = null)
 
                 val isFromNotification = intent?.getBooleanExtra("show_sotd", false) ?: false
 
 
-                showOnboarding?.let { shouldShowOnboarding ->
+                themeState?.let { state ->
                     MainNavigation(
-                        showOnboarding = shouldShowOnboarding,
+                        showOnboarding = !state.userPreferences.hasCompletedOnboarding,
                         isFromNotification = isFromNotification
                     )
                 } ?: run {

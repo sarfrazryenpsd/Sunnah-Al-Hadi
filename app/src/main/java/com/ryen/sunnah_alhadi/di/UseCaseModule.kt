@@ -12,11 +12,9 @@ import com.ryen.sunnah_alhadi.domain.useCase.GetBookmarkedSunnahsFlowUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetHomeDataUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahCountsUseCase
-import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahOfTheDayUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetTopicWithSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesUseCase
-import com.ryen.sunnah_alhadi.domain.useCase.SearchSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.ToggleBookmarkUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.UpdateUserPreferencesUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.bugReport.GetPendingBugReportsCountUseCase
@@ -46,9 +44,7 @@ object UseCaseModule {
         repository: BookmarkRepository
     ) = ToggleBookmarkUseCase(repository)
 
-    @Provides fun provideSearchSunnahsUseCase(
-        sunnahRepository: SunnahRepository
-    ) = SearchSunnahsUseCase(sunnahRepository)
+
 
     @Provides fun provideGetAllSunnahsUseCase(
         sunnahRepository: SunnahRepository
@@ -74,10 +70,6 @@ object UseCaseModule {
         repository: UserPreferencesRepository
     ) = GetUserPreferencesUseCase(repository)
 
-    @Provides fun provideGetSunnahOfTheDayUseCase(
-        sunnahRepository: SunnahRepository,
-        userPreferencesRepository: UserPreferencesRepository
-    ) = GetSunnahOfTheDayUseCase(sunnahRepository, userPreferencesRepository)
 
     @Provides
     fun provideExportSunnahAsImageUseCase() = ExportSunnahAsImageUseCase()

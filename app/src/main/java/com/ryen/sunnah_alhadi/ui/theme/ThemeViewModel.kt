@@ -5,15 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,38 +17,32 @@ class ThemeViewModel @Inject constructor(
     private val getUserPreferencesFlowUseCase: GetUserPreferencesFlowUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ThemeUiState())
-    val uiState: StateFlow<ThemeUiState> = _uiState.asStateFlow()
-
-    init {
-        observeUserPreferences()
-    }
-
-    private fun observeUserPreferences() {
-        viewModelScope.launch {
-            getUserPreferencesFlowUseCase().collect { preferences ->
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        themeMode = ThemeMode.entries.find { it.ordinal == preferences.themeMode }
-                            ?: ThemeMode.LIGHT,
-                        isDynamicThemeEnabled = preferences.isDynamicThemeEnabled,
-                        userPreferences = preferences
-                    )
-                }
-            }
+    val uiState: StateFlow<ThemeUiState> = getUserPreferencesFlowUseCase()
+        .map { preferences ->
+            ThemeUiState(
+                themeMode = ThemeMode.entries.getOrElse(preferences.themeMode) { ThemeMode.SYSTEM },
+                isDynamicThemeEnabled = preferences.isDynamicThemeEnabled,
+                userPreferences = preferences
+            )
         }
-    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = ThemeUiState()
+        )
 
-    fun shouldShowOnboardingFlow(): Flow<Boolean> {
-        return getUserPreferencesFlowUseCase()
-            .map { preferences -> !preferences.hasCompletedOnboarding }
-            .catch { emit(true) } // Show onboarding on error
-            .distinctUntilChanged()
-    }
+    val shouldShowOnboarding: StateFlow<Boolean> = getUserPreferencesFlowUseCase()
+        .map { !it.hasCompletedOnboarding }
+        .catch { emit(true) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = true
+        )
 }
 
 data class ThemeUiState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val isDynamicThemeEnabled: Boolean = false,
-    val userPreferences: UserPreferences? = null
+    val userPreferences: UserPreferences = UserPreferences()
 )

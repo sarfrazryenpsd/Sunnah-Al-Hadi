@@ -11,6 +11,8 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.common.truth.Truth.assertThat
 import com.ryen.sunnah_alhadi.data.local.datasource.AppDatabase
+import com.ryen.sunnah_alhadi.data.local.datasource.BugReportDatabase
+import com.ryen.sunnah_alhadi.data.local.datasource.dao.BugReportDao
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.BookmarkDao
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.CategoryDao
 import com.ryen.sunnah_alhadi.data.local.datasource.dao.SunnahDao
@@ -20,6 +22,7 @@ import com.ryen.sunnah_alhadi.data.local.datasource.entity.ContentType
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.EnglishSubtype
 import com.ryen.sunnah_alhadi.data.local.datasource.entity.SunnahEntity
 import com.ryen.sunnah_alhadi.data.repository.BookmarkRepositoryImpl
+import com.ryen.sunnah_alhadi.data.repository.BugReportRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.CategoryRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.SunnahRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.UserPreferencesRepositoryImpl
@@ -28,6 +31,7 @@ import com.ryen.sunnah_alhadi.di.DatabaseModule
 import com.ryen.sunnah_alhadi.di.RepositoryModule
 import com.ryen.sunnah_alhadi.di.SotdModule
 import com.ryen.sunnah_alhadi.di.UseCaseModule
+import com.ryen.sunnah_alhadi.domain.repository.BugReportRepository
 import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
 import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
@@ -37,10 +41,8 @@ import com.ryen.sunnah_alhadi.domain.useCase.GetAllSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetBookmarkedSunnahsFlowUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetHomeDataUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
-import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahOfTheDayUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetTopicWithSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
-import com.ryen.sunnah_alhadi.domain.useCase.SearchSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.ToggleBookmarkUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.UpdateUserPreferencesUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdIdUseCase
@@ -60,6 +62,7 @@ import dagger.hilt.android.testing.HiltTestApplication
 import dagger.hilt.android.testing.UninstallModules
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -347,6 +350,23 @@ object TestDatabaseModule {
     @Singleton
     @ApplicationScope
     fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    @Provides
+    @Singleton
+    fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Provides
+    @Singleton
+    fun provideBugReportDatabase(@ApplicationContext context: Context): BugReportDatabase {
+        return Room.inMemoryDatabaseBuilder(
+            context,
+            BugReportDatabase::class.java
+        ).allowMainThreadQueries().build()
+    }
+
+    @Provides
+    fun provideBugReportDao(database: BugReportDatabase): BugReportDao =
+        database.bugReportDao()
 }
 
 @TestInstallIn(
@@ -384,10 +404,6 @@ object TestUseCaseModule {
         repository: BookmarkRepository
     ) = ToggleBookmarkUseCase(repository)
 
-    @Provides
-    fun provideSearchSunnahsUseCase(
-        sunnahRepository: SunnahRepository
-    ) = SearchSunnahsUseCase(sunnahRepository)
 
     @Provides
     fun provideGetBookmarkedSunnahsFlowUseCase(
@@ -404,11 +420,6 @@ object TestUseCaseModule {
         repository: UserPreferencesRepository
     ) = GetUserPreferencesFlowUseCase(repository)
 
-    @Provides
-    fun provideGetSunnahOfTheDayUseCase(
-        sunnahRepository: SunnahRepository,
-        userPreferencesRepository: UserPreferencesRepository
-    ) = GetSunnahOfTheDayUseCase(sunnahRepository, userPreferencesRepository)
 
 
 
@@ -489,8 +500,13 @@ abstract class TestRepositoryModule {
     abstract fun bindCategoryRepository(
         impl: CategoryRepositoryImpl
     ): CategoryRepository
-}
 
+    @Binds
+    @Singleton
+    abstract fun bindBugReportRepository(
+        impl: BugReportRepositoryImpl
+    ): BugReportRepository
+}
 
 class HiltTestRunner : AndroidJUnitRunner() {
 

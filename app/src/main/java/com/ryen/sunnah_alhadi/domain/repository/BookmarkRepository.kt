@@ -7,11 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface BookmarkRepository {
 
-    suspend fun getAllBookmarks(): Result<List<SunnahBookmarked>>
-    suspend fun getBookmarkedSunnahs(): Result<List<Sunnah>>
-    suspend fun isBookmarked(sunnahId: String): Result<Boolean>
-    suspend fun addBookmark(sunnahId: String): Result<Unit>
-    suspend fun removeBookmark(sunnahId: String): Result<Unit>
+    //suspend fun getBookmarkedSunnahs(): Result<List<Sunnah>>
     suspend fun toggleBookmark(sunnahId: String): Result<Boolean>
     fun getBookmarkedSunnahsFlow(): Flow<Result<List<Sunnah>>>
 

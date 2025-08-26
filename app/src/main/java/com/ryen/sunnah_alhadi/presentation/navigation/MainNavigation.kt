@@ -32,7 +32,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -126,9 +125,11 @@ fun MainNavigation(
                     currentOverlay = OverlayType.SOTD_AUTO_SHOW
                 }
             }
+
             is SotdOverlayRequest.FromNotification -> {
                 currentOverlay = OverlayType.SOTD_FROM_NOTIFICATION
             }
+
             is SotdOverlayRequest.Manual -> {
                 currentOverlay = OverlayType.SOTD_MANUAL
             }
@@ -168,7 +169,8 @@ fun MainNavigation(
                     )
                 }
 
-                null -> { /* No overlay */ }
+                null -> { /* No overlay */
+                }
             }
         }
     ) {
@@ -202,49 +204,45 @@ private fun CompactScreenLayout(
 
     // Bottom bar is visible if we're on a top level destination AND pager is not visible
     val isBottomBarVisible = baseBottomBarVisible && !isPagerVisible
-    Scaffold(
-        bottomBar = {
 
-        }
-    ) { innerPadding ->
-        Box(
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        // Main navigation content
+        NavigationContent(
+            backStack = backStack,
+            onSotdRequested = onSotdRequested,
+            modifier = Modifier.fillMaxSize()
+        )
+        // Custom bottom toolbar
+        AnimatedVisibility(
+            visible = isBottomBarVisible,
+            enter = slideInVertically(
+                initialOffsetY = { it },
+                animationSpec = tween(durationMillis = 100)
+            ),
+            exit = slideOutVertically(
+                targetOffsetY = { it },
+                animationSpec = tween(durationMillis = 100)
+            ),
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
         ) {
-            // Main navigation content
-            NavigationContent(
+            CustomBottomBar(
+                topLevelDestinations = topLevelDestinations,
                 backStack = backStack,
-                onSotdRequested = onSotdRequested,
-                modifier = Modifier.fillMaxSize()
+                onItemSelected = { destination ->
+                    backStack.clear()
+                    backStack.add(destination)
+                }
             )
-            // Custom bottom toolbar
-            AnimatedVisibility(
-                visible = isBottomBarVisible,
-                enter = slideInVertically(
-                    initialOffsetY = { it },
-                    animationSpec = tween(durationMillis = 100)
-                ),
-                exit = slideOutVertically(
-                    targetOffsetY = { it },
-                    animationSpec = tween(durationMillis = 100)
-                ),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-            ) {
-                CustomBottomBar(
-                    topLevelDestinations = topLevelDestinations,
-                    backStack = backStack,
-                    onItemSelected = { destination ->
-                        backStack.clear()
-                        backStack.add(destination)
-                    }
-                )
-            }
-
         }
+
     }
+
 }
 
 @Composable
@@ -446,7 +444,10 @@ private fun getDestinationIcon(destination: NavKey): Int {
 }
 
 // Entry provider factory function
-private fun createEntryProvider(backStack: SnapshotStateList<NavKey>, onSotdRequested: (SotdOverlayRequest) -> Unit) =
+private fun createEntryProvider(
+    backStack: SnapshotStateList<NavKey>,
+    onSotdRequested: (SotdOverlayRequest) -> Unit
+) =
     entryProvider<NavKey> {
         entry<Home>(
             metadata = TwoPaneScene.twoPane()

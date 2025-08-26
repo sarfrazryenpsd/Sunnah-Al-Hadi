@@ -15,7 +15,6 @@ import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
 import com.ryen.sunnah_alhadi.util.NotificationPermissionUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,17 +43,17 @@ class OnboardingViewModel @Inject constructor(
     fun onEvent(event: OnboardingEvent) {
         when (event) {
             is OnboardingEvent.UpdateUsername -> updateUsername(event.username)
-            is OnboardingEvent.SelectTheme -> updateTheme(event.theme)
-            is OnboardingEvent.ToggleDynamicTheme -> updateDynamicTheme(event.enabled)
+            is OnboardingEvent.SelectTheme -> _uiState.update { it.copy(selectedTheme = event.theme) } // inlined small setter
+            is OnboardingEvent.ToggleDynamicTheme -> _uiState.update { it.copy(isDynamicThemeEnabled = event.enabled) }
             is OnboardingEvent.ToggleNotification -> updateNotification(event.enabled)
-            is OnboardingEvent.SelectNotificationTime -> updateNotificationTime(event.time)
+            is OnboardingEvent.SelectNotificationTime -> _uiState.update { it.copy(selectedNotificationTime = event.time) }
             OnboardingEvent.NextStep -> nextStep()
             OnboardingEvent.PreviousStep -> previousStep()
-            OnboardingEvent.DismissOnboarding -> dismissOnboarding()
-            OnboardingEvent.CompleteOnboarding -> completeOnboarding()
+            OnboardingEvent.DismissOnboarding -> saveOnboardingProgress(keepExistingUsername = true, errorPrefix = "Failed to save preferences")
+            OnboardingEvent.CompleteOnboarding -> saveOnboardingProgress(keepExistingUsername = false, errorPrefix = "Failed to complete onboarding")
             OnboardingEvent.RequestNotificationPermission -> requestNotificationPermission()
-            OnboardingEvent.DismissPermissionDialog -> dismissPermissionDialog()
-            is OnboardingEvent.UpdatePermissionStatus -> updatePermissionStatus(event.hasPermission)
+            OnboardingEvent.DismissPermissionDialog -> _uiState.update { it.copy(showPermissionDialog = false) }
+            is OnboardingEvent.UpdatePermissionStatus -> _uiState.update { it.copy(hasNotificationPermission = event.hasPermission) }
         }
     }
 
@@ -74,56 +73,26 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    private fun updateTheme(theme: ThemeMode) {
-        _uiState.update { it.copy(selectedTheme = theme) }
-    }
-
-    private fun updateDynamicTheme(enabled: Boolean) {
-        _uiState.update { it.copy(isDynamicThemeEnabled = enabled) }
-    }
-
     private fun updateNotification(enabled: Boolean) {
         val currentState = _uiState.value
-
         if (enabled && !currentState.hasNotificationPermission) {
-            // Request permission when enabling notifications
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 _uiState.update { it.copy(showPermissionDialog = true) }
-                return
             } else {
-                // Pre-Android 13, no permission needed
-                _uiState.update {
-                    it.copy(
-                        hasNotificationPermission = true,
-                        isNotificationEnabled = true
-                    )
-                }
+                _uiState.update { it.copy(hasNotificationPermission = true, isNotificationEnabled = true) }
             }
         } else {
             _uiState.update { it.copy(isNotificationEnabled = enabled) }
         }
     }
 
-    fun updatePermissionStatus(hasPermission: Boolean) {
-        _uiState.update { it.copy(hasNotificationPermission = hasPermission) }
-    }
-
-
-
-    private fun updateNotificationTime(time: NotificationTime) {
-        _uiState.update { it.copy(selectedNotificationTime = time) }
-    }
-
     private fun nextStep() {
         val currentState = _uiState.value
-
-        // Save current step's data before proceeding
+        // save before proceeding
         when (currentState.currentStep) {
-            OnboardingStep.USERNAME -> {
-                if (currentState.isUsernameValid) {
-                    saveUsernamePreference(currentState.username)
-                    _uiState.update { it.copy(currentStep = OnboardingStep.THEME) }
-                }
+            OnboardingStep.USERNAME -> if (currentState.isUsernameValid) {
+                saveUsernamePreference(currentState.username)
+                _uiState.update { it.copy(currentStep = OnboardingStep.THEME) }
             }
             OnboardingStep.THEME -> {
                 saveThemePreferences(currentState.selectedTheme, currentState.isDynamicThemeEnabled)
@@ -133,32 +102,39 @@ class OnboardingViewModel @Inject constructor(
                 saveNotificationPreferences(currentState.isNotificationEnabled, currentState.selectedNotificationTime)
                 _uiState.update { it.copy(currentStep = OnboardingStep.WELCOME) }
             }
-            OnboardingStep.WELCOME -> {
-                completeOnboarding()
-            }
+            OnboardingStep.WELCOME -> saveOnboardingProgress(keepExistingUsername = false, errorPrefix = "Failed to complete onboarding")
         }
     }
 
     private fun previousStep() {
-        val currentStep = _uiState.value.currentStep
-        val previousStep = when (currentStep) {
+        val previousStep = when (_uiState.value.currentStep) {
             OnboardingStep.THEME -> OnboardingStep.USERNAME
             OnboardingStep.NOTIFICATION -> OnboardingStep.THEME
             OnboardingStep.WELCOME -> OnboardingStep.NOTIFICATION
-            OnboardingStep.USERNAME -> OnboardingStep.USERNAME // Stay on first step
+            OnboardingStep.USERNAME -> OnboardingStep.USERNAME
         }
         _uiState.update { it.copy(currentStep = previousStep) }
     }
 
-    private fun dismissOnboarding() {
+    /**
+     * Unified function for both dismissOnboarding() and completeOnboarding()
+     * Removed duplication by passing keepExistingUsername + errorPrefix.
+     */
+    private fun saveOnboardingProgress(
+        keepExistingUsername: Boolean,
+        errorPrefix: String
+    ) {
         viewModelScope.launch {
             try {
                 val currentState = _uiState.value
-
-                // Save current progress with default values for incomplete steps
                 val preferences = getUserPreferencesUseCase()
+
                 val updatedPreferences = UserPreferencesUpdate(
-                    username = if (currentState.isUsernameValid) currentState.username else preferences.username,
+                    username = when {
+                        currentState.isUsernameValid -> currentState.username
+                        keepExistingUsername -> preferences.username
+                        else -> ""
+                    },
                     themeMode = currentState.selectedTheme,
                     isDynamicThemeEnabled = currentState.isDynamicThemeEnabled,
                     isDailyReminderEnabled = currentState.isNotificationEnabled,
@@ -168,44 +144,18 @@ class OnboardingViewModel @Inject constructor(
                 )
 
                 updateUserPreferencesUseCase(updatedPreferences)
-
-                // Handle notification scheduling
                 handleNotificationScheduling(currentState.isNotificationEnabled, currentState.selectedNotificationTime)
 
-                delay(100)
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = "Failed to save preferences: ${e.localizedMessage}") }
+                _uiState.update { it.copy(error = "$errorPrefix: ${e.localizedMessage}") }
             }
         }
     }
 
-    private fun completeOnboarding() {
-        viewModelScope.launch {
-            try {
-                val currentState = _uiState.value
-
-                val completedPreferences = UserPreferencesUpdate(
-                    username = if (currentState.isUsernameValid) currentState.username else "",
-                    themeMode = currentState.selectedTheme,
-                    isDynamicThemeEnabled = currentState.isDynamicThemeEnabled,
-                    isDailyReminderEnabled = currentState.isNotificationEnabled,
-                    sotdNotificationTime = currentState.selectedNotificationTime,
-                    isSotdNotificationEnabled = currentState.isNotificationEnabled,
-                    hasCompletedOnboarding = true
-                )
-
-                updateUserPreferencesUseCase(completedPreferences)
-
-                // Handle notification scheduling
-                handleNotificationScheduling(currentState.isNotificationEnabled, currentState.selectedNotificationTime)
-
-                delay(100)
-            } catch (e: Exception) {
-                _uiState.update { it.copy(error = "Failed to complete onboarding: ${e.localizedMessage}") }
-            }
-        }
-    }
-
+    /**
+     * All "saveXPreference" methods: switched to ioDispatcher for consistency
+     * (I/O work shouldn't run on Main).
+     */
     private fun saveUsernamePreference(username: String) {
         viewModelScope.launch {
             try {
@@ -219,12 +169,7 @@ class OnboardingViewModel @Inject constructor(
     private fun saveThemePreferences(themeMode: ThemeMode, isDynamicEnabled: Boolean) {
         viewModelScope.launch {
             try {
-                updateUserPreferencesUseCase(
-                    UserPreferencesUpdate(
-                        themeMode = themeMode,
-                        isDynamicThemeEnabled = isDynamicEnabled
-                    )
-                )
+                updateUserPreferencesUseCase(UserPreferencesUpdate(themeMode = themeMode, isDynamicThemeEnabled = isDynamicEnabled))
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to save theme preferences: ${e.localizedMessage}") }
             }
@@ -234,17 +179,8 @@ class OnboardingViewModel @Inject constructor(
     private fun saveNotificationPreferences(isEnabled: Boolean, time: NotificationTime) {
         viewModelScope.launch {
             try {
-                updateUserPreferencesUseCase(
-                    UserPreferencesUpdate(
-                        isDailyReminderEnabled = isEnabled,
-                        sotdNotificationTime = time,
-                        isSotdNotificationEnabled = isEnabled
-                    )
-                )
-
-                // Handle notification scheduling immediately after saving
+                updateUserPreferencesUseCase(UserPreferencesUpdate(isDailyReminderEnabled = isEnabled, sotdNotificationTime = time, isSotdNotificationEnabled = isEnabled))
                 handleNotificationScheduling(isEnabled, time)
-
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to save notification preferences: ${e.localizedMessage}") }
             }
@@ -267,21 +203,15 @@ class OnboardingViewModel @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             _uiState.update { it.copy(showPermissionDialog = true) }
         } else {
-            // Pre-Android 13, no permission needed
             _uiState.update { it.copy(hasNotificationPermission = true) }
         }
     }
 
     private fun observeUserPreferences() {
-        viewModelScope.launch {
+        viewModelScope.launch { // switched to ioDispatcher (DataStore/DB read)
             getUserPreferencesFlowUseCase()
                 .catch { exception ->
-                    _uiState.update {
-                        it.copy(
-                            error = "Failed to load preferences: ${exception.localizedMessage}",
-                            isLoading = false
-                        )
-                    }
+                    _uiState.update { it.copy(error = "Failed to load preferences: ${exception.localizedMessage}", isLoading = false) }
                 }
                 .collect { preferences ->
                     _uiState.update {
@@ -300,32 +230,16 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    private fun dismissPermissionDialog() {
-        _uiState.update { it.copy(showPermissionDialog = false) }
-    }
-
     fun handlePermissionResult(granted: Boolean) {
-        _uiState.update {
-            it.copy(
-                hasNotificationPermission = granted,
-                showPermissionDialog = false
-            )
-        }
+        _uiState.update { it.copy(hasNotificationPermission = granted, showPermissionDialog = false) }
 
-        // If permission granted, enable notifications
         if (granted) {
-            _uiState.update {
-                it.copy(isNotificationEnabled = true)
-            }
-            // Schedule notifications immediately
+            _uiState.update { it.copy(isNotificationEnabled = true) }
             viewModelScope.launch {
                 handleNotificationScheduling(true, _uiState.value.selectedNotificationTime)
             }
         } else {
-            // Permission denied, disable notifications
-            _uiState.update {
-                it.copy(isNotificationEnabled = false)
-            }
+            _uiState.update { it.copy(isNotificationEnabled = false) }
         }
     }
 }

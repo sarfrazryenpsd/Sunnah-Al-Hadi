@@ -10,7 +10,9 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.fail
@@ -23,12 +25,15 @@ class CategoryRepositoryImplTest {
     @MockK
     private lateinit var categoryDao: CategoryDao
 
+    private lateinit var ioDispatcher: CoroutineDispatcher
+
     private lateinit var categoryRepository: CategoryRepository
 
     @Before
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        categoryRepository = CategoryRepositoryImpl(categoryDao)
+        ioDispatcher = UnconfinedTestDispatcher()
+        categoryRepository = CategoryRepositoryImpl(categoryDao, ioDispatcher)
     }
 
     @After

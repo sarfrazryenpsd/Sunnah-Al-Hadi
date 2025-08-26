@@ -4,16 +4,28 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-08-20T02:11:19.115438900Z">
+        <DropdownSelection timestamp="2025-08-26T03:37:14.642394600Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=ZD22299WZL" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\sarfr\.android\avd\Pixel_9a_3.avd" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
+      <SelectionState runConfigName="BookmarkRepositoryTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="CategoryRepositoryImplTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="SunnahRepositoryImplTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
       <SelectionState runConfigName="UserPreferencesRepositoryImplTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="getSotdGeneratedDate_returns_correct_date()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

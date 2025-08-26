@@ -14,8 +14,6 @@ import com.ryen.sunnah_alhadi.domain.useCase.sotd.ShouldShowSotdCardUseCase
 import com.ryen.sunnah_alhadi.presentation.util.PagerVisibilityState
 import com.ryen.sunnah_alhadi.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,10 +22,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,7 +37,6 @@ class HomeViewModel @Inject constructor(
     private val markSotdAsSeenUseCase: MarkSotdAsSeenUseCase,
     private val generateNewSotdIdUseCase: GenerateNewSotdIdUseCase,
     private val toggleBookmarkUseCase: ToggleBookmarkUseCase,
-    private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -63,18 +58,16 @@ class HomeViewModel @Inject constructor(
 
     // ✅ Load counts asynchronously to prevent main thread blocking
     private fun loadCountsAsync() {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             try {
                 val categoryIds = (0..29).toList()
                 val categoryIdToSunnahCount = getSunnahCountsUseCase(categoryIds)
 
                 // ✅ Update UI state on main thread
-                withContext(Dispatchers.Main) {
-                    _uiState.update {
-                        it.copy(
-                            sunnahCount = categoryIdToSunnahCount
-                        )
-                    }
+                _uiState.update {
+                    it.copy(
+                        sunnahCount = categoryIdToSunnahCount
+                    )
                 }
             } catch (e: Exception) {
                 // Handle error silently or log
@@ -93,6 +86,7 @@ class HomeViewModel @Inject constructor(
                     _eventFlow.emit(event) // emit navigation event
                 }
             }
+
             is HomeEvent.ToggleBookmark -> toggleBookmark(event.sunnahId)
             is HomeEvent.HandleNotificationLaunch -> handleNotificationLaunch()
             is HomeEvent.AutoShowSotdCheck -> autoShowSotdCheck()
@@ -105,12 +99,14 @@ class HomeViewModel @Inject constructor(
                 }
                 PagerVisibilityState.setPagerVisibility(true)
             }
+
             is HomeEvent.ClosePager -> {
                 _uiState.update { currentState ->
                     currentState.copy(isPagerVisible = false)
                 }
                 PagerVisibilityState.setPagerVisibility(false)
             }
+
             is HomeEvent.PagerPageChanged -> {
                 _uiState.update { currentState ->
                     currentState.copy(selectedSunnahIndex = event.index)
@@ -128,7 +124,7 @@ class HomeViewModel @Inject constructor(
     // ✅ Separate method for auto-show check
     // ✅ UPDATED: Auto-show check now emits request instead of updating state
     private fun autoShowSotdCheck() {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             try {
                 val shouldShow = shouldShowSotdCardUseCase()
                 val sotdState = getCurrentSotdUseCase()
@@ -139,19 +135,15 @@ class HomeViewModel @Inject constructor(
 
                 if (shouldAutoShow) {
                     // ✅ Update SOTD data but don't trigger overlay here
-                    withContext(Dispatchers.Main) {
-                        _uiState.update {
-                            it.copy(sotd = sotdState.currentSotd)
-                        }
+                    _uiState.update {
+                        it.copy(sotd = sotdState.currentSotd)
                     }
                     // ✅ Emit auto-show request
                     _sotdOverlayRequest.emit(SotdOverlayRequest.AutoShow)
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _uiState.update {
-                        it.copy(error = "Failed to check SOTD: ${e.message}")
-                    }
+                _uiState.update {
+                    it.copy(error = "Failed to check SOTD: ${e.message}")
                 }
             }
         }
@@ -159,15 +151,13 @@ class HomeViewModel @Inject constructor(
 
     // ✅ UPDATED: Notification launch now emits request
     fun handleNotificationLaunch() {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             try {
                 val sotdState = getCurrentSotdUseCase()
 
                 if (sotdState.currentSotd != null) {
-                    withContext(Dispatchers.Main) {
-                        _uiState.update {
-                            it.copy(sotd = sotdState.currentSotd)
-                        }
+                    _uiState.update {
+                        it.copy(sotd = sotdState.currentSotd)
                     }
                     // ✅ Emit notification request
                     _sotdOverlayRequest.emit(SotdOverlayRequest.FromNotification)
@@ -176,10 +166,8 @@ class HomeViewModel @Inject constructor(
                     generateNewSotdIdUseCase()
                     val newSotdState = getCurrentSotdUseCase()
 
-                    withContext(Dispatchers.Main) {
-                        _uiState.update {
-                            it.copy(sotd = newSotdState.currentSotd)
-                        }
+                    _uiState.update {
+                        it.copy(sotd = newSotdState.currentSotd)
                     }
 
                     if (newSotdState.currentSotd != null) {
@@ -187,10 +175,8 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _uiState.update {
-                        it.copy(error = "Failed to load SOTD: ${e.message}")
-                    }
+                _uiState.update {
+                    it.copy(error = "Failed to load SOTD: ${e.message}")
                 }
             }
         }
@@ -200,7 +186,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             getUserPreferencesFlowUseCase()
                 .distinctUntilChanged() // ✅ Prevent unnecessary recompositions
-                .flowOn(ioDispatcher) // ✅ Process on IO thread
                 .catch { exception ->
                     _uiState.update {
                         it.copy(
@@ -222,10 +207,8 @@ class HomeViewModel @Inject constructor(
 
     // ✅ Optimized loadHomeData with better thread management
     private fun loadHomeData() {
-        viewModelScope.launch(ioDispatcher) {
-            withContext(Dispatchers.Main) {
-                _uiState.update {it.copy(isLoading = true, error = null)}
-            }
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
 
             try {
                 // Load all data concurrently on IO thread
@@ -250,45 +233,40 @@ class HomeViewModel @Inject constructor(
                         }
 
                         // ✅ Update UI on main thread
-                        withContext(Dispatchers.Main) {
-                            _uiState.update{
-                                it.copy(
-                                    isLoading = false,
-                                    username = homeData.userName,
-                                    featuredCategories = homeData.featuredCategories,
-                                    recentSotd = recentSotd,
-                                    sotd = finalSotdState.currentSotd,
-                                )
-                            }
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                username = homeData.userName,
+                                featuredCategories = homeData.featuredCategories,
+                                recentSotd = recentSotd,
+                                sotd = finalSotdState.currentSotd,
+                            )
                         }
                     }
+
                     is Result.Error -> {
-                        withContext(Dispatchers.Main) {
-                            _uiState.update{
-                                it.copy(
-                                    isLoading = false,
-                                    error = homeDataResult.exception.message
-                                        ?: "Failed to load home data",
-                                )
-                            }
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                error = homeDataResult.exception.message
+                                    ?: "Failed to load home data",
+                            )
                         }
                     }
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _uiState.update{
-                        it.copy(
-                            isLoading = false,
-                            error = e.message ?: "An unexpected error occurred"
-                        )
-                    }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = e.message ?: "An unexpected error occurred"
+                    )
                 }
             }
         }
     }
 
     private fun markSotdAsSeen() {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             try {
                 markSotdAsSeenUseCase()
             } catch (e: Exception) {
@@ -298,16 +276,18 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun toggleDisclaimer() {
-        val currentState = _uiState.value
-        _uiState.update{
-            it.copy(
-                showDisclaimer = !currentState.showDisclaimer
-            )
+        viewModelScope.launch {
+            val currentState = _uiState.value
+            _uiState.update {
+                it.copy(
+                    showDisclaimer = !currentState.showDisclaimer
+                )
+            }
         }
     }
 
     private fun toggleBookmark(sunnah: String) {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             try {
                 toggleBookmarkUseCase(sunnah)
 

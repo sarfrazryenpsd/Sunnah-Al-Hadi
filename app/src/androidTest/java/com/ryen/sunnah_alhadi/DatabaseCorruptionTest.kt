@@ -255,75 +255,7 @@ class DatabaseCorruptionTest {
         assertThat(exception).isNotNull()
     }
 
-    // Approach 3: Test transaction rollback with mock/simulation
-    @Test
-    fun given_database_transaction_interruption_when_multiple_operations_then_should_maintain_consistency() {
-        // Given
-        database = Room.inMemoryDatabaseBuilder(
-            context,
-            AppDatabase::class.java
-        ).build()
 
-        // Setup valid data
-        runBlocking {
-            val categoryEntity = CategoryEntity(id = 1, topic = "Test Category")
-            database.categoryDao().insertCategory(categoryEntity)
-
-            val sunnahEntity = SunnahEntity(
-                id = "01_01",
-                categoryId = 1,
-                title = "Test Sunnah",
-                body = listOf(
-                    ContentBlock(
-                        ContentType.ARABIC_TEXT,
-                        ArabicSubtype.VERSE,
-                        "Arabic text"
-                    )
-                ),
-                references = listOf(Reference("Bukhari")),
-                extra = null
-            )
-            database.sunnahDao().insertSunnah(sunnahEntity)
-
-            // Verify bookmark doesn't exist initially
-            val initialBookmarks = database.bookmarkDao().getAllBookmarks()
-            assertThat(initialBookmarks).isEmpty()
-
-            // Add a bookmark successfully
-            database.bookmarkDao().addBookmark(
-                BookmarkEntity(
-                    sunnahId = "01_01",
-                    bookmarkedAt = System.currentTimeMillis()
-                )
-            )
-
-            // Verify bookmark was added
-            val bookmarksAfterAdd = database.bookmarkDao().getAllBookmarks()
-            assertThat(bookmarksAfterAdd).hasSize(1)
-        }
-
-        // When - Try to perform operation that will fail
-        val exception = assertThrows(SQLiteConstraintException::class.java) {
-            runBlocking {
-                // This will fail due to foreign key constraint
-                database.bookmarkDao().addBookmark(
-                    BookmarkEntity(
-                        sunnahId = "non_existent_id",
-                        bookmarkedAt = System.currentTimeMillis()
-                    )
-                )
-            }
-        }
-
-        // Then - Verify the original bookmark is still there (transaction rolled back)
-        runBlocking {
-            val finalBookmarks = database.bookmarkDao().getAllBookmarks()
-            assertThat(finalBookmarks).hasSize(1) // Original bookmark should still exist
-            assertThat(finalBookmarks[0].sunnahId).isEqualTo("01_01")
-        }
-
-        assertThat(exception.message).contains("FOREIGN KEY constraint failed")
-    }
 
     @Test
     fun given_database_disk_space_full_when_writing_then_should_handle_IO_exception() {

@@ -34,8 +34,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     private val defaultUserPreferences = UserPreferences(
         username = "",
         themeMode = 0, // SYSTEM
-        isDynamicThemeEnabled = true,
-        isDailyReminderEnabled = true,
+        isDynamicThemeEnabled = false,
+        isDailyReminderEnabled = false,
         hasCompletedOnboarding = false,
         hasSeenDisclaimer = false,
         recentlyViewedSunnahIds = emptyList(),
@@ -43,7 +43,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         sotdGeneratedDate = 0L,
         isSotdSeen = false,
         sotdNotificationTime = NotificationTime.MORNING,
-        isSotdNotificationEnabled = true
+        isSotdNotificationEnabled = false
     )
     // Cache frequently accessed data
     private val _userPreferencesFlow: StateFlow<UserPreferences> = dataStore.data
@@ -66,7 +66,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         )
 
     override suspend fun getUserPreferences(): UserPreferences {
-        return _userPreferencesFlow.filterNotNull().first()
+        return _userPreferencesFlow.first()
     }
 
     override suspend fun updateUsername(username: String) {
@@ -118,7 +118,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getRecentlyViewedIds(): List<String> {
-        return dataStore.data.first().recentlyViewedSunnahIdsList.toList()
+        return _userPreferencesFlow.first().recentlyViewedSunnahIds
     }
 
     // Optimized recently viewed management
@@ -141,7 +141,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getCurrentSotd(): String {
-        return _userPreferencesFlow.filterNotNull().first().currentSotdId
+        return _userPreferencesFlow.first().currentSotdId
     }
 
     override suspend fun updateSotdNotificationTime(time: NotificationTime) {
@@ -168,7 +168,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun isSotdNotificationEnabled(): Boolean {
-        return dataStore.data.first().isSotdNotificationEnabled
+        return _userPreferencesFlow.first().isSotdNotificationEnabled
     }
 
     // FIXED: Simplified and optimized SOTD update
@@ -213,16 +213,16 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun isSotdSeen(): Boolean {
-        return dataStore.data.first().isSotdSeen
+        return _userPreferencesFlow.first().isSotdSeen
     }
 
     override suspend fun getSotdGeneratedDate(): Long {
-        return dataStore.data.first().sotdGeneratedDate
+        return _userPreferencesFlow.first().sotdGeneratedDate
     }
 
     // OPTIMIZED: Use more efficient date comparison
     override suspend fun shouldGenerateNewSotd(): Boolean {
-        val prefs = dataStore.data.first()
+        val prefs = _userPreferencesFlow.first()
         val generatedDate = prefs.sotdGeneratedDate
 
         if (generatedDate == 0L) return true // First time
@@ -237,15 +237,15 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 
     // Flow versions with caching
     override fun getCurrentSotdFlow(): Flow<String> {
-        return dataStore.data.map { it.currentSotdId }.distinctUntilChanged()
+        return _userPreferencesFlow.map { it.currentSotdId }.distinctUntilChanged()
     }
 
     override fun isSotdSeenFlow(): Flow<Boolean> {
-        return dataStore.data.map { it.isSotdSeen }.distinctUntilChanged()
+        return _userPreferencesFlow.map { it.isSotdSeen }.distinctUntilChanged()
     }
 
     override fun getUserPreferencesFlow(): Flow<UserPreferences> {
-        return _userPreferencesFlow.filterNotNull()
+        return _userPreferencesFlow
     }
 
     companion object {

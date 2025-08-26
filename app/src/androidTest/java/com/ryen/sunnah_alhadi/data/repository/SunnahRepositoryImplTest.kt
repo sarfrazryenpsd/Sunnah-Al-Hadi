@@ -17,7 +17,9 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -29,6 +31,8 @@ class SunnahRepositoryImplTest {
     private lateinit var sunnahDao: SunnahDao
 
     private lateinit var sunnahRepository: SunnahRepository
+
+    private lateinit var ioDispatcher: CoroutineDispatcher
 
     private val testSunnahWithBookmark = SunnahWithBookmark(
         sunnah = SunnahEntity(
@@ -61,7 +65,8 @@ class SunnahRepositoryImplTest {
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
-        sunnahRepository = SunnahRepositoryImpl(sunnahDao)
+        ioDispatcher = UnconfinedTestDispatcher()
+        sunnahRepository = SunnahRepositoryImpl(sunnahDao, ioDispatcher)
     }
 
     // region getAllSunnahs
@@ -167,52 +172,6 @@ class SunnahRepositoryImplTest {
 
     // endregion
 
-    // region getRandomSunnahs
-
-    @Test
-    fun getRandomSunnahs_returns_success() = runTest {
-        coEvery { sunnahDao.getRandomSunnahsWithBookmarkStatus() } returns listOf(testSunnahWithBookmark)
-
-        val result = sunnahRepository.getRandomSunnahs()
-
-        assertThat(result).isInstanceOf(Result.Success::class.java)
-    }
-
-    @Test
-    fun getRandomSunnahs_returns_error() = runTest {
-        val exception = RuntimeException("Failure")
-        coEvery { sunnahDao.getRandomSunnahsWithBookmarkStatus() } throws exception
-
-        val result = sunnahRepository.getRandomSunnahs()
-
-        assertThat(result).isInstanceOf(Result.Error::class.java)
-    }
-
-    // endregion
-
-    // region getBookmarkedSunnahs
-
-    @Test
-    fun getBookmarkedSunnahs_returns_data() = runTest {
-        coEvery { sunnahDao.getBookmarkedSunnahs() } returns listOf(testSunnahWithBookmark)
-
-        val result = sunnahRepository.getBookmarkedSunnahs()
-
-        assertThat(result).isInstanceOf(Result.Success::class.java)
-    }
-
-    @Test
-    fun getBookmarkedSunnahs_returns_error_on_exception() = runTest {
-        val exception = SQLException("Error")
-        coEvery { sunnahDao.getBookmarkedSunnahs() } throws exception
-
-        val result = sunnahRepository.getBookmarkedSunnahs()
-
-        assertThat(result).isInstanceOf(Result.Error::class.java)
-    }
-
-    // endregion
-
     // region getRandomSunnahForSotd
 
     @Test
@@ -248,28 +207,4 @@ class SunnahRepositoryImplTest {
         assertThat(result).isInstanceOf(Result.Error::class.java)
     }
 
-    // endregion
-
-    // region getAllSunnahsWithBookmarkStatus
-
-    @Test
-    fun getAllSunnahsWithBookmarkStatus_returns_success() = runTest {
-        coEvery { sunnahDao.getAllSunnahsWithBookmarkStatus() } returns listOf(testSunnahWithBookmark)
-
-        val result = sunnahRepository.getAllSunnahsWithBookmarkStatus()
-
-        assertThat(result).isInstanceOf(Result.Success::class.java)
-    }
-
-    @Test
-    fun getAllSunnahsWithBookmarkStatus_returns_error() = runTest {
-        val exception = RuntimeException("Failed to fetch")
-        coEvery { sunnahDao.getAllSunnahsWithBookmarkStatus() } throws exception
-
-        val result = sunnahRepository.getAllSunnahsWithBookmarkStatus()
-
-        assertThat(result).isInstanceOf(Result.Error::class.java)
-    }
-
-    // endregion
 }
