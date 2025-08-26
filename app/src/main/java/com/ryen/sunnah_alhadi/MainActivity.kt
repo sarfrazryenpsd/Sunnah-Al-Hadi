@@ -8,12 +8,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ryen.sunnah_alhadi.presentation.common.LoadingIndicator
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ryen.sunnah_alhadi.presentation.navigation.MainNavigation
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeViewModel
@@ -41,7 +40,7 @@ class MainActivity : ComponentActivity() {
 
             // Global theme state management
             val themeViewModel: ThemeViewModel = hiltViewModel()
-            val themeUiState by themeViewModel.uiState.collectAsState()
+            val themeUiState by themeViewModel.uiState.collectAsStateWithLifecycle()
 
             // Check if onboarding should be shown
 
@@ -54,20 +53,14 @@ class MainActivity : ComponentActivity() {
                 themeMode = themeUiState.themeMode,
                 isDynamicColorEnabled = themeUiState.isDynamicThemeEnabled
             ) {
-                val themeState by themeViewModel.uiState.collectAsState(initial = null)
 
                 val isFromNotification = intent?.getBooleanExtra("show_sotd", false) ?: false
 
 
-                themeState?.let { state ->
-                    MainNavigation(
-                        showOnboarding = !state.userPreferences.hasCompletedOnboarding,
-                        isFromNotification = isFromNotification
-                    )
-                } ?: run {
-                    // ✅ Show loading while determining onboarding state
-                    LoadingIndicator()
-                }
+                MainNavigation(
+                    showOnboarding = !themeUiState.userPreferences.hasCompletedOnboarding,
+                    isFromNotification = isFromNotification
+                )
             }
         }
     }

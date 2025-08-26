@@ -50,10 +50,9 @@ class HomeViewModel @Inject constructor(
     val sotdOverlayRequest = _sotdOverlayRequest.asSharedFlow()
 
     init {
-        loadHomeData()
-        // ✅ Move heavy operations off main thread
-        loadCountsAsync()
         observeUserPreferences()
+        loadHomeData()
+        loadCountsAsync()
     }
 
     // ✅ Load counts asynchronously to prevent main thread blocking
@@ -185,7 +184,7 @@ class HomeViewModel @Inject constructor(
     private fun observeUserPreferences() {
         viewModelScope.launch {
             getUserPreferencesFlowUseCase()
-                .distinctUntilChanged() // ✅ Prevent unnecessary recompositions
+                .distinctUntilChanged { old, new -> old.username == new.username }
                 .catch { exception ->
                     _uiState.update {
                         it.copy(

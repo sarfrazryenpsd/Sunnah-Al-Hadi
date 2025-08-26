@@ -61,6 +61,7 @@ import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.presentation.common.LoadingIndicator
@@ -86,13 +87,14 @@ fun MainNavigation(
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val isCompact = !windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
 
+    val topLevelDestinations = remember { listOf(Home, Browse, Preferences) }
     val backStack = rememberNavBackStack(Home)
-    val topLevelDestinations = listOf(Home, Browse, Preferences)
 
     // ✅ Sequential overlay state management
     var onboardingCompleted by rememberSaveable { mutableStateOf(false) }
     var currentOverlay by rememberSaveable { mutableStateOf<OverlayType?>(null) }
     var isInitializing by remember { mutableStateOf(true) }
+    val twoPaneStrategy = remember { TwoPaneSceneStrategy<NavKey>() }
 
     // ✅ Handle initial loading
     LaunchedEffect(showOnboarding) {
@@ -117,21 +119,23 @@ fun MainNavigation(
     }
 
     // ✅ SOTD overlay request handler
-    val handleSotdRequest = { request: SotdOverlayRequest ->
-        when (request) {
-            is SotdOverlayRequest.AutoShow -> {
-                // Only auto-show if no other overlay is active
-                if (currentOverlay == null) {
-                    currentOverlay = OverlayType.SOTD_AUTO_SHOW
+    val handleSotdRequest = remember(currentOverlay) {
+        { request: SotdOverlayRequest ->
+            when (request) {
+                is SotdOverlayRequest.AutoShow -> {
+                    // Only auto-show if no other overlay is active
+                    if (currentOverlay == null) {
+                        currentOverlay = OverlayType.SOTD_AUTO_SHOW
+                    }
                 }
-            }
 
-            is SotdOverlayRequest.FromNotification -> {
-                currentOverlay = OverlayType.SOTD_FROM_NOTIFICATION
-            }
+                is SotdOverlayRequest.FromNotification -> {
+                    currentOverlay = OverlayType.SOTD_FROM_NOTIFICATION
+                }
 
-            is SotdOverlayRequest.Manual -> {
-                currentOverlay = OverlayType.SOTD_MANUAL
+                is SotdOverlayRequest.Manual -> {
+                    currentOverlay = OverlayType.SOTD_MANUAL
+                }
             }
         }
     }
@@ -178,13 +182,17 @@ fun MainNavigation(
         if (isCompact) {
             CompactScreenLayout(
                 backStack = backStack,
+                windowSizeClass = windowSizeClass,
                 topLevelDestinations = topLevelDestinations,
+                twoPaneStrategy = twoPaneStrategy,
                 onSotdRequested = handleSotdRequest
             )
         } else {
             ExpandedScreenLayout(
                 backStack = backStack,
+                windowSizeClass = windowSizeClass,
                 topLevelDestinations = topLevelDestinations,
+                twoPaneStrategy = twoPaneStrategy,
                 onSotdRequested = handleSotdRequest
             )
         }
@@ -196,6 +204,8 @@ fun MainNavigation(
 @Composable
 private fun CompactScreenLayout(
     backStack: SnapshotStateList<NavKey>,
+    windowSizeClass: WindowSizeClass,
+    twoPaneStrategy: TwoPaneSceneStrategy<NavKey>,
     topLevelDestinations: List<NavKey>,
     onSotdRequested: (SotdOverlayRequest) -> Unit
 ) {
@@ -214,6 +224,8 @@ private fun CompactScreenLayout(
         NavigationContent(
             backStack = backStack,
             onSotdRequested = onSotdRequested,
+            windowSizeClass = windowSizeClass,
+            twoPaneStrategy = twoPaneStrategy,
             modifier = Modifier.fillMaxSize()
         )
         // Custom bottom toolbar
@@ -248,6 +260,8 @@ private fun CompactScreenLayout(
 @Composable
 private fun ExpandedScreenLayout(
     backStack: SnapshotStateList<NavKey>,
+    windowSizeClass: WindowSizeClass,
+    twoPaneStrategy: TwoPaneSceneStrategy<NavKey>,
     topLevelDestinations: List<NavKey>,
     onSotdRequested: (SotdOverlayRequest) -> Unit
 ) {
@@ -268,7 +282,9 @@ private fun ExpandedScreenLayout(
 
         NavigationContent(
             backStack = backStack,
+            windowSizeClass = windowSizeClass,
             onSotdRequested = onSotdRequested,
+            twoPaneStrategy = twoPaneStrategy,
             modifier = Modifier.fillMaxSize()
         )
     }
@@ -277,15 +293,15 @@ private fun ExpandedScreenLayout(
 @Composable
 private fun NavigationContent(
     backStack: SnapshotStateList<NavKey>,
+    windowSizeClass: WindowSizeClass,
     onSotdRequested: (SotdOverlayRequest) -> Unit,
+    twoPaneStrategy: TwoPaneSceneStrategy<NavKey>,
     modifier: Modifier = Modifier
 ) {
-    val twoPaneStrategy = remember { TwoPaneSceneStrategy<NavKey>() }
 
     SharedTransitionLayout {
         // Shared transition decorator for smooth animations
         val sharedEntryDecorator = navEntryDecorator<NavKey> { entry ->
-            val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
             val isCompact = !windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
 
             if (isCompact) {
