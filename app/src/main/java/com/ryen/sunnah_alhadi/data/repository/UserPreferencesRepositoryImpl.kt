@@ -161,8 +161,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSotdNotificationTime(): NotificationTime {
-        val prefs = dataStore.data.first()
-        return NotificationTime.entries.getOrElse(prefs.sotdNotificationTime) {
+        val prefs = _userPreferencesFlow.first()
+        return NotificationTime.entries.getOrElse(prefs.sotdNotificationTime.ordinal) {
             NotificationTime.MORNING
         }
     }

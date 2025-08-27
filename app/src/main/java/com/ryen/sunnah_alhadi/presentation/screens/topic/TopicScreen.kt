@@ -126,7 +126,7 @@ private fun TopicContent(
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
-            .fillMaxSize().padding(top = 24.dp)
+            .fillMaxSize().padding(top = 48.dp)
     ) {
         // Header with category name and gradient background
         CustomTopBar(

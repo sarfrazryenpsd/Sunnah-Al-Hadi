@@ -3,6 +3,8 @@
 package com.ryen.sunnah_alhadi.presentation.components
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,6 +29,8 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,11 +40,10 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -61,6 +65,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
@@ -261,7 +266,7 @@ fun PreferenceVerticalItem(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         trailingContent()
     }
@@ -292,7 +297,13 @@ fun PreferenceSwitch(
             Switch(
                 checked = checked,
                 onCheckedChange = if (enabled) onCheckedChange else null,
-                enabled = enabled
+                enabled = enabled,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.inversePrimary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                )
             )
         }
     )
@@ -371,6 +382,11 @@ fun PreferenceTextField(
         )
     }
 }
+private data class ThemeOptions (
+    val themeMode: ThemeMode,
+    val label: String,
+    val icon: Int
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -380,32 +396,23 @@ fun ThemeSegmentedButton(
     modifier: Modifier = Modifier
 ) {
     val themeOptions = listOf(
-        ThemeMode.LIGHT to "Light",
-        ThemeMode.DARK to "Dark",
-        ThemeMode.SYSTEM to "System"
+        ThemeOptions(ThemeMode.LIGHT, "Light", R.drawable.interface_light),
+        ThemeOptions(ThemeMode.DARK, "Dark", R.drawable.interface_dark),
+        ThemeOptions(ThemeMode.SYSTEM, "System", R.drawable.interface_system)
     )
 
-    SingleChoiceSegmentedButtonRow(
-        modifier = modifier.fillMaxWidth()
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        themeOptions.forEachIndexed { index, (theme, label) ->
-            SegmentedButton(
-                shape = SegmentedButtonDefaults.itemShape(
-                    index = index,
-                    count = themeOptions.size
-                ),
-                onClick = { onThemeSelected(theme) },
-                selected = selectedTheme == theme,
-                colors = SegmentedButtonDefaults.colors(
-                    activeContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    activeContentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            ) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
+        themeOptions.forEachIndexed { index, theme ->
+            ThemeModeToggle(
+                themeIcon = theme.icon,
+                themeLabel = theme.label,
+                isSelected = selectedTheme == theme.themeMode,
+                onClick = { onThemeSelected(theme.themeMode) },
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
@@ -767,9 +774,123 @@ private fun highlightText(
     }
 }
 
+@Composable
+fun ThemeModeToggle(
+    @DrawableRes themeIcon: Int,
+    themeLabel: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    // Animate corner radius: 16.dp (rounded) -> 32.dp (circular)
+    val cornerRadius by animateDpAsState(
+        targetValue = if (isSelected) 32.dp else 16.dp,
+        animationSpec = tween(durationMillis = 300),
+        label = "cornerRadius",
+    )
+
+    // Optionally animate border width for extra feedback
+    val borderWidth by animateDpAsState(
+        targetValue = if (isSelected) 2.dp else 1.dp,
+        animationSpec = tween(durationMillis = 300),
+        label = "borderWidth",
+    )
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Card(
+            onClick = onClick,
+            modifier = Modifier.height(64.dp),
+            shape = RoundedCornerShape(cornerRadius),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor =
+                        if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        },
+                ),
+            border =
+                androidx.compose.foundation.BorderStroke(
+                    width = borderWidth,
+                    color =
+                        if (isSelected) {
+                            MaterialTheme.colorScheme.inversePrimary
+                        } else {
+                            MaterialTheme.colorScheme.outlineVariant
+                        },
+                ),
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(themeIcon),
+                    contentDescription = themeLabel,
+                    modifier = Modifier.size(24.dp),
+                    tint =
+                        if (isSelected) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = themeLabel,
+            style = MaterialTheme.typography.labelMedium,
+            color =
+                if (isSelected) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+        )
+    }
+}
+
+
+
 
 //-------------------------------------------------------------Previews----------------------------------------------------------------------------------
 
+@Preview(showBackground = true, backgroundColor = android.graphics.Color.WHITE.toLong())
+@Composable
+private fun ThemeOptionPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(360.dp, 640.dp))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            ThemeModeToggle(
+                isSelected = true,
+                onClick = {},
+                themeLabel = "Light",
+                themeIcon = R.drawable.interface_light,
+                modifier = Modifier.weight(1f),
+            )
+            ThemeModeToggle(
+                isSelected = false,
+                onClick = {},
+                themeLabel = "Dark",
+                themeIcon = R.drawable.interface_dark,
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
 @Preview(showBackground = true)
 @Composable
 private fun PreferenceTextFieldPreview() {

@@ -195,13 +195,13 @@ class PreferencesViewModel @Inject constructor(
     private fun updateSotdNotification(enabled: Boolean) {
         val currentState = _uiState.value
 
-        // If enabling notifications but no permission, show permission dialog
-        if (enabled && !currentState.hasNotificationPermission) {
-            _uiState.update { it.copy(showPermissionDialog = true) }
-            return
-        }
-
         viewModelScope.launch {
+            // If enabling notifications but no permission, show permission dialog
+            if (enabled && !currentState.hasNotificationPermission) {
+                _uiState.update { it.copy(showPermissionDialog = true) }
+                return@launch
+            }
+
             try {
                 updateUserPreferencesUseCase(
                     UserPreferencesUpdate(isSotdNotificationEnabled = enabled)
@@ -262,16 +262,16 @@ class PreferencesViewModel @Inject constructor(
     }
 
     fun handlePermissionResult(granted: Boolean) {
-        _uiState.update {
-            it.copy(
-                hasNotificationPermission = granted,
-                showPermissionDialog = false
-            )
-        }
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    hasNotificationPermission = granted,
+                    showPermissionDialog = false
+                )
+            }
 
-        if (granted) {
-            // Permission granted, enable notifications and schedule them
-            viewModelScope.launch {
+            if (granted) {
+                // Permission granted, enable notifications and schedule them
                 try {
                     updateUserPreferencesUseCase(
                         UserPreferencesUpdate(
@@ -291,14 +291,14 @@ class PreferencesViewModel @Inject constructor(
                         it.copy(error = "Failed to enable notifications: ${e.localizedMessage}")
                     }
                 }
-            }
-        } else {
-            // Permission denied
-            _uiState.update {
-                it.copy(
-                    successMessage = null,
-                    error = null
-                )
+            } else {
+                // Permission denied
+                _uiState.update {
+                    it.copy(
+                        successMessage = null,
+                        error = null
+                    )
+                }
             }
         }
     }

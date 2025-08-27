@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -148,34 +149,33 @@ fun PreferencesScreenContent(
     onEvent: (PreferencesEvent) -> Unit,
     context: Context
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .padding(vertical = 32.dp)
     ) {
+        Column(
+            modifier = Modifier.background(
+                color = MaterialTheme.colorScheme.background
+            )
+        ) {
+            CustomTopBar()
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            ScreenHeaderSection(
+                screen = Preferences,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(vertical = 48.dp)
+            contentPadding = PaddingValues(bottom = 48.dp)
         ) {
-            item {
-                CustomTopBar()
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-            // Greeting Section
-            item {
-                ScreenHeaderSection(
-                    screen = Preferences,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
-            }
 
 
             // Appearance Section
@@ -293,7 +293,7 @@ private fun AppearanceSection(
                 title = preferences.username,
                 subtitle = "Your name to display in app",
                 leadingIcon = R.drawable.interface_user,
-                iconColor = Color.Cyan.copy(), // Deep Purple
+                iconColor = Color(0xFF3F51B5), // Deep Purple
                 trailingContent = {
                     Icon(
                         imageVector = Icons.Rounded.Edit,
@@ -308,8 +308,8 @@ private fun AppearanceSection(
 
             // Theme Mode Selection
             PreferenceVerticalItem(
-                title = "Theme",
-                subtitle = "Choose your preferred theme",
+                title = "Appearance",
+                subtitle = "Choose your preferred theme mode",
                 leadingIcon = R.drawable.interface_theme,
                 iconColor = Color(0xFF9C27B0), // Purple
                 trailingContent = {
@@ -417,7 +417,7 @@ private fun AboutSection(
         PreferenceHorizontalItem(
             title = "About Sunnah Al-Hadi",
             subtitle = "Learn more about this app",
-            leadingIcon = R.drawable.interface_open,
+            leadingIcon = R.drawable.ec_explanation,
             iconColor = Color(0xFF4CAF50), // Green
             onClick = { onEvent(PreferencesEvent.ShowAboutDialog) },
             trailingContent = {

@@ -137,7 +137,6 @@ class OnboardingViewModel @Inject constructor(
                     },
                     themeMode = currentState.selectedTheme,
                     isDynamicThemeEnabled = currentState.isDynamicThemeEnabled,
-                    isDailyReminderEnabled = currentState.isNotificationEnabled,
                     sotdNotificationTime = currentState.selectedNotificationTime,
                     isSotdNotificationEnabled = currentState.isNotificationEnabled,
                     hasCompletedOnboarding = true
@@ -179,7 +178,7 @@ class OnboardingViewModel @Inject constructor(
     private fun saveNotificationPreferences(isEnabled: Boolean, time: NotificationTime) {
         viewModelScope.launch {
             try {
-                updateUserPreferencesUseCase(UserPreferencesUpdate(isDailyReminderEnabled = isEnabled, sotdNotificationTime = time, isSotdNotificationEnabled = isEnabled))
+                updateUserPreferencesUseCase(UserPreferencesUpdate(sotdNotificationTime = time, isSotdNotificationEnabled = isEnabled))
                 handleNotificationScheduling(isEnabled, time)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to save notification preferences: ${e.localizedMessage}") }
@@ -219,7 +218,7 @@ class OnboardingViewModel @Inject constructor(
                             username = if (it.isUsernameValid) it.username else preferences.username,
                             selectedTheme = ThemeMode.entries[preferences.themeMode],
                             isDynamicThemeEnabled = preferences.isDynamicThemeEnabled,
-                            isNotificationEnabled = preferences.isDailyReminderEnabled,
+                            isNotificationEnabled = preferences.isSotdNotificationEnabled,
                             selectedNotificationTime = preferences.sotdNotificationTime,
                             hasNotificationPermission = NotificationPermissionUtils.hasNotificationPermission(context),
                             isLoading = false,

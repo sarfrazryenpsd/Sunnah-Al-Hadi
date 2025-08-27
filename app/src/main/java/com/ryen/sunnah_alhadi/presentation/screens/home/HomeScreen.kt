@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,6 +35,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewFontScale
@@ -102,24 +103,53 @@ fun HomeScreen(
     val onEventCallback = remember { viewModel::onEvent }
 
     Box(modifier = modifier.fillMaxSize()) {
-        HomeScreenContent(
-            uiState = uiState,
-            onEvent = viewModel::onEvent,
-            onNavigateToAllTopics = onNavigateToAllTopics,
-            modifier = modifier
-        )
-        if (uiState.isPagerVisible) {
-            SunnahPager(
-                sunnahs = uiState.recentSotd,
-                initialPage = uiState.selectedSunnahIndex,
-                onDismiss = { viewModel.onEvent(HomeEvent.ClosePager) },
-                onPageChanged = { index ->
-                    onEventCallback(HomeEvent.PagerPageChanged(index))
-                },
-                onBookmarkClick = { sunnahId ->
-                    onEventCallback(HomeEvent.ToggleBookmark(sunnahId))
+        when {
+            uiState.isLoading -> {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(48.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        Text(
+                            text = "Initializing",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
-            )
+            }
+
+            else -> {
+                HomeScreenContent(
+                    uiState = uiState,
+                    onEvent = viewModel::onEvent,
+                    onNavigateToAllTopics = onNavigateToAllTopics,
+                    modifier = modifier
+                )
+
+                if (uiState.isPagerVisible) {
+                    SunnahPager(
+                        sunnahs = uiState.recentSotd,
+                        initialPage = uiState.selectedSunnahIndex,
+                        onDismiss = { viewModel.onEvent(HomeEvent.ClosePager) },
+                        onPageChanged = { index ->
+                            onEventCallback(HomeEvent.PagerPageChanged(index))
+                        },
+                        onBookmarkClick = { sunnahId ->
+                            onEventCallback(HomeEvent.ToggleBookmark(sunnahId))
+                        }
+                    )
+                }
+            }
         }
     }
 
@@ -385,7 +415,7 @@ private fun ActionItems(
                 .clickable { onOrbClick() }
         )
         Icon(
-            imageVector = Icons.Outlined.Info,
+            painter = painterResource(id = R.drawable.interface_info0),
             contentDescription = "Info",
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable { onInfoClick() }

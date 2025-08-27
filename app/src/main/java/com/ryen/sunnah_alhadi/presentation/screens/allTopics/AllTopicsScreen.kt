@@ -104,7 +104,7 @@ private fun AllTopicsContent(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxSize().padding(top = 24.dp)
+        modifier = modifier.fillMaxSize().padding(top = 48.dp)
     ) {
         // Top app bar with Islamic design elements
         CustomTopBar(
