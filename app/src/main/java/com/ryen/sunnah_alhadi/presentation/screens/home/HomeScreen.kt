@@ -394,9 +394,9 @@ private fun ActionItems(
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview
 @PreviewFontScale
 @PreviewScreenSizes
+@Preview(showBackground = true)
 @Composable
 private fun HomeScreenContentPrev() {
     CompositionLocalProvider(

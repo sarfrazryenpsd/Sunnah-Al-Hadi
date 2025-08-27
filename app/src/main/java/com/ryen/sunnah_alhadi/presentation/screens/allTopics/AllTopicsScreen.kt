@@ -15,19 +15,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -52,8 +47,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryen.sunnah_alhadi.R
-import com.ryen.sunnah_alhadi.domain.model.Category // Assuming location
-import com.ryen.sunnah_alhadi.presentation.common.NestedNavAppBar
+import com.ryen.sunnah_alhadi.domain.model.Category
+import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
 import com.ryen.sunnah_alhadi.presentation.common.ScreenHeaderSection
 import com.ryen.sunnah_alhadi.presentation.components.OptimizedTopicsGrid
 import com.ryen.sunnah_alhadi.presentation.navigation.AllTopic
@@ -109,13 +104,15 @@ private fun AllTopicsContent(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize().padding(top = 24.dp)
     ) {
         // Top app bar with Islamic design elements
-        NestedNavAppBar(
-            onNavigateBack = onNavigateBack,
-            onRefresh = onRefresh
+        CustomTopBar(
+            onBackClick = onNavigateBack,
+            isTopLevel = false
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         //Spacer(modifier = Modifier.height(24.dp))
 
@@ -457,21 +454,6 @@ private fun AllTopicsContentEmptyPreview() {
             onRetryClick = {},
             onRefresh = {},
             onNavigateBack = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AllTopicsAppBarPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(800.dp, 480.dp)
-        )
-    ) {
-        NestedNavAppBar(
-            onNavigateBack = {},
-            onRefresh = {}
         )
     }
 }

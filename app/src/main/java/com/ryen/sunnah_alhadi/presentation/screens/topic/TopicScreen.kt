@@ -58,7 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
-import com.ryen.sunnah_alhadi.presentation.common.NestedNavAppBar
+import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
 import com.ryen.sunnah_alhadi.presentation.common.ScreenHeaderSection
 import com.ryen.sunnah_alhadi.presentation.common.SunnahGridCardContainer
 import com.ryen.sunnah_alhadi.presentation.components.SunnahPager
@@ -124,13 +124,14 @@ private fun TopicContent(
     onNavigateBack: () -> Unit
 ) {
     Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize().padding(top = 24.dp)
     ) {
         // Header with category name and gradient background
-        NestedNavAppBar(
-            onNavigateBack = onNavigateBack,
-            onRefresh = {}
+        CustomTopBar(
+            onBackClick = onNavigateBack,
+            isTopLevel = false
         )
 
         ScreenHeaderSection(

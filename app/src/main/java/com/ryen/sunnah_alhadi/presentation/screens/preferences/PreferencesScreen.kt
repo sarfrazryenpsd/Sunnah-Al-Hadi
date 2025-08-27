@@ -17,22 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.ColorLens
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Policy
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,18 +33,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.presentation.NotificationPermissionHandler
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
@@ -307,13 +292,13 @@ private fun AppearanceSection(
             PreferenceHorizontalItem(
                 title = preferences.username,
                 subtitle = "Your name to display in app",
-                leadingIcon = Icons.Default.Person,
-                iconColor = Color.Black, // Deep Purple
+                leadingIcon = R.drawable.interface_user,
+                iconColor = Color.Cyan.copy(), // Deep Purple
                 trailingContent = {
                     Icon(
                         imageVector = Icons.Rounded.Edit,
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(16.dp),
                     )
                 },
                 modifier = Modifier.clickable {
@@ -325,7 +310,7 @@ private fun AppearanceSection(
             PreferenceVerticalItem(
                 title = "Theme",
                 subtitle = "Choose your preferred theme",
-                leadingIcon = Icons.Default.Palette,
+                leadingIcon = R.drawable.interface_theme,
                 iconColor = Color(0xFF9C27B0), // Purple
                 trailingContent = {
                     ThemeSegmentedButton(
@@ -346,7 +331,7 @@ private fun AppearanceSection(
                 subtitle = "Use colors from your wallpaper",
                 checked = preferences.isDynamicThemeEnabled,
                 onCheckedChange = { onEvent(PreferencesEvent.UpdateDynamicTheme(it)) },
-                leadingIcon = Icons.Default.ColorLens,
+                leadingIcon = R.drawable.interface_color,
                 iconColor = Color(0xFF4CAF50), // Green
                 enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             )
@@ -373,7 +358,7 @@ private fun NotificationsSection(
                         onEvent(PreferencesEvent.UpdateSotdNotification(it))
                     }
                 },
-                leadingIcon = Icons.Default.NotificationsActive,
+                leadingIcon = R.drawable.interface_bell,
                 iconColor = Color(0xFFFF9800) // Orange
             )
 
@@ -387,7 +372,7 @@ private fun NotificationsSection(
                 PreferenceVerticalItem(
                     title = "Reminder Time",
                     subtitle = "When to receive daily reminders",
-                    leadingIcon = Icons.Default.AccessTime,
+                    leadingIcon = R.drawable.interface_clock,
                     iconColor = Color(0xFFFFC107), // Amber
                     trailingContent = {
                         NotificationTimeDropdown(
@@ -418,7 +403,7 @@ private fun AboutSection(
         PreferenceHorizontalItem(
             title = "App Version",
             subtitle = "Version ${uiState.appVersion} (Build ${uiState.buildNumber})",
-            leadingIcon = Icons.Default.Info,
+            leadingIcon = R.drawable.interface_info,
             iconColor = Color(0xFF2196F3), // Blue
             trailingContent = { }
         )
@@ -432,14 +417,15 @@ private fun AboutSection(
         PreferenceHorizontalItem(
             title = "About Sunnah Al-Hadi",
             subtitle = "Learn more about this app",
-            leadingIcon = Icons.AutoMirrored.Default.MenuBook,
+            leadingIcon = R.drawable.interface_open,
             iconColor = Color(0xFF4CAF50), // Green
             onClick = { onEvent(PreferencesEvent.ShowAboutDialog) },
             trailingContent = {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    painter = painterResource(R.drawable.interface_right),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
                 )
             }
         )
@@ -453,14 +439,15 @@ private fun AboutSection(
         PreferenceHorizontalItem(
             title = "Privacy Policy",
             subtitle = "How we protect your privacy",
-            leadingIcon = Icons.Default.Policy,
+            leadingIcon = R.drawable.interface_policy,
             iconColor = Color(0xFF9C27B0), // Purple
             onClick = { onEvent(PreferencesEvent.ShowPrivacyPolicyDialog) },
             trailingContent = {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    painter = painterResource(R.drawable.interface_right),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
                 )
             }
         )
@@ -474,14 +461,15 @@ private fun AboutSection(
         PreferenceHorizontalItem(
             title = "Terms of Service",
             subtitle = "App usage terms and conditions",
-            leadingIcon = Icons.Default.Description,
+            leadingIcon = R.drawable.interface_terms,
             iconColor = Color(0xFF009688), // Teal
             onClick = { onEvent(PreferencesEvent.ShowTermsOfServiceDialog) },
             trailingContent = {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    painter = painterResource(R.drawable.interface_right),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
                 )
             }
         )
@@ -499,7 +487,7 @@ private fun SupportSection(
         PreferenceHorizontalItem(
             title = "Rate App",
             subtitle = "Help us improve by rating on Play Store",
-            leadingIcon = Icons.Default.Star,
+            leadingIcon = R.drawable.interface_star,
             iconColor = Color(0xFFFFC107), // Amber
             onClick = {
                 PreferenceActions.openPlayStoreRating(context)
@@ -507,9 +495,10 @@ private fun SupportSection(
             },
             trailingContent = {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                    painter = painterResource(R.drawable.interface_open),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
                 )
             }
         )
@@ -523,7 +512,7 @@ private fun SupportSection(
         PreferenceHorizontalItem(
             title = "Report Bug",
             subtitle = "Help us fix issues you encounter",
-            leadingIcon = Icons.Default.BugReport,
+            leadingIcon = R.drawable.interface_bug,
             iconColor = Color(0xFFF44336), // Red
             onClick = { onEvent(PreferencesEvent.ShowBugReportDialog) },
             trailingContent = {
@@ -534,9 +523,10 @@ private fun SupportSection(
                     )
                 } else {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        painter = painterResource(R.drawable.interface_right),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
@@ -551,7 +541,7 @@ private fun SupportSection(
         PreferenceHorizontalItem(
             title = "Contact Developer",
             subtitle = "Send feedback or ask questions",
-            leadingIcon = Icons.Default.Email,
+            leadingIcon = R.drawable.interface_mail,
             iconColor = Color(0xFF3F51B5), // Indigo
             onClick = {
                 PreferenceActions.contactDeveloper(context)
@@ -559,9 +549,10 @@ private fun SupportSection(
             },
             trailingContent = {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                    painter = painterResource(R.drawable.interface_open),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
                 )
             }
         )
@@ -575,7 +566,7 @@ private fun SupportSection(
         PreferenceHorizontalItem(
             title = "Share App",
             subtitle = "Invite others to this blessed app",
-            leadingIcon = Icons.Default.Share,
+            leadingIcon = R.drawable.interface_share,
             iconColor = Color(0xFF00BCD4), // Cyan
             onClick = {
                 PreferenceActions.shareApp(context)
@@ -583,9 +574,10 @@ private fun SupportSection(
             },
             trailingContent = {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                    painter = painterResource(R.drawable.interface_open),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
                 )
             }
         )

@@ -2,6 +2,7 @@
 
 package com.ryen.sunnah_alhadi.presentation.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -24,8 +26,6 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,13 +54,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
@@ -93,7 +93,7 @@ fun PreferenceSection(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.primaryContainer)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 12.dp)
         ) {
             Column(
                 modifier = Modifier.padding(vertical = 8.dp),
@@ -108,7 +108,7 @@ fun PreferenceHorizontalItem(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,
-    leadingIcon: ImageVector,
+    @DrawableRes leadingIcon: Int,
     iconColor: Color,
     trailingContent: @Composable () -> Unit,
     onClick: (() -> Unit)? = null,
@@ -132,14 +132,26 @@ fun PreferenceHorizontalItem(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)
         ) {
-            Icon(
-                imageVector = leadingIcon,
-                contentDescription = null,
-                tint = if (enabled) iconColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                    alpha = 0.38f
-                ),
-                modifier = Modifier.size(24.dp)
-            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(
+                        color = if (enabled) iconColor.copy(alpha = 0.12f) else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = 0.08f
+                        )
+                    )
+            ){
+                Icon(
+                    painter = painterResource(leadingIcon),
+                    contentDescription = null,
+                    tint = if (enabled) iconColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        alpha = 0.38f
+                    ),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -179,7 +191,7 @@ fun PreferenceVerticalItem(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,
-    leadingIcon: ImageVector,
+    @DrawableRes leadingIcon: Int,
     iconColor: Color,
     trailingContent: @Composable () -> Unit,
     onClick: (() -> Unit)? = null,
@@ -201,14 +213,26 @@ fun PreferenceVerticalItem(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = leadingIcon,
-                contentDescription = null,
-                tint = if (enabled) iconColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                    alpha = 0.38f
-                ),
-                modifier = Modifier.size(24.dp)
-            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(
+                        color = if (enabled) iconColor.copy(alpha = 0.12f) else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = 0.08f
+                        )
+                    )
+            ){
+                Icon(
+                    painter = painterResource(leadingIcon),
+                    contentDescription = null,
+                    tint = if (enabled) iconColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        alpha = 0.38f
+                    ),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -250,7 +274,7 @@ fun PreferenceSwitch(
     subtitle: String? = null,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    leadingIcon: ImageVector,
+    @DrawableRes leadingIcon: Int,
     iconColor: Color,
     enabled: Boolean = true
 ) {
@@ -777,7 +801,7 @@ private fun PreferenceSwitchPrev() {
             subtitle = "Subtitle",
             checked = true,
             onCheckedChange = {},
-            leadingIcon = Icons.Default.Person,
+            leadingIcon = R.drawable.interface_user,
             iconColor = MaterialTheme.colorScheme.primary
         )
     }
@@ -792,7 +816,7 @@ private fun PreferenceItemPrev() {
         PreferenceHorizontalItem(
             title = "Title",
             subtitle = "Subtitle",
-            leadingIcon = Icons.Default.Person,
+            leadingIcon = R.drawable.interface_user,
             iconColor = MaterialTheme.colorScheme.primary,
             trailingContent = {
                 Icon(
@@ -815,7 +839,7 @@ private fun PreferenceSectionPrev() {
             PreferenceHorizontalItem(
                 title = "Title",
                 subtitle = "Subtitle",
-                leadingIcon = Icons.Default.Person,
+                leadingIcon = R.drawable.interface_user,
                 iconColor = MaterialTheme.colorScheme.primary,
                 trailingContent = {
                     Icon(
@@ -828,7 +852,7 @@ private fun PreferenceSectionPrev() {
             PreferenceHorizontalItem(
                 title = "Title",
                 subtitle = "Subtitle",
-                leadingIcon = Icons.Default.Person,
+                leadingIcon = R.drawable.interface_user,
                 iconColor = MaterialTheme.colorScheme.primary,
                 trailingContent = {
                     Icon(
