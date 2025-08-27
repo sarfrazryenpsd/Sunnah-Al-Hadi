@@ -6,6 +6,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -127,12 +128,12 @@ class AppTypographySizes(private val scaleFactors: ScaleFactors) {
     val homeSunnahTitle = (28 * scaleFactors.textScale).sp      // Home Sunnah title
     val homeSalat = (16 * scaleFactors.textScale).sp            // Home Salat text
     val homeSunnahHeading = (14 * scaleFactors.textScale).sp    // Home Sunnah heading
-    val homeSunnahDetail = (12 * scaleFactors.textScale).sp     // Home Sunnah detail
+    val homeSunnahDetail = (16 * scaleFactors.textScale).sp     // Home Sunnah detail
     val sunnahReference = (10 * scaleFactors.textScale).sp      // Sunnah reference text
 
     // Arabic Typography (Amiri)
     val arabicLarge = (20 * scaleFactors.textScale).sp  // Main Arabic text (was 40)
-    val arabicMedium = (16 * scaleFactors.textScale).sp // Secondary Arabic (was 32)
+    val arabicMedium = (12 * scaleFactors.textScale).sp // Secondary Arabic (was 32)
     val arabicSmall = (12 * scaleFactors.textScale).sp  // References (was 24)
 
     // Line heights (1.4x font size for readability)
@@ -306,8 +307,8 @@ class AppTypography internal constructor(private val sizes: AppTypographySizes) 
     ).copy(fontSize = sizes.sunnahDetail)
 
     val reminderTime: TextStyle = TypographyFactory.createTextStyle(
-        TypographyConfig.TextRole.BODY, sizes, FontWeight.Light
-    ).copy(fontSize = sizes.reminderTime)
+        TypographyConfig.TextRole.BODY, sizes, FontWeight.Light,
+    ).copy(fontSize = sizes.reminderTime, fontStyle = FontStyle.Italic)
 
     val tabs: TextStyle = TypographyFactory.createTextStyle(
         TypographyConfig.TextRole.LABEL, sizes, FontWeight.Bold
@@ -343,8 +344,8 @@ class AppTypography internal constructor(private val sizes: AppTypographySizes) 
     ).copy(fontSize = sizes.homeSunnahHeading)
 
     val homeSunnahDetail: TextStyle = TypographyFactory.createTextStyle(
-        TypographyConfig.TextRole.ARABIC_SMALL, sizes, FontWeight.Bold
-    ).copy(fontSize = sizes.homeSunnahDetail)
+        TypographyConfig.TextRole.ARABIC_SMALL, sizes, FontWeight.Normal
+    ).copy(fontSize = sizes.homeSunnahDetail, fontFamily = TypographyConfig.amiri)
 
     val sunnahReference: TextStyle = TypographyFactory.createTextStyle(
         TypographyConfig.TextRole.ARABIC_SMALL, sizes, FontWeight.Light

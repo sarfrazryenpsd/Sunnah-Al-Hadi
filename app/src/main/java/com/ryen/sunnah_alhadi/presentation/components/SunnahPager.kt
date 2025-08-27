@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -70,7 +69,6 @@ import com.ryen.sunnah_alhadi.domain.model.ExtraContentType
 import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.presentation.components.cards.ECIconBox
-import com.ryen.sunnah_alhadi.presentation.util.buildMetaInfoIconsForSunnah
 import com.ryen.sunnah_alhadi.presentation.util.getExtraContentMetaInfo
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
@@ -113,6 +111,7 @@ fun SunnahPager(
                 // No items left, dismiss immediately to prevent flash
                 onDismiss()
             }
+
             pagerState.currentPage >= sunnahs.size -> {
                 // Current page is out of bounds, navigate to last valid page
                 val newPage = (sunnahs.size - 1).coerceAtLeast(0)
@@ -324,7 +323,13 @@ private fun SunnahFullCard(
             .verticalScroll(scrollState)
     ) {
         // Header with title and metadata
-        SunnahCardHeader(sunnah = sunnah)
+        Text(
+            text = sunnah.title,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -369,34 +374,6 @@ private fun SunnahFullCard(
     }
 }
 
-@Composable
-private fun SunnahCardHeader(sunnah: Sunnah) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Top
-    ) {
-        Text(
-            text = sunnah.title,
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
-        )
-
-        // Metadata icons
-        val metaIcons = buildMetaInfoIconsForSunnah(sunnah)
-        if (metaIcons.isNotEmpty()) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.padding(start = 12.dp)
-            ) {
-                items(metaIcons.size) { index ->
-                    metaIcons[index]()
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun ContentBlockRenderer(
@@ -721,7 +698,13 @@ fun SunnahCardHeaderPreview() {
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
         Surface {
-            SunnahCardHeader(sunnah = sampleSunnah1)
+            Text(
+                text = sampleSunnah1.title,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

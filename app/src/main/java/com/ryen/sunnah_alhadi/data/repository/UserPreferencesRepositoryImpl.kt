@@ -35,7 +35,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         username = "",
         themeMode = 0, // SYSTEM
         isDynamicThemeEnabled = false,
-        isDailyReminderEnabled = false,
+        isDailyReminderEnabled = true,
         hasCompletedOnboarding = false,
         hasSeenDisclaimer = false,
         recentlyViewedSunnahIds = emptyList(),
@@ -43,7 +43,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         sotdGeneratedDate = 0L,
         isSotdSeen = false,
         sotdNotificationTime = NotificationTime.MORNING,
-        isSotdNotificationEnabled = false
+        isSotdNotificationEnabled = true
     )
     // Cache frequently accessed data
     private val _userPreferencesFlow: StateFlow<UserPreferences> = dataStore.data

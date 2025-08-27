@@ -4,8 +4,10 @@ import android.graphics.BlurMaskFilter
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,7 +21,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
@@ -28,8 +29,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -38,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.presentation.screens.home.homeSunnahConst
-import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRenderer
+import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRendererV2
 import com.ryen.sunnah_alhadi.presentation.util.DynamicReferenceRenderer
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
@@ -56,13 +55,15 @@ fun HomeSunnahCard(
             .background(MaterialTheme.colorScheme.secondary)
             .innerShadow(
                 shape = RectangleShape,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                 blur = 12.dp,
                 offsetX = 0.dp,
                 offsetY = 0.dp,
             )
     ) {
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier.padding(20.dp)
         ) {
 
@@ -80,15 +81,20 @@ fun HomeSunnahCard(
 
             Spacer(modifier = Modifier.height(12.dp))
             // Sunnah Content Preview (first few lines)
-            DynamicContentBlockRenderer(
+            DynamicContentBlockRendererV2(
                 contentBlocks = sunnah.body, // Show only first 2 blocks
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
 
             DynamicReferenceRenderer(
                 references = sunnah.references!!,
-                modifier = Modifier.fillMaxWidth()
             )
+
         }
     }
 }
@@ -129,10 +135,6 @@ fun Modifier.innerShadow(
         canvas.restore()
     }
 }
-
-
-
-
 
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)

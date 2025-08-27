@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.presentation.screens.home
 
+import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.domain.model.ContentBlock
 import com.ryen.sunnah_alhadi.domain.model.ContentType
@@ -29,16 +30,46 @@ val homeSunnahConst: Sunnah = Sunnah(
         ContentBlock(
             type = ContentType.ENGLISH_TEXT,
             subtype = EnglishSubtype.NORMAL.name,
-            content = "The beloved Prophet صَلَّى اللهُ عَلَيْهِ وَسَلَّم has said, \"On Judgement Day, there will be no other shade except for the shade of Arsh of Allah Almighty. Three people will be under the shade of Arsh of Allah Almighty.\""
+            content = "The beloved Prophet "
+        ),
+        ContentBlock(
+            type = ContentType.ARABIC_TEXT,
+            subtype = ArabicSubtype.HONORIFIC.name,
+            content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
         ),
         ContentBlock(
             type = ContentType.ENGLISH_TEXT,
             subtype = EnglishSubtype.NORMAL.name,
-            content = "It was humbly asked, ‘Ya Rasoolallah صَلَّى اللهُ عَلَيْهِ وَسَلَّم ! Who will be those people?’ He صَلَّى اللهُ عَلَيْهِ وَسَلَّم replied:\n" +
+            content = " has said, \"On Judgement Day, there will be no other shade except for the shade of Arsh of Allah Almighty.\n\n"+"Three people will be under the shade of Arsh of Allah Almighty.\""
+        ),
+        ContentBlock(
+            type = ContentType.ENGLISH_TEXT,
+            subtype = EnglishSubtype.NORMAL.name,
+            content = "It was humbly asked, ‘Ya Rasoolallah "
+        ),
+        ContentBlock(
+            type = ContentType.ARABIC_TEXT,
+            subtype = ArabicSubtype.HONORIFIC.name,
+            content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
+        ),
+        ContentBlock(
+            type = ContentType.ENGLISH_TEXT,
+            subtype = EnglishSubtype.NORMAL.name,
+            content = " ! Who will be those people?’ He "
+        ),
+        ContentBlock(
+            type = ContentType.ARABIC_TEXT,
+            subtype = ArabicSubtype.HONORIFIC.name,
+            content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
+        ),
+        ContentBlock(
+            type = ContentType.ENGLISH_TEXT,
+            subtype = EnglishSubtype.NORMAL.name,
+            content = " replied:\n\n" +
                     "1. The person who removes the worry of my Ummah.\n" +
                     "2. The one who revives my Sunnah.\n" +
                     "3. The one who recites salat upon me abundantly."
-        )
+        ),
     ),
     references = listOf(
         Reference("Al-Budu-rus-safirah, p. 131, Hadith 366")

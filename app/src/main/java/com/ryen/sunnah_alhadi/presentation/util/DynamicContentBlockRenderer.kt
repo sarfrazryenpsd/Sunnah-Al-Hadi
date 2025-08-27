@@ -1,10 +1,11 @@
 package com.ryen.sunnah_alhadi.presentation.util
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -12,24 +13,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.ContentBlock
@@ -39,8 +45,10 @@ import com.ryen.sunnah_alhadi.domain.model.ExtraContent
 import com.ryen.sunnah_alhadi.domain.model.ExtraContentType
 import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
+import com.ryen.sunnah_alhadi.presentation.components.cards.ECIconBox
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
+import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
 /**
@@ -70,11 +78,9 @@ object DynamicContentStyleResolver {
     @Composable
     private fun getEnglishStyle(subtype: Any): TextStyle {
         return when (subtype) {
-            EnglishSubtype.NORMAL -> MaterialTheme.appTypography.bodyPrimary
-            EnglishSubtype.TRANSLATION -> MaterialTheme.appTypography.bodyPrimary.copy(
-                fontStyle = FontStyle.Italic
-            )
-            else -> MaterialTheme.appTypography.bodyPrimary// Fallback for string subtypes
+            EnglishSubtype.NORMAL -> MaterialTheme.appTypography.homeSunnahDetail
+            EnglishSubtype.TRANSLATION -> MaterialTheme.appTypography.reminderTime
+            else -> MaterialTheme.appTypography.tabs.copy(fontWeight = FontWeight.Normal)// Fallback for string subtypes
         }
     }
 
@@ -119,25 +125,320 @@ object DynamicContentStyleResolver {
  * Main Content Block Renderer with dynamic typography support
  * Must be wrapped with DynamicTypographyProvider
  */
+
+private sealed class BlockGroup {
+    data class InlineGroup(val blocks: List<ContentBlock>) : BlockGroup()
+    data class SingleBlock(val block: ContentBlock) : BlockGroup()
+}
+
+private fun groupConsecutiveInlineBlocks(
+    contentBlocks: List<ContentBlock>,
+    inlineSubtypes: Set<String>
+): List<BlockGroup> {
+    val result = mutableListOf<BlockGroup>()
+    val currentInlineGroup = mutableListOf<ContentBlock>()
+
+    contentBlocks.forEach { block ->
+        val isInline = inlineSubtypes.contains(block.subtype.uppercase())
+
+        if (isInline) {
+            currentInlineGroup.add(block)
+        } else {
+            // If we have accumulated inline blocks, add them as a group
+            if (currentInlineGroup.isNotEmpty()) {
+                result.add(BlockGroup.InlineGroup(currentInlineGroup.toList()))
+                currentInlineGroup.clear()
+            }
+            // Add the non-inline block
+            result.add(BlockGroup.SingleBlock(block))
+        }
+    }
+
+    // Don't forget the last group if it ends with inline blocks
+    if (currentInlineGroup.isNotEmpty()) {
+        result.add(BlockGroup.InlineGroup(currentInlineGroup.toList()))
+    }
+
+    return result
+}
+
+@Composable
+private fun RenderInlineGroup(blocks: List<ContentBlock>) {
+    val annotatedString = buildAnnotatedString {
+        blocks.forEach { block ->
+            val style = DynamicContentStyleResolver.getTextStyle(
+                type = block.type,
+                subtype = block.subtype
+            )
+
+            // Create span style based on the block's properties
+            val spanStyle = SpanStyle(
+                fontFamily = style.fontFamily,
+                fontSize = style.fontSize,
+                fontWeight = style.fontWeight,
+                fontStyle = style.fontStyle,
+                color = getContentColor(block.type, block.subtype)
+            )
+
+            // Apply different styling based on content type
+            when (block.type) {
+                ContentType.ARABIC_TEXT -> {
+                    withStyle(
+                        spanStyle.copy(
+                            // You might want to apply RTL direction here if needed
+                            // Note: Individual spans can't have text direction,
+                            // so Arabic text will follow the overall text direction
+                        )
+                    ) {
+                        append(block.content)
+                    }
+                }
+                ContentType.ENGLISH_TEXT -> {
+                    withStyle(spanStyle) {
+                        append(block.content)
+                    }
+                }
+            }
+        }
+    }
+
+    // Determine the base text direction and alignment
+    // Use the first block's properties as the base
+    val firstBlock = blocks.first()
+    val baseAlignment = DynamicContentStyleResolver.getTextAlignment(firstBlock.type)
+    val baseDirection = DynamicContentStyleResolver.getTextDirection(firstBlock.type)
+    val baseStyle = DynamicContentStyleResolver.getTextStyle(firstBlock.type, firstBlock.subtype)
+
+    SelectionContainer {
+        Text(
+            text = annotatedString,
+            style = baseStyle.copy(
+                textAlign = baseAlignment,
+                textDirection = baseDirection,
+                color = Color.Unspecified // Let individual spans control color
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun RenderSingleBlock(block: ContentBlock) {
+    val textStyle = DynamicContentStyleResolver.getTextStyle(
+        type = block.type,
+        subtype = block.subtype
+    )
+    val textAlign = DynamicContentStyleResolver.getTextAlignment(block.type)
+    val textDirection = DynamicContentStyleResolver.getTextDirection(block.type)
+    val contentPadding = DynamicContentStyleResolver.getContentPadding()
+
+    // Check if content contains mixed languages
+    val hasMixedContent = containsMixedLanguages(block.content)
+
+    if (hasMixedContent && block.type == ContentType.ENGLISH_TEXT) {
+        // Handle mixed English-Arabic content
+        DynamicMixedContentRenderer(
+            content = block.content,
+            baseStyle = textStyle,
+            modifier = Modifier.padding(contentPadding)
+        )
+    } else {
+        // Handle single language content
+        SelectionContainer {
+            Text(
+                text = block.content,
+                style = textStyle.copy(
+                    textAlign = textAlign,
+                    textDirection = textDirection
+                ),
+                modifier = Modifier.padding(
+                    if (block.type == ContentType.ARABIC_TEXT) {
+                        contentPadding.copy(
+                            horizontal = contentPadding.calculateStartPadding(
+                                androidx.compose.ui.unit.LayoutDirection.Ltr
+                            ) + 8.dp
+                        )
+                    } else contentPadding
+                ),
+                color = getContentColor(block.type, block.subtype)
+            )
+        }
+    }
+}
+
+// Enhanced version with better Arabic text handling
+@Composable
+fun DynamicContentBlockRendererV2(
+    contentBlocks: List<ContentBlock>,
+    modifier: Modifier = Modifier
+) {
+    val blockSpacing = DynamicContentStyleResolver.getBlockSpacing()
+    val inlineSubtypes = setOf("NORMAL", "HONORIFIC", "OTHER")
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(blockSpacing)
+    ) {
+        val groupedBlocks = groupConsecutiveInlineBlocks(contentBlocks, inlineSubtypes)
+
+        groupedBlocks.forEach { group ->
+            when (group) {
+                is BlockGroup.InlineGroup -> {
+                    RenderInlineGroupV2(group.blocks)
+                }
+                is BlockGroup.SingleBlock -> {
+                    RenderSingleBlock(group.block)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RenderInlineGroupV2(blocks: List<ContentBlock>) {
+    // Determine if we have mixed languages in the group
+    val hasMixedLanguages = blocks.any { it.type == ContentType.ARABIC_TEXT } &&
+            blocks.any { it.type == ContentType.ENGLISH_TEXT }
+
+    val annotatedString = buildAnnotatedString {
+        blocks.forEach { block ->
+            val style = DynamicContentStyleResolver.getTextStyle(
+                type = block.type,
+                subtype = block.subtype
+            )
+
+            val spanStyle = SpanStyle(
+                fontFamily = style.fontFamily,
+                fontSize = style.fontSize,
+                fontWeight = style.fontWeight,
+                fontStyle = style.fontStyle,
+                color = getContentColor(block.type, block.subtype)
+            )
+
+            withStyle(spanStyle) {
+                append(block.content)
+            }
+        }
+    }
+
+    // For mixed content, use LTR base direction but let Arabic text render properly
+    val baseDirection = if (hasMixedLanguages) {
+        TextDirection.Ltr
+    } else {
+        DynamicContentStyleResolver.getTextDirection(blocks.first().type)
+    }
+
+    val baseAlignment = if (hasMixedLanguages) {
+        TextAlign.Start
+    } else {
+        DynamicContentStyleResolver.getTextAlignment(blocks.first().type)
+    }
+
+    val baseStyle = DynamicContentStyleResolver.getTextStyle(
+        blocks.first().type,
+        blocks.first().subtype
+    )
+
+    SelectionContainer {
+        Text(
+            text = annotatedString,
+            style = baseStyle.copy(
+                textAlign = baseAlignment,
+                textDirection = baseDirection,
+                color = Color.Unspecified
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+
+
 @Composable
 fun DynamicContentBlockRenderer(
     contentBlocks: List<ContentBlock>,
     modifier: Modifier = Modifier
 ) {
+    val blockSpacing = DynamicContentStyleResolver.getBlockSpacing()
+    val inlineSubtypes = setOf("NORMAL", "HONORIFIC", "OTHER")
 
-        val blockSpacing = DynamicContentStyleResolver.getBlockSpacing()
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(blockSpacing)
+    ) {
+        var annotatedBuilder = androidx.compose.ui.text.AnnotatedString.Builder()
+        var lastStyle: TextStyle? = null
+        var lastAlign: TextAlign = TextAlign.Start
+        var lastDirection: TextDirection = TextDirection.Ltr
 
-        Column(
-            modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(blockSpacing)
-        ) {
-            contentBlocks.forEach { block ->
-                DynamicContentBlockItem(
-                    contentBlock = block,
-                    modifier = Modifier.fillMaxWidth()
+        contentBlocks.forEach { block ->
+            val subtypeUpper = block.subtype.uppercase()
+            val isInline = inlineSubtypes.contains(subtypeUpper)
+            val style = DynamicContentStyleResolver.getTextStyle(type = block.type, subtype = block.subtype)
+            val align = DynamicContentStyleResolver.getTextAlignment(block.type)
+            val direction = DynamicContentStyleResolver.getTextDirection(block.type)
+
+            if (isInline) {
+                if (lastStyle == null) {
+                    lastStyle = style
+                    lastAlign = align
+                    lastDirection = direction
+                } else if (lastStyle != style || lastAlign != align || lastDirection != direction) {
+                    if (annotatedBuilder.length > 0) {
+                        SelectionContainer {
+                            Text(
+                                text = annotatedBuilder.toAnnotatedString(),
+                                style = lastStyle!!.copy(
+                                    textAlign = lastAlign,
+                                    textDirection = lastDirection
+                                ),
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        annotatedBuilder = androidx.compose.ui.text.AnnotatedString.Builder()
+                    }
+                    lastStyle = style
+                    lastAlign = align
+                    lastDirection = direction
+                }
+                annotatedBuilder.append(block.content)
+            } else {
+                if (annotatedBuilder.length > 0 && lastStyle != null) {
+                    SelectionContainer {
+                        Text(
+                            text = annotatedBuilder.toAnnotatedString(),
+                            style = lastStyle.copy(
+                                textAlign = lastAlign,
+                                textDirection = lastDirection
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    annotatedBuilder = androidx.compose.ui.text.AnnotatedString.Builder()
+                }
+                SelectionContainer {
+                    Text(
+                        text = block.content,
+                        style = style.copy(textAlign = align, textDirection = direction),
+                        modifier = Modifier.fillMaxWidth(),
+                        color = getContentColor(block.type, block.subtype)
+                    )
+                }
+            }
+        }
+        if (annotatedBuilder.length > 0 && lastStyle != null) {
+            SelectionContainer {
+                Text(
+                    text = annotatedBuilder.toAnnotatedString(),
+                    style = lastStyle.copy(textAlign = lastAlign, textDirection = lastDirection),
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
+    }
 }
 
 @Composable
@@ -323,7 +624,11 @@ fun DynamicReferenceRenderer(
                 ScreenSize.MEDIUM -> 5.dp
                 ScreenSize.EXPANDED -> 6.dp
             }
-
+        Row(
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Column(
                 modifier = modifier.padding(top = topPadding),
                 verticalArrangement = Arrangement.spacedBy(itemSpacing)
@@ -339,6 +644,7 @@ fun DynamicReferenceRenderer(
                     )
                 }
             }
+        }
         }
 
 }
@@ -400,29 +706,53 @@ private fun DynamicExtraContentSection(
         ScreenSize.EXPANDED -> 16.dp
     }
 
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .clip(RoundedCornerShape(cornerRadius))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-            .padding(containerPadding)
+    val metaInfo = getExtraContentMetaInfo(extraContent.type)
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = metaInfo.colors.iconBackground.copy(alpha = 0.1f)
+        ),
+        border = BorderStroke(1.dp, metaInfo.colors.borderColor.copy(alpha = 0.3f))
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(12.dp)
         ) {
-            // Section header
-            Text(
-                text = getExtraContentTitle(extraContent.type),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 8.dp)
+            ) {
+                ECIconBox(
+                    iconColor = metaInfo.colors.iconColor,
+                    iconRes = metaInfo.icon,
+                )
 
-            // Section content
-            DynamicContentBlockRenderer(
-                contentBlocks = extraContent.content,
-                modifier = Modifier.padding(start = contentPadding)
-            )
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = extraContent.type.name.replace("_", " ").titleCase(),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = metaInfo.colors.iconColor
+                )
+            }
+            // TODO: Render extraContent.content based on its type (e.g., text, list)
+            // For now, just displaying the raw content string if it'''s not empty
+            /*if (extraContent.content.isNotBlank()) {
+                 Text(
+                    text = extraContent.content,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }*/
+        }
+
+    }
+}
+
+private fun String.titleCase(): String {
+    return split(" ").joinToString(" ") { word ->
+        word.lowercase().replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase() else it.toString()
         }
     }
 }
@@ -458,34 +788,52 @@ private fun PaddingValues.copy(
     )
 }
 
-
-
-
-
-
 object PreviewData {
 
     val mixedContentBlocks = listOf(
         ContentBlock(
             type = ContentType.ENGLISH_TEXT,
             subtype = EnglishSubtype.NORMAL.name,
-            content = "The beloved Prophet صَلَّى اللهُ عَلَيْهِ وَسَلَّم said: \"By virtue of the righteous Muslim, Allah Almighty removes a calamity from 100 houses in his neighborhood.\""
+            content = "The beloved Prophet "
+        ),
+        ContentBlock(
+            type = ContentType.ARABIC_TEXT,
+            subtype = ArabicSubtype.HONORIFIC.name,
+            content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
         ),
         ContentBlock(
             type = ContentType.ENGLISH_TEXT,
             subtype = EnglishSubtype.NORMAL.name,
-            content = "Then he صَلَّى اللهُ عَلَيْهِ وَسَلَّم recited:"
-        ),
-        ContentBlock(
-            type = ContentType.ARABIC_TEXT,
-            subtype = ArabicSubtype.VERSE.name,
-            content = "وَلَوْلَا دَفْعُ اللَّهِ النَّاسَ بَعْضَهُم بِبَعْضٍۢ لَّفَسَدَتِ الْأَرْضُ"
+            content = " has said, \"On Judgement Day, there will be no other shade except for the shade of Arsh of Allah Almighty.\n\n"+"Three people will be under the shade of Arsh of Allah Almighty.\""
         ),
         ContentBlock(
             type = ContentType.ENGLISH_TEXT,
-            subtype = EnglishSubtype.TRANSLATION.name,
-            content = "\"And if Allah does not keep away some people by means of others, the earth would have been corrupted.\""
-        )
+            subtype = EnglishSubtype.NORMAL.name,
+            content = "It was humbly asked, ‘Ya Rasoolallah "
+        ),
+        ContentBlock(
+            type = ContentType.ARABIC_TEXT,
+            subtype = ArabicSubtype.HONORIFIC.name,
+            content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
+        ),
+        ContentBlock(
+            type = ContentType.ENGLISH_TEXT,
+            subtype = EnglishSubtype.NORMAL.name,
+            content = " ! Who will be those people?’ He "
+        ),
+        ContentBlock(
+            type = ContentType.ARABIC_TEXT,
+            subtype = ArabicSubtype.HONORIFIC.name,
+            content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
+        ),
+        ContentBlock(
+            type = ContentType.ENGLISH_TEXT,
+            subtype = EnglishSubtype.NORMAL.name,
+            content = " replied:\n\n" +
+                    "1. The person who removes the worry of my Ummah.\n" +
+                    "2. The one who revives my Sunnah.\n" +
+                    "3. The one who recites salat upon me abundantly."
+        ),
     )
 
     val pureArabicBlocks = listOf(
@@ -557,32 +905,38 @@ object PreviewData {
     )
 }
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun DynamicContentPreviewWrapper(
     contentBlocks: List<ContentBlock>,
     references: List<Reference> = emptyList(),
     extraContent: List<ExtraContent> = emptyList()
 ) {
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colorScheme.background)
-        .padding(16.dp)
-    ) {
-        DynamicContentBlockRenderer(
-            contentBlocks = contentBlocks,
-        )
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(360.dp, 640.dp))
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp)
+        ) {
+            DynamicContentBlockRendererV2(
+                contentBlocks = contentBlocks,
+            )
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        DynamicExtraContentRenderer(
-            extraContent = extraContent,
-        )
+            DynamicExtraContentRenderer(
+                extraContent = extraContent,
+            )
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        DynamicReferenceRenderer(
-            references = references,
-        )
+            DynamicReferenceRenderer(
+                references = references,
+            )
+        }
     }
 }
 
