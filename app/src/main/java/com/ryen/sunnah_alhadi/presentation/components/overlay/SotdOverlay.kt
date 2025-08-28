@@ -1,7 +1,6 @@
 package com.ryen.sunnah_alhadi.presentation.components.overlay
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -12,21 +11,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -56,13 +47,10 @@ import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeEvent
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeViewModel
-import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRenderer
+import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRendererV2
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun SotdCardContainer(
@@ -152,7 +140,7 @@ fun SotdOverlayContent(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Sunnah Content
-                DynamicContentBlockRenderer(
+                DynamicContentBlockRendererV2(
                     contentBlocks = sunnah.body,
                     modifier = Modifier.fillMaxWidth()
                 )

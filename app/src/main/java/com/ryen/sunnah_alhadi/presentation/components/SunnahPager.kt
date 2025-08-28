@@ -9,7 +9,6 @@ package com.ryen.sunnah_alhadi.presentation.components
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -35,10 +33,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -57,19 +52,22 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
+import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.ContentBlock
 import com.ryen.sunnah_alhadi.domain.model.ContentType
+import com.ryen.sunnah_alhadi.domain.model.EnglishSubtype
 import com.ryen.sunnah_alhadi.domain.model.ExtraContent
 import com.ryen.sunnah_alhadi.domain.model.ExtraContentType
 import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
-import com.ryen.sunnah_alhadi.presentation.components.cards.ECIconBox
-import com.ryen.sunnah_alhadi.presentation.util.getExtraContentMetaInfo
+import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRendererV2
+import com.ryen.sunnah_alhadi.presentation.util.DynamicExtraContentRenderer
+import com.ryen.sunnah_alhadi.presentation.util.DynamicReferenceRenderer
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
@@ -291,22 +289,6 @@ private fun SunnahPagerCard(
                 modifier = Modifier.fillMaxSize()
             )
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(Color.Gray)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Bookmark,
-                contentDescription = "Bookmark",
-                tint = Color.White
-            )
-        }
     }
 }
 
@@ -325,159 +307,42 @@ private fun SunnahFullCard(
         // Header with title and metadata
         Text(
             text = sunnah.title,
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.appTypography.displayName.copy(
+                fontWeight = FontWeight.SemiBold,
+                lineHeight = 32.sp
+            ),
             color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Main content blocks
-        sunnah.body.forEach { contentBlock ->
-            ContentBlockRenderer(
-                contentBlock = contentBlock,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-        }
+        DynamicContentBlockRendererV2(
+            modifier = Modifier.fillMaxWidth(),
+            contentBlocks = sunnah.body
+        )
 
         // Extra content section
         if (!sunnah.extra.isNullOrEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            sunnah.extra.forEach { extraContent ->
-                ExtraContentRenderer(
-                    extraContent = extraContent,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
+            DynamicExtraContentRenderer(
+                extraContent = sunnah.extra,
+            )
         }
 
         // References section
         if (!sunnah.references.isNullOrEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = "References",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp)
+            DynamicReferenceRenderer(
+                references = sunnah.references,
             )
-
-            sunnah.references.forEach { reference ->
-                ReferenceRenderer(
-                    reference = reference,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-            }
         }
     }
 }
 
-
-@Composable
-private fun ContentBlockRenderer(
-    contentBlock: ContentBlock,
-    modifier: Modifier = Modifier
-) {
-    val textStyle = when (contentBlock.type) {
-        ContentType.ARABIC_TEXT -> {
-            when (contentBlock.subtype.lowercase()) {
-                "verse" -> MaterialTheme.typography.headlineMedium.copy(
-                    textAlign = TextAlign.Center,
-                    lineHeight = 1.8.em
-                )
-
-                "supplication" -> MaterialTheme.typography.headlineSmall.copy(
-                    textAlign = TextAlign.Right,
-                    lineHeight = 1.6.em
-                )
-
-                else -> MaterialTheme.typography.bodyLarge.copy(
-                    textAlign = TextAlign.Right,
-                    lineHeight = 1.5.em
-                )
-            }
-        }
-
-        ContentType.ENGLISH_TEXT -> {
-            when (contentBlock.subtype.lowercase()) {
-                "translation" -> MaterialTheme.typography.bodyLarge.copy(
-                    fontStyle = MaterialTheme.appTypography.bodyPrimary.fontStyle,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                )
-
-                else -> MaterialTheme.typography.bodyLarge
-            }
-        }
-    }
-
-    Text(
-        text = contentBlock.content,
-        style = textStyle,
-        modifier = modifier.fillMaxWidth()
-    )
-}
-
-@Composable
-private fun ExtraContentRenderer(
-    extraContent: ExtraContent,
-    modifier: Modifier = Modifier
-) {
-    val metaInfo = getExtraContentMetaInfo(extraContent.type)
-
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = metaInfo.colors.iconBackground.copy(alpha = 0.1f)
-        ),
-        border = BorderStroke(1.dp, metaInfo.colors.borderColor.copy(alpha = 0.3f))
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 8.dp)
-            ) {
-                ECIconBox(
-                    iconColor = metaInfo.colors.iconColor,
-                    iconRes = metaInfo.icon,
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Text(
-                    text = extraContent.type.name.replace("_", " ").titleCase(),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = metaInfo.colors.iconColor
-                )
-            }
-            // TODO: Render extraContent.content based on its type (e.g., text, list)
-            // For now, just displaying the raw content string if it'''s not empty
-            /*if (extraContent.content.isNotBlank()) {
-                 Text(
-                    text = extraContent.content,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }*/
-        }
-    }
-}
-
-@Composable
-private fun ReferenceRenderer(
-    reference: Reference,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = "• ${reference.source}",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-        modifier = modifier.fillMaxWidth()
-    )
-}
 
 @Composable
 private fun PagerIndicators(
@@ -506,71 +371,57 @@ private fun PagerIndicators(
     }
 }
 
-// Extension function for title case
-private fun String.titleCase(): String {
-    return split(" ").joinToString(" ") { word ->
-        word.lowercase().replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase() else it.toString()
-        }
-    }
-}
-
-// --- Previews ---
-
-
-// Placeholder for ExtraContentType if not defined or to avoid complex dependencies in preview
-enum class SampleExtraContentType {
-    BENEFIT, STORY, ETIQUETTE, WARNING, VIRTUE, DUAA, HADITH_EXPLANATION
-}
-
-// Placeholder for MetaInfoColors
-data class SampleMetaInfoColors(
-    val iconColor: Color,
-    val iconBackground: Color,
-    val borderColor: Color
-)
-
-// Placeholder for MetaInfo
-data class SampleMetaInfo(
-    val icon: Int, // Assuming icon is an Int resource
-    val colors: SampleMetaInfoColors
-)
-
-// Mock/Preview version of getExtraContentMetaInfo
-// IMPORTANT: Replace this with a more accurate mock or ensure your actual
-// getExtraContentMetaInfo can be called in previews if it has no complex dependencies.
-private fun previewGetExtraContentMetaInfo(type: SampleExtraContentType): SampleMetaInfo {
-    // Basic placeholder logic
-    val colors = when (type) {
-        SampleExtraContentType.BENEFIT -> SampleMetaInfoColors(
-            Color.Green,
-            Color.Green.copy(alpha = 0.1f),
-            Color.Green.copy(alpha = 0.3f)
-        )
-
-        SampleExtraContentType.WARNING -> SampleMetaInfoColors(
-            Color.Red,
-            Color.Red.copy(alpha = 0.1f),
-            Color.Red.copy(alpha = 0.3f)
-        )
-
-        else -> SampleMetaInfoColors(
-            Color.Gray,
-            Color.Gray.copy(alpha = 0.1f),
-            Color.Gray.copy(alpha = 0.3f)
-        )
-    }
-    return SampleMetaInfo(
-        icon = android.R.drawable.ic_dialog_info, // Placeholder icon
-        colors = colors
-    )
-}
-
 
 val sampleContentBlockArabic = ContentBlock(
     type = ContentType.ARABIC_TEXT,
     content = "بسم الله الرحمن الرحيم",
     subtype = "Verse"
+)
+
+val mixedContentBlocks = listOf(
+    ContentBlock(
+        type = ContentType.ENGLISH_TEXT,
+        subtype = EnglishSubtype.NORMAL.name,
+        content = "The beloved Prophet "
+    ),
+    ContentBlock(
+        type = ContentType.ARABIC_TEXT,
+        subtype = ArabicSubtype.HONORIFICS.name,
+        content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
+    ),
+    ContentBlock(
+        type = ContentType.ENGLISH_TEXT,
+        subtype = EnglishSubtype.NORMAL.name,
+        content = " has said, \"On Judgement Day, there will be no other shade except for the shade of Arsh of Allah Almighty.\n\n" + "Three people will be under the shade of Arsh of Allah Almighty.\""
+    ),
+    ContentBlock(
+        type = ContentType.ENGLISH_TEXT,
+        subtype = EnglishSubtype.NORMAL.name,
+        content = "It was humbly asked, ‘Ya Rasoolallah "
+    ),
+    ContentBlock(
+        type = ContentType.ARABIC_TEXT,
+        subtype = ArabicSubtype.HONORIFICS.name,
+        content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
+    ),
+    ContentBlock(
+        type = ContentType.ENGLISH_TEXT,
+        subtype = EnglishSubtype.NORMAL.name,
+        content = " ! Who will be those people?’ He "
+    ),
+    ContentBlock(
+        type = ContentType.ARABIC_TEXT,
+        subtype = ArabicSubtype.HONORIFICS.name,
+        content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
+    ),
+    ContentBlock(
+        type = ContentType.ENGLISH_TEXT,
+        subtype = EnglishSubtype.NORMAL.name,
+        content = " replied:\n\n" +
+                "1. The person who removes the worry of my Ummah.\n" +
+                "2. The one who revives my Sunnah.\n" +
+                "3. The one who recites salat upon me abundantly."
+    ),
 )
 
 val sampleContentBlockEnglish = ContentBlock(
@@ -595,8 +446,8 @@ val sampleReference = Reference(source = "Sahih Al-Bukhari, Hadith 1")
 val sampleSunnah1 = Sunnah(
     id = "1",
     categoryId = 2,
-    title = "Greeting Others",
-    body = listOf(sampleContentBlockArabic, sampleContentBlockEnglish),
+    title = "Greeting Others Appropriately",
+    body = mixedContentBlocks,
     extra = listOf(sampleExtraContentBenefit),
     references = listOf(sampleReference),
 )
@@ -700,9 +551,11 @@ fun SunnahCardHeaderPreview() {
         Surface {
             Text(
                 text = sampleSunnah1.title,
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.appTypography.displayName.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    lineHeight = 32.sp
+                ),
                 color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -716,7 +569,19 @@ fun ContentBlockRenderer_ArabicPreview() {
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
         Surface {
-            ContentBlockRenderer(contentBlock = sampleContentBlockArabic)
+            DynamicContentBlockRendererV2(contentBlocks = listOf(sampleContentBlockArabic))
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360)
+@Composable
+fun ContentBlockRenderer_MixedPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
+    ) {
+        Surface {
+            DynamicContentBlockRendererV2(contentBlocks = mixedContentBlocks)
         }
     }
 }
@@ -728,41 +593,7 @@ fun ContentBlockRenderer_EnglishPreview() {
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
         Surface {
-            ContentBlockRenderer(contentBlock = sampleContentBlockEnglish)
-        }
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360)
-@Composable
-fun ExtraContentRendererPreview_Benefit() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        Surface {
-            // Temporarily use the previewGetExtraContentMetaInfo for ExtraContentRenderer
-            val originalGetMetaInfo =
-                @Composable { type: ExtraContentType -> getExtraContentMetaInfo(type) }
-            val previewMetaInfo = @Composable { type: ExtraContentType ->
-                // This is a hack for preview. Ideally, your domain ExtraContentType matches SampleExtraContentType
-                // or you provide a proper mock for MetaInfo based on your actual ExtraContentType.
-                // For this preview, we assume ExtraContentType.BENEFIT can be mapped to SampleExtraContentType.BENEFIT
-                previewGetExtraContentMetaInfo(SampleExtraContentType.BENEFIT)
-            }
-            // This preview will use the mocked getExtraContentMetaInfo
-            ExtraContentRenderer(extraContent = sampleExtraContentBenefit)
-        }
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360)
-@Composable
-fun ExtraContentRendererPreview_Warning() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        Surface {
-            ExtraContentRenderer(extraContent = sampleExtraContentWarning)
+            DynamicContentBlockRendererV2(contentBlocks = listOf(sampleContentBlockEnglish))
         }
     }
 }
@@ -775,7 +606,7 @@ fun ReferenceRendererPreview() {
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
         Surface {
-            ReferenceRenderer(reference = sampleReference)
+            DynamicReferenceRenderer(references = listOf(sampleReference))
         }
     }
 }

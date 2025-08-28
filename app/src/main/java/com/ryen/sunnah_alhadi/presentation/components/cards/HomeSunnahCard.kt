@@ -85,7 +85,7 @@ fun HomeSunnahCard(
                 contentBlocks = sunnah.body, // Show only first 2 blocks
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 4.dp)
+                    .padding(horizontal = 8.dp)
             )
 
             Spacer(modifier = Modifier.height(12.dp))

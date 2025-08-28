@@ -34,7 +34,7 @@ val homeSunnahConst: Sunnah = Sunnah(
         ),
         ContentBlock(
             type = ContentType.ARABIC_TEXT,
-            subtype = ArabicSubtype.HONORIFIC.name,
+            subtype = ArabicSubtype.HONORIFICS.name,
             content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
         ),
         ContentBlock(
@@ -49,7 +49,7 @@ val homeSunnahConst: Sunnah = Sunnah(
         ),
         ContentBlock(
             type = ContentType.ARABIC_TEXT,
-            subtype = ArabicSubtype.HONORIFIC.name,
+            subtype = ArabicSubtype.HONORIFICS.name,
             content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
         ),
         ContentBlock(
@@ -59,7 +59,7 @@ val homeSunnahConst: Sunnah = Sunnah(
         ),
         ContentBlock(
             type = ContentType.ARABIC_TEXT,
-            subtype = ArabicSubtype.HONORIFIC.name,
+            subtype = ArabicSubtype.HONORIFICS.name,
             content = "صَلَّى اللهُ عَلَيْهِ وَسَلَّم"
         ),
         ContentBlock(

@@ -27,7 +27,7 @@ import com.ryen.sunnah_alhadi.domain.model.ExtraContent
 import com.ryen.sunnah_alhadi.domain.model.ExtraContentType
 import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
-import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRenderer
+import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRendererV2
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
@@ -73,7 +73,7 @@ fun SotdCard(
 
             Spacer(modifier = Modifier.height(12.dp))
             // Sunnah Content Preview (first few lines)
-            DynamicContentBlockRenderer(
+            DynamicContentBlockRendererV2(
                 contentBlocks = sunnah.body, // Show only first 2 blocks
                 modifier = Modifier.fillMaxWidth()
             )

@@ -108,7 +108,7 @@ enum class ArabicSubtype {
     @SerialName("supplication")
     SUPPLICATION,
     @SerialName("honorifics")
-    HONORIFIC,
+    HONORIFICS,
     @SerialName("other")
     OTHER
 }

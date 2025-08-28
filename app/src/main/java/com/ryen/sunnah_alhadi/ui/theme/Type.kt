@@ -116,7 +116,7 @@ class AppTypographySizes(private val scaleFactors: ScaleFactors) {
     val notificationType = (16 * scaleFactors.textScale).sp     // Notification type headers
     val extraNotificationTitle = (16 * scaleFactors.textScale).sp // Extra & notification titles
     val sunnahDetail = (14 * scaleFactors.textScale).sp         // Sunnah detail text
-    val reminderTime = (14 * scaleFactors.textScale).sp         // Reminder time text
+    val reminderTime = (16 * scaleFactors.textScale).sp         // Reminder time text
     val tabs = (12 * scaleFactors.textScale).sp                 // Tab labels
     val filters = (14 * scaleFactors.textScale).sp // Topic subtitle & filters
     val sunnahSubtitle = (10 * scaleFactors.textScale).sp // Sunnah subtitles
@@ -133,8 +133,8 @@ class AppTypographySizes(private val scaleFactors: ScaleFactors) {
 
     // Arabic Typography (Amiri)
     val arabicLarge = (20 * scaleFactors.textScale).sp  // Main Arabic text (was 40)
-    val arabicMedium = (12 * scaleFactors.textScale).sp // Secondary Arabic (was 32)
-    val arabicSmall = (12 * scaleFactors.textScale).sp  // References (was 24)
+    val arabicMedium = (16 * scaleFactors.textScale).sp // Secondary Arabic (was 32)
+    val arabicSmall = (14 * scaleFactors.textScale).sp  // References (was 24)
 
     // Line heights (1.4x font size for readability)
     val displayLineHeight = (45 * scaleFactors.textScale).sp
@@ -397,7 +397,7 @@ class AppTypography internal constructor(private val sizes: AppTypographySizes) 
     )
 
     val arabicReference: TextStyle = TypographyFactory.createTextStyle(
-        TypographyConfig.TextRole.ARABIC_SMALL, sizes, FontWeight.Normal
+        TypographyConfig.TextRole.ARABIC_SMALL, sizes, FontWeight.Bold
     )
 }
 
