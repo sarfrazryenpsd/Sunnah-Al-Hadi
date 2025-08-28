@@ -136,7 +136,7 @@ fun GlowingCard(
                 }
             }
     ) {
-        SpecialArabicCard()
+        content()
     }
 }
 

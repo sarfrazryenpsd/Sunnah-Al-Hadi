@@ -7,13 +7,11 @@ message ProtoUserPreferences {
   string username = 1;
   int32 theme_mode = 2;
   bool is_dynamic_theme_enabled = 3;
-  bool is_daily_reminder_enabled = 4;
-  bool has_completed_onboarding = 5;
-  bool has_seen_disclaimer = 6;
-  repeated string recently_viewed_sunnah_ids = 7;
-  string current_sotd_id = 8;
-  int64 sotd_generated_date = 9;
-  bool is_sotd_seen = 10;
-  int32 sotd_notification_time = 11;  // 0=MORNING, 1=EVENING, 2=NIGHT
-  bool is_sotd_notification_enabled = 12;
+  bool has_completed_onboarding = 4;
+  repeated string recently_viewed_sunnah_ids = 5;
+  string current_sotd_id = 6;
+  int64 sotd_generated_date = 7;
+  bool is_sotd_seen = 8;
+  int32 sotd_notification_time = 9;  // 0=MORNING, 1=EVENING, 2=NIGHT
+  bool is_sotd_notification_enabled = 10;
 }

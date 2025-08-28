@@ -10,9 +10,7 @@ fun ProtoUserPreferences.toDomain(): UserPreferences {
         username = this.username,
         themeMode = this.themeMode,
         isDynamicThemeEnabled = this.isDynamicThemeEnabled,
-        isDailyReminderEnabled = this.isDailyReminderEnabled,
         hasCompletedOnboarding = this.hasCompletedOnboarding,
-        hasSeenDisclaimer = this.hasSeenDisclaimer,
         recentlyViewedSunnahIds = this.recentlyViewedSunnahIdsList.toList(),
         currentSotdId = this.currentSotdId,
         sotdGeneratedDate = this.sotdGeneratedDate,
@@ -27,9 +25,7 @@ fun UserPreferences.toProto(): ProtoUserPreferences {
         .setUsername(this.username)
         .setThemeMode(this.themeMode)
         .setIsDynamicThemeEnabled(this.isDynamicThemeEnabled)
-        .setIsDailyReminderEnabled(this.isDailyReminderEnabled)
         .setHasCompletedOnboarding(this.hasCompletedOnboarding)
-        .setHasSeenDisclaimer(this.hasSeenDisclaimer)
         .addAllRecentlyViewedSunnahIds(this.recentlyViewedSunnahIds)
         .setCurrentSotdId(this.currentSotdId)
         .setSotdGeneratedDate(this.sotdGeneratedDate)

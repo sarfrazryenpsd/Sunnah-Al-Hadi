@@ -184,28 +184,6 @@ class UserPreferencesRepositoryImplTest {
         coVerify { mockDataStore.updateData(any<suspend (ProtoUserPreferences) -> ProtoUserPreferences>()) }
     }
 
-    @Test
-    fun updateDailyReminder_updates_setting_correctly() = runTest {
-        // Given
-        val enabled = true
-        val currentPrefs = createTestProtoPreferences()
-        val updatedPrefs = currentPrefs.toBuilder().setIsDailyReminderEnabled(enabled).build()
-
-        coEvery {
-            mockDataStore.updateData(any<suspend (ProtoUserPreferences) -> ProtoUserPreferences>())
-        } returns updatedPrefs
-
-        repository = UserPreferencesRepositoryImpl(
-            dataStore = mockDataStore,
-            applicationScope = testScope.backgroundScope
-        )
-
-        // When
-        repository.updateDailyReminder(enabled)
-
-        // Then
-        coVerify { mockDataStore.updateData(any<suspend (ProtoUserPreferences) -> ProtoUserPreferences>()) }
-    }
 
     @Test
     fun markOnboardingCompleted_updates_flag_correctly() = runTest {
@@ -224,28 +202,6 @@ class UserPreferencesRepositoryImplTest {
 
         // When
         repository.markOnboardingCompleted()
-
-        // Then
-        coVerify { mockDataStore.updateData(any<suspend (ProtoUserPreferences) -> ProtoUserPreferences>()) }
-    }
-
-    @Test
-    fun markDisclaimerSeen_updates_flag_correctly() = runTest {
-        // Given
-        val currentPrefs = createTestProtoPreferences()
-        val updatedPrefs = currentPrefs.toBuilder().setHasSeenDisclaimer(true).build()
-
-        coEvery {
-            mockDataStore.updateData(any<suspend (ProtoUserPreferences) -> ProtoUserPreferences>())
-        } returns updatedPrefs
-
-        repository = UserPreferencesRepositoryImpl(
-            dataStore = mockDataStore,
-            applicationScope = testScope.backgroundScope
-        )
-
-        // When
-        repository.markDisclaimerSeen()
 
         // Then
         coVerify { mockDataStore.updateData(any<suspend (ProtoUserPreferences) -> ProtoUserPreferences>()) }
@@ -580,27 +536,6 @@ class UserPreferencesRepositoryImplTest {
     }
 
     @Test
-    fun markSotdAsUnseen_updates_flag_correctly() = runTest {
-        // Given
-        val currentPrefs = createTestProtoPreferences()
-
-        coEvery {
-            mockDataStore.updateData(any<suspend (ProtoUserPreferences) -> ProtoUserPreferences>())
-        } returns currentPrefs.toBuilder().setIsSotdSeen(false).build()
-
-        repository = UserPreferencesRepositoryImpl(
-            dataStore = mockDataStore,
-            applicationScope = testScope.backgroundScope
-        )
-
-        // When
-        repository.markSotdAsUnseen()
-
-        // Then
-        coVerify { mockDataStore.updateData(any<suspend (ProtoUserPreferences) -> ProtoUserPreferences>()) }
-    }
-
-    @Test
     fun isSotdSeen_returns_correct_value() = runTest {
         // Given
         val expectedSeen = true
@@ -830,9 +765,7 @@ class UserPreferencesRepositoryImplTest {
         username: String = "TestUser",
         themeMode: Int = 1,
         isDynamicThemeEnabled: Boolean = true,
-        isDailyReminderEnabled: Boolean = false,
         hasCompletedOnboarding: Boolean = false,
-        hasSeenDisclaimer: Boolean = false,
         recentlyViewedIds: List<String> = emptyList(),
         currentSotdId: String = "01_01",
         sotdGeneratedDate: Long = System.currentTimeMillis(),
@@ -844,9 +777,7 @@ class UserPreferencesRepositoryImplTest {
             .setUsername(username)
             .setThemeMode(themeMode)
             .setIsDynamicThemeEnabled(isDynamicThemeEnabled)
-            .setIsDailyReminderEnabled(isDailyReminderEnabled)
             .setHasCompletedOnboarding(hasCompletedOnboarding)
-            .setHasSeenDisclaimer(hasSeenDisclaimer)
             .addAllRecentlyViewedSunnahIds(recentlyViewedIds)
             .setCurrentSotdId(currentSotdId)
             .setSotdGeneratedDate(sotdGeneratedDate)

@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Card
@@ -59,6 +60,7 @@ import com.ryen.sunnah_alhadi.presentation.components.DisclaimerDialog
 import com.ryen.sunnah_alhadi.presentation.components.SunnahPager
 import com.ryen.sunnah_alhadi.presentation.components.cards.GlowingCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.HomeSunnahCard
+import com.ryen.sunnah_alhadi.presentation.components.cards.SpecialArabicCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.TopicCard
 import com.ryen.sunnah_alhadi.presentation.navigation.Home
 import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
@@ -205,7 +207,9 @@ fun HomeScreenContent(
                         glowingRadius = 24.dp,
                         xShifting = 0.dp,
                         yShifting = 0.dp,
-                    )
+                    ){
+                        SpecialArabicCard()
+                    }
                 }
             }
 
@@ -259,6 +263,7 @@ fun HomeScreenContent(
                                     topicSImage = CategoryUtils.categoryImageMap[category.id]
                                         ?: R.drawable.ec_warning,
                                     modifier = Modifier
+                                        .clip(RoundedCornerShape(24.dp))
                                         .clickable {
                                             onEvent(HomeEvent.NavigateToTopic(category.id))
                                         }

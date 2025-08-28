@@ -11,16 +11,13 @@ interface UserPreferencesRepository {
     suspend fun updateUsername(username: String)
     suspend fun updateThemeMode(themeMode: ThemeMode)
     suspend fun updateDynamicTheme(enabled: Boolean)
-    suspend fun updateDailyReminder(enabled: Boolean)
     suspend fun markOnboardingCompleted()
-    suspend fun markDisclaimerSeen()
     suspend fun getRecentlyViewedIds(): List<String>
     suspend fun addToRecentlyViewed(sunnahId: String)
 
     suspend fun getCurrentSotd(): String
     suspend fun updateCurrentSotd(sotdId: String, generatedDate: Long)
     suspend fun markSotdAsSeen()
-    suspend fun markSotdAsUnseen() // For testing or manual reset
     suspend fun isSotdSeen(): Boolean
     suspend fun getSotdGeneratedDate(): Long
     suspend fun shouldGenerateNewSotd(): Boolean // Helper method

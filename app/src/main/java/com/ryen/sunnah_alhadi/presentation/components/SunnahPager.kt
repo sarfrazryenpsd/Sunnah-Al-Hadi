@@ -293,7 +293,7 @@ private fun SunnahPagerCard(
 }
 
 @Composable
-private fun SunnahFullCard(
+fun SunnahFullCard(
     sunnah: Sunnah,
     modifier: Modifier = Modifier
 ) {

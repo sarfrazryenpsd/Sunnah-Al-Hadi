@@ -4,9 +4,7 @@ data class UserPreferences(
     val username: String = "",
     val themeMode: Int = 0, // from enum 0=SYSTEM, 1=LIGHT, 2=DARK
     val isDynamicThemeEnabled: Boolean = false,
-    val isDailyReminderEnabled: Boolean = true,
     val hasCompletedOnboarding: Boolean = false,
-    val hasSeenDisclaimer: Boolean = false,
     val recentlyViewedSunnahIds: List<String> = emptyList(),
     val currentSotdId: String = "",
     val sotdGeneratedDate: Long = 0L,

@@ -19,9 +19,6 @@ class UpdateUserPreferencesUseCase @Inject constructor(
         parameters.isDynamicThemeEnabled?.let {
             userPreferencesRepository.updateDynamicTheme(it)
         }
-        parameters.isDailyReminderEnabled?.let {
-            userPreferencesRepository.updateDailyReminder(it)
-        }
         parameters.sotdNotificationTime?.let {
             userPreferencesRepository.updateSotdNotificationTime(it)
         }
@@ -38,7 +35,6 @@ data class UserPreferencesUpdate(
     val username: String? = null,
     val themeMode: ThemeMode? = null,
     val isDynamicThemeEnabled: Boolean? = null,
-    val isDailyReminderEnabled: Boolean? = null,
     val sotdNotificationTime: NotificationTime? = null,
     val isSotdNotificationEnabled: Boolean? = null,
     val hasCompletedOnboarding: Boolean? = null

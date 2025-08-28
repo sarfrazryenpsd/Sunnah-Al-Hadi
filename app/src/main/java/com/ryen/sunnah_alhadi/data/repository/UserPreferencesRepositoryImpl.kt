@@ -35,9 +35,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         username = "",
         themeMode = 0, // SYSTEM
         isDynamicThemeEnabled = false,
-        isDailyReminderEnabled = true,
         hasCompletedOnboarding = false,
-        hasSeenDisclaimer = false,
         recentlyViewedSunnahIds = emptyList(),
         currentSotdId = "",
         sotdGeneratedDate = 0L,
@@ -93,26 +91,11 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateDailyReminder(enabled: Boolean) {
-        dataStore.updateData { currentPrefs ->
-            currentPrefs.toBuilder()
-                .setIsDailyReminderEnabled(enabled)
-                .build()
-        }
-    }
 
     override suspend fun markOnboardingCompleted() {
         dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setHasCompletedOnboarding(true)
-                .build()
-        }
-    }
-
-    override suspend fun markDisclaimerSeen() {
-        dataStore.updateData { currentPrefs ->
-            currentPrefs.toBuilder()
-                .setHasSeenDisclaimer(true)
                 .build()
         }
     }
@@ -200,14 +183,6 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         dataStore.updateData { currentPrefs ->
             currentPrefs.toBuilder()
                 .setIsSotdSeen(true)
-                .build()
-        }
-    }
-
-    override suspend fun markSotdAsUnseen() {
-        dataStore.updateData { currentPrefs ->
-            currentPrefs.toBuilder()
-                .setIsSotdSeen(false)
                 .build()
         }
     }

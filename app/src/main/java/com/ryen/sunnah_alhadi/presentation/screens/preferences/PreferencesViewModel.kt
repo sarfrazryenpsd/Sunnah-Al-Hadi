@@ -275,7 +275,6 @@ class PreferencesViewModel @Inject constructor(
                 try {
                     updateUserPreferencesUseCase(
                         UserPreferencesUpdate(
-                            isDailyReminderEnabled = true,
                             isSotdNotificationEnabled = true
                         )
                     )
