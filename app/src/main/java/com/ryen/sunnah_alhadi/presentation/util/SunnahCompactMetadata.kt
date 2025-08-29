@@ -3,13 +3,10 @@ package com.ryen.sunnah_alhadi.presentation.util
 import androidx.annotation.DrawableRes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.ExtraContentType
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
-import com.ryen.sunnah_alhadi.presentation.components.cards.ECIconBox
 
 data class ExtraContentMetaInfo(
     @param:DrawableRes val icon: Int,

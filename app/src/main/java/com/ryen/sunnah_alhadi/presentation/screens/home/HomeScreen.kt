@@ -37,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewFontScale
@@ -54,6 +53,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
+import com.ryen.sunnah_alhadi.presentation.common.LoadingIndicator
 import com.ryen.sunnah_alhadi.presentation.common.ScreenHeaderSection
 import com.ryen.sunnah_alhadi.presentation.common.SunnahGridCardContainer
 import com.ryen.sunnah_alhadi.presentation.components.DisclaimerDialog
@@ -61,7 +61,7 @@ import com.ryen.sunnah_alhadi.presentation.components.SunnahPager
 import com.ryen.sunnah_alhadi.presentation.components.cards.GlowingCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.HomeSunnahCard
 import com.ryen.sunnah_alhadi.presentation.components.cards.SpecialArabicCard
-import com.ryen.sunnah_alhadi.presentation.components.cards.TopicCard
+import com.ryen.sunnah_alhadi.presentation.components.cards.TopicCardFixedWidth
 import com.ryen.sunnah_alhadi.presentation.navigation.Home
 import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
@@ -107,27 +107,7 @@ fun HomeScreen(
     Box(modifier = modifier.fillMaxSize()) {
         when {
             uiState.isLoading -> {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(48.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        Text(
-                            text = "Initializing",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
+                LoadingIndicator()
             }
 
             else -> {
@@ -257,10 +237,10 @@ fun HomeScreenContent(
                                 items = uiState.featuredCategories,
                                 key = { it.id }
                             ) { category ->
-                                TopicCard(
+                                TopicCardFixedWidth(
                                     category = category,
                                     numberOfSunnah = uiState.sunnahCount[category.id] ?: 0,
-                                    topicSImage = CategoryUtils.categoryImageMap[category.id]
+                                    topicImage = CategoryUtils.categoryImageMap[category.id]
                                         ?: R.drawable.ec_warning,
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(24.dp))

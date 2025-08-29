@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.data.repository
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import com.ryen.sunnah_alhadi.data.model.toDomain
 import com.ryen.sunnah_alhadi.datastore.ProtoUserPreferences
@@ -13,8 +14,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -144,10 +143,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSotdNotificationTime(): NotificationTime {
-        val prefs = _userPreferencesFlow.first()
-        return NotificationTime.entries.getOrElse(prefs.sotdNotificationTime.ordinal) {
-            NotificationTime.MORNING
-        }
+        val prefs = dataStore.data.first()
+        return NotificationTime.entries[prefs.sotdNotificationTime]
     }
 
     override suspend fun isSotdNotificationEnabled(): Boolean {
@@ -199,24 +196,27 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override suspend fun shouldGenerateNewSotd(): Boolean {
         val prefs = _userPreferencesFlow.first()
         val generatedDate = prefs.sotdGeneratedDate
+        Log.d("SotdDebug", "Generated date: $generatedDate")
 
-        if (generatedDate == 0L) return true // First time
+        if (generatedDate == 0L) {
+            Log.d("SotdDebug", "First time generation")
+            return true // First time}
+        }
 
         val currentDate = LocalDate.now()
         val generatedLocalDate = Instant.ofEpochMilli(generatedDate)
             .atZone(ZoneId.systemDefault())
             .toLocalDate()
 
-        return currentDate != generatedLocalDate
-    }
 
-    // Flow versions with caching
-    override fun getCurrentSotdFlow(): Flow<String> {
-        return _userPreferencesFlow.map { it.currentSotdId }.distinctUntilChanged()
-    }
+        Log.d("SotdDebug", "Current date: $currentDate")
+        Log.d("SotdDebug", "Generated date: $generatedLocalDate")
 
-    override fun isSotdSeenFlow(): Flow<Boolean> {
-        return _userPreferencesFlow.map { it.isSotdSeen }.distinctUntilChanged()
+        val shouldGenerate = currentDate != generatedLocalDate
+        Log.d("SotdDebug", "Should generate: $shouldGenerate")
+
+
+        return shouldGenerate
     }
 
     override fun getUserPreferencesFlow(): Flow<UserPreferences> {

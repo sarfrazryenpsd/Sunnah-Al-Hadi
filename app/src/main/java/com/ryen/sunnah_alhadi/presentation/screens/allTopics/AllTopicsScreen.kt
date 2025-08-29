@@ -2,7 +2,6 @@
 
 package com.ryen.sunnah_alhadi.presentation.screens.allTopics
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +19,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -29,16 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,19 +40,16 @@ import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.Category
 import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
 import com.ryen.sunnah_alhadi.presentation.common.ScreenHeaderSection
-import com.ryen.sunnah_alhadi.presentation.components.OptimizedTopicsGrid
+import com.ryen.sunnah_alhadi.presentation.components.cards.OptimizedTopicsGrid
 import com.ryen.sunnah_alhadi.presentation.navigation.AllTopic
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 
 @Composable
 fun AllTopicsScreen(
+    modifier: Modifier = Modifier,
     onNavigateToTopic: (Int) -> Unit,
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: AllTopicsViewModel = hiltViewModel(),
+    viewModel: AllTopicsViewModel = hiltViewModel()
 ) {
     // Collect UI state
     val uiState by viewModel.uiState.collectAsState()
@@ -87,10 +74,8 @@ fun AllTopicsScreen(
         onRetryClick = {
             viewModel.onEvent(AllTopicsUiEvent.RetryLoading)
         },
-        onRefresh = {
-            viewModel.onEvent(AllTopicsUiEvent.RefreshTopics)
-        },
         onNavigateBack = onNavigateBack,
+        modifier = modifier
     )
 }
 
@@ -99,7 +84,6 @@ private fun AllTopicsContent(
     uiState: AllTopicsUiState,
     onTopicClick: (Int) -> Unit,
     onRetryClick: () -> Unit,
-    onRefresh: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -149,10 +133,9 @@ private fun AllTopicsContent(
 
                 uiState.topics.isNotEmpty() -> {
                     // Main topics grid with pull-to-refresh
-                    PullToRefreshLayout(
-                        onRefresh = onRefresh,
-                        isRefreshing = false // This should ideally reflect actual refresh state
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize())
+                     // Added fillMaxSize for better preview
+                         {
                         OptimizedTopicsGrid(
                             topics = uiState.topics,
                             onTopicClick = onTopicClick,
@@ -296,79 +279,6 @@ private fun EmptyContent(
     }
 }
 
-@Composable
-private fun IslamicPatternBackground(
-    modifier: Modifier = Modifier
-) {
-    Canvas(
-        modifier = modifier.alpha(0.05f)
-    ) {
-        val pattern = createComplexIslamicPattern(size)
-        drawPath(
-            path = pattern,
-            color = Color.Black, // Or use MaterialTheme.colorScheme.onBackground for theme awareness
-            style = Stroke(width = 2.dp.toPx())
-        )
-    }
-}
-
-// Helper function for complex Islamic geometric pattern
-private fun createComplexIslamicPattern(canvasSize: Size): Path {
-    return Path().apply {
-        val width = canvasSize.width
-        val height = canvasSize.height
-        val gridSize = 100f
-
-        // Create repeating geometric pattern
-        for (x in 0 until (width / gridSize).toInt()) {
-            for (y in 0 until (height / gridSize).toInt()) {
-                val centerX = x * gridSize + gridSize / 2
-                val centerY = y * gridSize + gridSize / 2
-
-                // Create 8-pointed star at each grid point
-                addIslamicStar(centerX, centerY, gridSize * 0.3f)
-            }
-        }
-    }
-}
-
-private fun Path.addIslamicStar(centerX: Float, centerY: Float, radius: Float) {
-    val points = 8
-    for (i in 0 until points * 2) {
-        val angle = i * PI.toFloat() / points
-        val r = if (i % 2 == 0) radius else radius * 0.5f
-        val x = centerX + cos(angle) * r
-        val y = centerY + sin(angle) * r
-
-        if (i == 0) moveTo(x, y)
-        else lineTo(x, y)
-    }
-    close()
-}
-
-// Pull-to-refresh implementation
-@Composable
-private fun PullToRefreshLayout(
-    onRefresh: () -> Unit,
-    isRefreshing: Boolean,
-    content: @Composable () -> Unit
-) {
-    var refreshing by remember { mutableStateOf(false) } // This state is local to PullToRefreshLayout
-
-    LaunchedEffect(isRefreshing) {
-        refreshing = isRefreshing
-    }
-
-    // Simple implementation - can be enhanced with actual pull-to-refresh library
-    Box(modifier = Modifier.fillMaxSize()) { // Added fillMaxSize for better preview
-        content()
-
-        if (refreshing) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter))
-        }
-    }
-}
-
 // Previews
 
 private val sampleTopics = List(30) { index ->
@@ -397,7 +307,6 @@ private fun AllTopicsContentLoadingPreview() {
             uiState = AllTopicsUiState(isLoading = true),
             onTopicClick = {},
             onRetryClick = {},
-            onRefresh = {},
             onNavigateBack = {}
         )
     }
@@ -415,7 +324,6 @@ private fun AllTopicsContentErrorPreview() {
             uiState = AllTopicsUiState(error = "Failed to load topics. Please check your connection."),
             onTopicClick = {},
             onRetryClick = {},
-            onRefresh = {},
             onNavigateBack = {}
         )
     }
@@ -434,7 +342,6 @@ private fun AllTopicsContentWithDataPreview() {
             uiState = AllTopicsUiState(topics = sampleTopics, isLoading = false),
             onTopicClick = {},
             onRetryClick = {},
-            onRefresh = {},
             onNavigateBack = {}
         )
     }
@@ -452,7 +359,6 @@ private fun AllTopicsContentEmptyPreview() {
             uiState = AllTopicsUiState(topics = emptyList()),
             onTopicClick = {},
             onRetryClick = {},
-            onRefresh = {},
             onNavigateBack = {}
         )
     }
@@ -496,79 +402,3 @@ private fun EmptyContentPreview() {
         EmptyContent()
     }
 }
-
-@Preview(showBackground = true, widthDp = 300, heightDp = 200)
-@Composable
-private fun IslamicPatternBackgroundPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(800.dp, 480.dp)
-        )
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) { // Ensure background has size
-            IslamicPatternBackground(modifier = Modifier.fillMaxSize())
-            Text("Content on top", modifier = Modifier.align(Alignment.Center))
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "PullToRefreshLayout - Not Refreshing")
-@Composable
-private fun PullToRefreshLayoutNotRefreshingPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(800.dp, 480.dp)
-        )
-    ) {
-        PullToRefreshLayout(
-            onRefresh = {},
-            isRefreshing = false
-        ) {
-            Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
-                Text("Pull down to refresh content here.")
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "PullToRefreshLayout - Refreshing")
-@Composable
-private fun PullToRefreshLayoutRefreshingPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(800.dp, 480.dp)
-        )
-    ) {
-        PullToRefreshLayout(
-            onRefresh = {},
-            isRefreshing = true
-        ) {
-            Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
-                Text("Content is currently refreshing...")
-            }
-        }
-    }
-}
-
-// Dummy AllTopicsUiState for preview if not defined in the ViewModel or a shared location
-// If AllTopicsUiState is defined elsewhere and imported, this can be removed.
-// data class AllTopicsUiState(
-// val isLoading: Boolean = false,
-// val topics: List<TopicWithCount> = emptyList(),
-// val error: String? = null
-// )
-// Assuming Category and TopicWithCount are defined in domain.model and imported.
-// If not, their definitions would be needed here for the sampleTopics to compile.
-/*
-data class Category(
-    val id: Int,
-    val name: String,
-    val description: String, // Added based on typical use
-    val imageRes: Int // Or String for URL
-)
-
-data class TopicWithCount(
-    val category: Category,
-    val hadithCount: Int
-)
-*/

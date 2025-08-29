@@ -25,6 +25,12 @@
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
+
+            <meta-data
+                android:name="com.ryen.sunnah_alhadi.WorkManagerInitializer"
+                android:value="androidx.startup" />
+
+            <!-- Remove WorkManager auto-init -->
             <meta-data
                 android:name="androidx.work.WorkManagerInitializer"
                 android:value="androidx.startup"

@@ -645,51 +645,8 @@ class UserPreferencesRepositoryImplTest {
         assertThat(result).isFalse()
     }
 
-    @Test
-    fun getCurrentSotdFlow_emits_distinct_values_only() = runTest {
-        // Given
-        val sotdId1 = "01_01"
-        val sotdId2 = "02_02"
-        val prefs1 = createTestProtoPreferences(currentSotdId = sotdId1)
-        val prefs2 = createTestProtoPreferences(currentSotdId = sotdId1) // Same ID
-        val prefs3 = createTestProtoPreferences(currentSotdId = sotdId2) // Different ID
 
-        every { mockDataStore.data } returns flowOf(prefs1, prefs2, prefs3)
 
-        repository = UserPreferencesRepositoryImpl(
-            dataStore = mockDataStore,
-            applicationScope = testScope.backgroundScope
-        )
-
-        // When & Then
-        repository.getCurrentSotdFlow().test {
-            assertThat(awaitItem()).isEqualTo(sotdId1)
-            assertThat(awaitItem()).isEqualTo(sotdId2) // prefs2 should be skipped due to distinctUntilChanged
-            awaitComplete()
-        }
-    }
-
-    @Test
-    fun isSotdSeenFlow_emits_distinct_values_only() = runTest {
-        // Given
-        val prefs1 = createTestProtoPreferences(isSotdSeen = false)
-        val prefs2 = createTestProtoPreferences(isSotdSeen = false) // Same value
-        val prefs3 = createTestProtoPreferences(isSotdSeen = true) // Different value
-
-        every { mockDataStore.data } returns flowOf(prefs1, prefs2, prefs3)
-
-        repository = UserPreferencesRepositoryImpl(
-            dataStore = mockDataStore,
-            applicationScope = testScope.backgroundScope
-        )
-
-        // When & Then
-        repository.isSotdSeenFlow().test {
-            assertThat(awaitItem()).isFalse()
-            assertThat(awaitItem()).isTrue() // prefs2 should be skipped due to distinctUntilChanged
-            awaitComplete()
-        }
-    }
 
     // Error handling tests
     @Test

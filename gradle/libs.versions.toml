@@ -28,6 +28,7 @@ datastore = "1.1.7"
 protobuf = "4.26.1"
 roomTesting = "2.7.2"
 runner = "1.7.0"
+startupRuntime = "1.2.0"
 truth = "1.4.4"
 turbine = "1.2.1"
 workRuntimeKtx = "2.10.3"
@@ -48,6 +49,7 @@ androidx-material-icons-extended = { module = "androidx.compose.material:materia
 androidx-material3-window-size-class1 = { module = "androidx.compose.material3:material3-window-size-class" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "roomTesting" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
+androidx-startup-runtime = { module = "androidx.startup:startup-runtime", version.ref = "startupRuntime" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workRuntimeKtx" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }

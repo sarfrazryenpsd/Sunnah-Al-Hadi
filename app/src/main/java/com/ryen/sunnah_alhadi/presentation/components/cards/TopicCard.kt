@@ -3,6 +3,7 @@ package com.ryen.sunnah_alhadi.presentation.components.cards
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -33,22 +39,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil3.Image
 import coil3.compose.rememberAsyncImagePainter
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.Category
-import com.ryen.sunnah_alhadi.presentation.common.PreviewWrapperWithFullTheme
-import com.ryen.sunnah_alhadi.presentation.common.SunnahPreview
+import com.ryen.sunnah_alhadi.presentation.screens.allTopics.TopicWithCount
 import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
+import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils.darken
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicDimensions
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
@@ -57,29 +63,51 @@ import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
 
 @Composable
-fun TopicCard(
+fun TopicCardFixedWidth(
     category: Category,
     numberOfSunnah: Int,
-    @DrawableRes topicSImage: Int,
+    @DrawableRes topicImage: Int,
     modifier: Modifier = Modifier,
 ) {
     val dimensions = LocalDynamicDimensions.current
 
+    TopicCardContent(
+        title = category.topic,
+        sunnahCount = numberOfSunnah,
+        categoryId = category.id,
+        imageRes = topicImage,
+        modifier = modifier.width(dimensions.featuredCardWidth),
+        height = dimensions.featuredCardHeight
+    )
+}
+
+@Composable
+private fun TopicCardContent(
+    title: String,
+    sunnahCount: Int,
+    categoryId: Int,
+    @DrawableRes imageRes: Int,
+    modifier: Modifier = Modifier,
+    height: Dp,
+    onClick: (() -> Unit)? = null
+) {
     Card(
         modifier = modifier
-            .fillMaxWidth()
-            .height(dimensions.featuredCardHeight)
-            .width(dimensions.featuredCardWidth),
+            .height(height)
+            .clip(RoundedCornerShape(24.dp))
+            .then(
+                if (onClick != null) Modifier.clickable { onClick() } else Modifier
+            ),
         shape = RoundedCornerShape(24.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(CategoryUtils.categoryGradient(category.id))
+                .background(CategoryUtils.categoryGradient(categoryId))
         ) {
             SunnahCountBadge(
-                count = numberOfSunnah,
-                categoryId = category.id,
+                count = sunnahCount,
+                categoryId = categoryId,
                 modifier = Modifier
                     .padding(8.dp)
                     .size(24.dp)
@@ -89,13 +117,13 @@ fun TopicCard(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxSize()
-
             ) {
                 Column(
-                    verticalArrangement = Arrangement.Bottom, modifier = Modifier
+                    verticalArrangement = Arrangement.Bottom,
+                    modifier = Modifier
                         .padding(
-                            start = dimensions.cardPaddingS,
-                            bottom = dimensions.cardPaddingS
+                            start = LocalDynamicDimensions.current.cardPaddingS,
+                            bottom = LocalDynamicDimensions.current.cardPaddingS
                         )
                         .weight(1f)
                 ) {
@@ -103,17 +131,16 @@ fun TopicCard(
                         text = stringResource(id = R.string.sunnah_and_manner_of),
                         style = MaterialTheme.appTypography.sunnahSubtitle,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.offset(y = (8).dp)
+                        modifier = Modifier.offset(y = 6.dp)
                     )
                     BasicText(
-                        text = category.topic,
+                        text = title,
                         style = MaterialTheme.appTypography.topicMax.copy(
                             color = MaterialTheme.colorScheme.primary,
                             lineHeightStyle = LineHeightStyle(
                                 alignment = LineHeightStyle.Alignment.Center,
-                                trim = LineHeightStyle.Trim.Both // removes extra padding at top/bottom
+                                trim = LineHeightStyle.Trim.Both
                             )
-
                         ),
                         maxLines = 2,
                         autoSize = TextAutoSize.StepBased(
@@ -124,7 +151,7 @@ fun TopicCard(
                 }
 
                 Image(
-                    painter = rememberAsyncImagePainter(model = topicSImage),
+                    painter = rememberAsyncImagePainter(model = imageRes),
                     contentDescription = null,
                     modifier = Modifier.fillMaxHeight()
                 )
@@ -133,6 +160,87 @@ fun TopicCard(
     }
 }
 
+@Composable
+private fun SunnahCountBadge(
+    categoryId: Int, count: Int, modifier: Modifier = Modifier
+) {
+    val bgColor = CategoryUtils.categoryGradientColors(categoryId).first().darken(0.3f)
+    Box(
+        contentAlignment = Alignment.Center, modifier = modifier
+            .size(36.dp)
+            .background(
+                color = bgColor, shape = CircleShape
+            )
+    ) {
+        Text(
+            text = "$count", style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.SemiBold, color = Color(0xFF1565C0)
+            ), color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
+@Composable
+fun OptimizedTopicsGrid(
+    topics: List<TopicWithCount>,
+    onTopicClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val gridState = rememberLazyGridState()
+    val dimensions = LocalDynamicDimensions.current
+    val screenSize = LocalScreenSize.current
+
+
+    val columns = when (screenSize) {
+        ScreenSize.COMPACT -> 1
+        ScreenSize.MEDIUM -> 2
+        ScreenSize.EXPANDED -> 1
+    }
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columns),
+        state = gridState,
+        contentPadding = PaddingValues(
+            horizontal = when (screenSize) {
+                ScreenSize.COMPACT -> 16.dp
+                ScreenSize.MEDIUM -> 20.dp
+                ScreenSize.EXPANDED -> 24.dp
+            },
+            vertical = 12.dp
+        ),
+        horizontalArrangement = Arrangement.spacedBy(dimensions.cardSpacing),
+        verticalArrangement = Arrangement.spacedBy(dimensions.cardSpacing),
+        modifier = modifier.fillMaxSize()
+    ) {
+        itemsIndexed(
+            items = topics,
+            key = { _: Int, topic: TopicWithCount -> topic.category.id }
+        ) { index, topicWithCount ->
+            TopicCardMaxWidth(
+                topicWithCount = topicWithCount,
+                onClick = onTopicClick,
+            )
+        }
+    }
+}
+
+// Simplified card for performance optimization
+@Composable
+fun TopicCardMaxWidth(
+    topicWithCount: TopicWithCount,
+    onClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TopicCardContent(
+        title = topicWithCount.category.topic,
+        sunnahCount = topicWithCount.sunnahCount,
+        categoryId = topicWithCount.category.id,
+        imageRes = topicWithCount.imageRes,
+        modifier = modifier.fillMaxWidth(),
+        height = LocalDynamicDimensions.current.topicCardHeight,
+        onClick = { onClick(topicWithCount.category.id) }
+    )
+}
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -175,23 +283,14 @@ fun TopicScreen(topics: List<TopicUiModel>, userName: String) {
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 items(topics) { topic ->
-                    TopicCard(
+                    TopicCardFixedWidth(
                         category = topic.category,
                         numberOfSunnah = topic.count,
-                        topicSImage = topic.imageRes
+                        topicImage = topic.imageRes
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun PreviewSizes(
-    content: @Composable (Int) -> Unit
-) {
-    listOf(360, 600, 840).forEach { width ->
-        content(width)
     }
 }
 

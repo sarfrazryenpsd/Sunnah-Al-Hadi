@@ -48,9 +48,7 @@ class AllTopicsViewModel @Inject constructor(
                 loadAllTopics()
             }
 
-            is AllTopicsUiEvent.RefreshTopics -> {
-                refreshTopics()
-            }
+
         }
     }
 
@@ -97,14 +95,6 @@ class AllTopicsViewModel @Inject constructor(
                     )
                 }
             }
-        }
-    }
-
-    private fun refreshTopics() {
-        // Clear any existing cache and reload
-        viewModelScope.launch {
-            // This would clear the sunnah count cache if needed
-            loadAllTopics()
         }
     }
 }

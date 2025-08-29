@@ -26,10 +26,6 @@ interface UserPreferencesRepository {
     suspend fun updateSotdNotificationEnabled(enabled: Boolean)
     suspend fun getSotdNotificationTime(): NotificationTime
     suspend fun isSotdNotificationEnabled(): Boolean
-
-    // Flow versions for real-time updates
-    fun getCurrentSotdFlow(): Flow<String>
-    fun isSotdSeenFlow(): Flow<Boolean>
     fun getUserPreferencesFlow(): Flow<UserPreferences>
 
 }

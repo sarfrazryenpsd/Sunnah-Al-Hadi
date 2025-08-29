@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.presentation.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,8 +9,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -41,7 +42,7 @@ fun DisclaimerDialog(
         },
         title = {
             Text(
-                text = "About Sunnah Al-Hadi",
+                text = "About App Content",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -51,7 +52,7 @@ fun DisclaimerDialog(
                 Text(
                     text = stringResource(R.string.disclaimer),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -59,7 +60,7 @@ fun DisclaimerDialog(
                 Text(
                     text = "May Allah عَزَّوَجَلَّ guide us all to follow the beautiful path of our beloved Prophet (ﷺ).",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.SemiBold
                     ),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontStyle = FontStyle.Italic,
@@ -69,10 +70,14 @@ fun DisclaimerDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            OutlinedButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(
+                colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = MaterialTheme.colorScheme.primary
+                ),
+                border = BorderStroke(
+                    width = 0.5.dp,
+                    color = MaterialTheme.colorScheme.primary
                 )
             ) {
                 Text(

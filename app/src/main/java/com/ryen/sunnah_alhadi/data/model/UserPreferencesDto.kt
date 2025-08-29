@@ -15,7 +15,7 @@ fun ProtoUserPreferences.toDomain(): UserPreferences {
         currentSotdId = this.currentSotdId,
         sotdGeneratedDate = this.sotdGeneratedDate,
         isSotdSeen = this.isSotdSeen,
-        sotdNotificationTime = NotificationTime.entries.toTypedArray().getOrElse(this.sotdNotificationTime) { NotificationTime.MORNING },
+        sotdNotificationTime = NotificationTime.entries.getOrElse(this.sotdNotificationTime) { NotificationTime.MORNING },
         isSotdNotificationEnabled = this.isSotdNotificationEnabled
     )
 }

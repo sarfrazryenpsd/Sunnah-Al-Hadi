@@ -2,7 +2,6 @@ package com.ryen.sunnah_alhadi
 
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
-import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -16,29 +15,28 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltAndroidApp
-class SunnahApplication : Application(), Configuration.Provider {
+class SunnahApplication : Application() {
 
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize Firebase
+        initializeFirebase()
+        setupBugReportSync()
+
+    }
+
+    private fun initializeFirebase() {
         Firebase.crashlytics.isCrashlyticsCollectionEnabled = true
         Firebase.crashlytics.setCustomKey("app_name", "Sunnah Al-Hadi")
         Firebase.crashlytics.setCustomKey("is_religious_app", true)
 
         // Set user identifier (optional - for better crash tracking)
-         Firebase.crashlytics.setUserId("anonymous_user_${System.currentTimeMillis()}")
-
-        setupBugReportSync()
+        Firebase.crashlytics.setUserId("anonymous_user_${System.currentTimeMillis()}")
     }
 
-    @Inject
-    lateinit var workerFactory: HiltWorkerFactory
-
-    override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
 
     private fun setupBugReportSync() {
         // Use WorkManager to periodically sync bug reports

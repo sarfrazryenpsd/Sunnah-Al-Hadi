@@ -8,31 +8,24 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,9 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -62,10 +53,7 @@ import com.ryen.sunnah_alhadi.presentation.common.CustomTopBar
 import com.ryen.sunnah_alhadi.presentation.common.ScreenHeaderSection
 import com.ryen.sunnah_alhadi.presentation.common.SunnahGridCardContainer
 import com.ryen.sunnah_alhadi.presentation.components.SunnahPager
-import com.ryen.sunnah_alhadi.presentation.components.cards.SunnahCardCompact
 import com.ryen.sunnah_alhadi.presentation.navigation.Topic
-import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
-import com.ryen.sunnah_alhadi.presentation.util.buildMetaInfoIconsForSunnah
 import com.ryen.sunnah_alhadi.ui.theme.DynamicDimensions
 import com.ryen.sunnah_alhadi.ui.theme.LocalDynamicDimensions
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
@@ -171,123 +159,6 @@ private fun TopicContent(
     }
 }
 
-@Composable
-private fun TopicHeader(
-    category: Category?,
-    onNavigateBack: () -> Unit
-) {
-    val gradient = if (category != null) {
-        CategoryUtils.categoryGradient(category.id)
-    } else {
-        Brush.horizontalGradient(
-            colors = listOf(
-                MaterialTheme.colorScheme.primary,
-                MaterialTheme.colorScheme.secondary
-            )
-        )
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(gradient)
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = onNavigateBack,
-                modifier = Modifier
-                    .background(
-                        color = Color.Black.copy(alpha = 0.2f),
-                        shape = CircleShape
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Navigate back",
-                    tint = Color.White
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Text(
-                text = category?.topic
-                    ?: "Loading...", // topic field was used in original, using name as a guess from Category
-                style = MaterialTheme.typography.headlineSmall,
-                color = Color.White,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun SunnahGrid(
-    sunnahs: List<Sunnah>,
-    categoryId: Int,
-    dimensions: DynamicDimensions,
-    screenSize: ScreenSize,
-    onSunnahClick: (Int) -> Unit
-) {
-    val columns = when (screenSize) {
-        ScreenSize.COMPACT -> 1
-        ScreenSize.MEDIUM -> 2
-        ScreenSize.EXPANDED -> 1
-    }
-
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Fixed(columns),
-        verticalItemSpacing = 12.dp,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(16.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        itemsIndexed(sunnahs) { index, sunnah ->
-            SunnahGridCard(
-                sunnah = sunnah,
-                categoryId = categoryId,
-                onClick = { onSunnahClick(index) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun SunnahGridCard(
-    sunnah: Sunnah,
-    categoryId: Int,
-    onClick: () -> Unit
-) {
-    val gradient = CategoryUtils.categoryGradient(categoryId)
-    val gradientColors = CategoryUtils.categoryGradientColors(categoryId)
-    val metaIcons = buildMetaInfoIconsForSunnah(sunnah)
-
-    // Create background with low opacity gradient + scrim overlay
-    val cardModifier = Modifier
-        .fillMaxWidth()
-        .clip(RoundedCornerShape(8.dp))
-        .background(
-            brush = gradient,
-            alpha = 0.1f
-        )
-        .background(
-            color = Color.Black.copy(alpha = 0.05f) // Scrim overlay for readability
-        )
-        .clickable { onClick() }
-
-    SunnahCardCompact(
-        title = sunnah.title,
-        extraIcons = metaIcons,
-        modifier = cardModifier,
-        borderColor = gradientColors.first()
-    )
-}
 
 @Composable
 private fun LoadingContent(
@@ -537,128 +408,5 @@ private fun TopicContentSuccessPreview() {
                 onNavigateBack = {}
             )
         }
-    }
-}
-
-@Preview(name = "TopicHeader - With Category", showBackground = true)
-@Composable
-private fun TopicHeaderWithCategoryPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        TopicHeader(category = sampleCategory, onNavigateBack = {})
-    }
-}
-
-@Preview(name = "TopicHeader - Null Category", showBackground = true)
-@Composable
-private fun TopicHeaderNullCategoryPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        TopicHeader(category = null, onNavigateBack = {})
-    }
-}
-
-@Preview(name = "SunnahGrid - Compact", showBackground = true)
-@Composable
-private fun SunnahGridCompactPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        CompositionLocalProvider(
-            LocalDynamicDimensions provides sampleDimensions,
-            LocalScreenSize provides ScreenSize.COMPACT
-        ) {
-            SunnahGrid(
-                sunnahs = sampleSunnahs,
-                categoryId = 1,
-                dimensions = sampleDimensions,
-                screenSize = ScreenSize.COMPACT,
-                onSunnahClick = {}
-            )
-        }
-    }
-}
-
-@Preview(name = "SunnahGrid - Medium", showBackground = true, widthDp = 600)
-@Composable
-private fun SunnahGridMediumPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        CompositionLocalProvider(
-            LocalDynamicDimensions provides sampleDimensions,
-            LocalScreenSize provides ScreenSize.MEDIUM
-        ) {
-            SunnahGrid(
-                sunnahs = sampleSunnahs,
-                categoryId = 1,
-                dimensions = sampleDimensions,
-                screenSize = ScreenSize.MEDIUM,
-                onSunnahClick = {}
-            )
-        }
-    }
-}
-
-@Preview(name = "SunnahGridCard", showBackground = true)
-@Composable
-private fun SunnahGridCardPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        // Ensure SunnahCompactCard is available and works with this data
-        SunnahGridCard(sunnah = sampleSunnahs.first(), categoryId = 1, onClick = {})
-    }
-}
-
-@Preview(name = "LoadingContent - Compact", showBackground = true)
-@Composable
-private fun LoadingContentCompactPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        CompositionLocalProvider(
-            LocalDynamicDimensions provides sampleDimensions,
-            LocalScreenSize provides ScreenSize.COMPACT
-        ) {
-            LoadingContent(dimensions = sampleDimensions, screenSize = ScreenSize.COMPACT)
-        }
-    }
-}
-
-@Preview(name = "LoadingContent - Medium", showBackground = true, widthDp = 600)
-@Composable
-private fun LoadingContentMediumPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        CompositionLocalProvider(
-            LocalDynamicDimensions provides sampleDimensions,
-            LocalScreenSize provides ScreenSize.MEDIUM
-        ) {
-            LoadingContent(dimensions = sampleDimensions, screenSize = ScreenSize.MEDIUM)
-        }
-    }
-}
-
-@Preview(name = "SkeletonCard", showBackground = true)
-@Composable
-private fun SkeletonCardPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        SkeletonCard()
-    }
-}
-
-@Preview(name = "ErrorContent", showBackground = true)
-@Composable
-private fun ErrorContentPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        ErrorContent(error = "This is a sample error message.", onRetry = {})
     }
 }
