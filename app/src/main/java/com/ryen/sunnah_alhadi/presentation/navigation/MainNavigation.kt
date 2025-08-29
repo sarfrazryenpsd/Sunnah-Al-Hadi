@@ -5,7 +5,10 @@ package com.ryen.sunnah_alhadi.presentation.navigation
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -20,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,6 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -226,6 +231,7 @@ private fun CompactScreenLayout(
             onSotdRequested = onSotdRequested,
             windowSizeClass = windowSizeClass,
             twoPaneStrategy = twoPaneStrategy,
+            topLevelDestinations = topLevelDestinations,
             modifier = Modifier.fillMaxSize()
         )
         // Custom bottom toolbar
@@ -285,20 +291,23 @@ private fun ExpandedScreenLayout(
             windowSizeClass = windowSizeClass,
             onSotdRequested = onSotdRequested,
             twoPaneStrategy = twoPaneStrategy,
+            topLevelDestinations = topLevelDestinations,
             modifier = Modifier.fillMaxSize()
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NavigationContent(
     backStack: SnapshotStateList<NavKey>,
     windowSizeClass: WindowSizeClass,
     onSotdRequested: (SotdOverlayRequest) -> Unit,
     twoPaneStrategy: TwoPaneSceneStrategy<NavKey>,
+    topLevelDestinations: List<NavKey>,
     modifier: Modifier = Modifier
 ) {
-
+    val navAnimation = MaterialTheme.motionScheme
     SharedTransitionLayout {
         // Shared transition decorator for smooth animations
         val sharedEntryDecorator = navEntryDecorator<NavKey> { entry ->
@@ -329,8 +338,13 @@ private fun NavigationContent(
             ),
             sceneStrategy = twoPaneStrategy,
             transitionSpec = {
-                slideInHorizontally(initialOffsetX = { it }) togetherWith
-                        slideOutHorizontally(targetOffsetX = { -it })
+                if(backStack.lastOrNull() !in topLevelDestinations) {
+                    slideInHorizontally(animationSpec = navAnimation.defaultSpatialSpec(), initialOffsetX = { it }) togetherWith
+                            slideOutHorizontally(animationSpec = navAnimation.defaultSpatialSpec(),targetOffsetX = { -it })
+                } else {
+                    // no animation → just return Enter + Exit with 0 duration
+                    fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
+                }
             },
             popTransitionSpec = {
                 slideInHorizontally(initialOffsetX = { -it }) togetherWith
@@ -403,6 +417,7 @@ fun CustomBottomBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SideNavigationRail(
     expanded: Boolean,
@@ -411,9 +426,16 @@ private fun SideNavigationRail(
     onToggleExpansion: () -> Unit,
     onDestinationSelected: (NavKey) -> Unit
 ) {
+    val navScale =
+        animateDpAsState(
+            targetValue = if (expanded) 240.dp else 80.dp,
+            animationSpec = MaterialTheme.motionScheme.fastSpatialSpec()
+        )
+
     NavigationRail(
         modifier = Modifier
-            .width(if (expanded) 240.dp else 80.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .width(navScale.value)
             .fillMaxHeight(),
         header = {
             FilledIconButton(
@@ -435,9 +457,15 @@ private fun SideNavigationRail(
                 icon = {
                     Icon(
                         painter = painterResource(getDestinationIcon(destination)),
-                        contentDescription = destination.toString()
+                        contentDescription = destination.toString(),
+                        modifier = Modifier.size(24.dp)
                     )
                 },
+                colors = NavigationRailItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.background,
+                    unselectedIconColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primary
+                ),
                 label = if (expanded) {
                     { Text(destination.toString()) }
                 } else {
