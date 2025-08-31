@@ -391,9 +391,9 @@ fun CustomBottomBar(
                 topLevelDestinations.forEach { destination ->
                     val selected = currentDestination == destination
                     val selectedIconColor =
-                        if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+                        if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.onPrimaryContainer
                     val bgColor =
-                        if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
+                        if (selected) MaterialTheme.colorScheme.onPrimaryContainer else Color.Transparent
 
                     Box(
                         modifier = Modifier
@@ -433,20 +433,13 @@ private fun SideNavigationRail(
         )
 
     NavigationRail(
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.primaryContainer)
             .width(navScale.value)
             .fillMaxHeight(),
         header = {
-            FilledIconButton(
-                onClick = onToggleExpansion,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Icon(
-                    imageVector = if (expanded) Icons.AutoMirrored.Filled.MenuOpen else Icons.Filled.Menu,
-                    contentDescription = "Toggle Navigation Rail"
-                )
-            }
+
         }
     ) {
         topLevelDestinations.forEach { destination ->
@@ -462,9 +455,9 @@ private fun SideNavigationRail(
                     )
                 },
                 colors = NavigationRailItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.background,
+                    selectedIconColor = MaterialTheme.colorScheme.tertiary,
                     unselectedIconColor = MaterialTheme.colorScheme.primary,
-                    indicatorColor = MaterialTheme.colorScheme.primary
+                    indicatorColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 label = if (expanded) {
                     { Text(destination.toString()) }

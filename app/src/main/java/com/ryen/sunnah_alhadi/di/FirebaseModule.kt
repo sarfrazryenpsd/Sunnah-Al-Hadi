@@ -16,8 +16,8 @@ object FirebaseModule {
     @Provides
     @Singleton
     fun provideFirebaseCrashlytics(): FirebaseCrashlytics {
-        return Firebase.crashlytics.apply {
-            isCrashlyticsCollectionEnabled = true
-        }
+        // Return the Firebase Crashlytics instance without additional configuration
+        // Configuration is handled in SunnahApplication for better control
+        return Firebase.crashlytics
     }
 }

@@ -151,7 +151,7 @@ class HomeViewModel @Inject constructor(
     }
 
     // ✅ UPDATED: Notification launch now emits request
-    fun handleNotificationLaunch() {
+    /*fun handleNotificationLaunch() {
         viewModelScope.launch {
             try {
                 val sotdState = getCurrentSotdUseCase()
@@ -181,12 +181,32 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+    }*/
+
+    fun handleNotificationLaunch() {
+        viewModelScope.launch {
+            try {
+                val sotdState = getCurrentSotdUseCase()
+
+                _uiState.update {
+                    it.copy(sotd = sotdState.currentSotd)
+                }
+
+                if (sotdState.currentSotd != null) {
+                    _sotdOverlayRequest.emit(SotdOverlayRequest.FromNotification)
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = "Failed to load SOTD: ${e.message}")
+                }
+            }
+        }
     }
 
-    private fun observeUserPreferences() {
+    /*private fun observeUserPreferences() {
         viewModelScope.launch {
             getUserPreferencesFlowUseCase()
-                .distinctUntilChanged { old, new -> old.username == new.username }
+                .distinctUntilChanged()
                 .catch { exception ->
                     _uiState.update {
                         it.copy(
@@ -201,6 +221,40 @@ class HomeViewModel @Inject constructor(
                             username = preferences.username,
                             error = null
                         )
+                    }
+                }
+        }
+    }*/
+    private fun observeUserPreferences() {
+        viewModelScope.launch {
+            getUserPreferencesFlowUseCase()
+                .distinctUntilChanged()
+                .catch { exception ->
+                    _uiState.update {
+                        it.copy(
+                            error = "Failed to load preferences: ${exception.localizedMessage}",
+                            isLoading = false
+                        )
+                    }
+                }
+                .collect { preferences ->
+                    val previousSotdId = _uiState.value.sotd?.id
+                    _uiState.update {
+                        it.copy(
+                            username = preferences.username,
+                            error = null
+                        )
+                    }
+
+                    // ✅ Refresh SOTD on preference changes
+                    val sotdState = getCurrentSotdUseCase()
+                    _uiState.update {
+                        it.copy(sotd = sotdState.currentSotd)
+                    }
+
+                    // ✅ Auto-show if new SOTD appeared (e.g., from background worker)
+                    if (sotdState.currentSotd?.id != previousSotdId && !sotdState.isSeen) {
+                        _sotdOverlayRequest.emit(SotdOverlayRequest.AutoShow)
                     }
                 }
         }
@@ -226,12 +280,12 @@ class HomeViewModel @Inject constructor(
                         val homeData = homeDataResult.data
 
                         // Generate SOTD if none exists
-                        val finalSotdState = if (sotdState.currentSotd == null) {
+                        /*val finalSotdState = if (sotdState.currentSotd == null) {
                             generateNewSotdIdUseCase()
                             getCurrentSotdUseCase()
                         } else {
                             sotdState
-                        }
+                        }*/
 
                         // ✅ Update UI on main thread
                         _uiState.update {
@@ -240,7 +294,7 @@ class HomeViewModel @Inject constructor(
                                 username = homeData.userName,
                                 featuredCategories = homeData.featuredCategories,
                                 recentSotd = recentSotd,
-                                sotd = finalSotdState.currentSotd,
+                                sotd = sotdState.currentSotd,
                             )
                         }
                     }

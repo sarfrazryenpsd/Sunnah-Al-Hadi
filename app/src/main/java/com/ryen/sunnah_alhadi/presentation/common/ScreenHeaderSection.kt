@@ -90,7 +90,7 @@ fun ScreenHeaderSection(
             Text(
                 text = screenHeader.subtitle,
                 style = screenHeader.subtitleStyle,
-                color = MaterialTheme.colorScheme.primary,
+                color = if(screen is Browse)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
                 textAlign = TextAlign.Start
             )
         }
@@ -101,7 +101,7 @@ fun ScreenHeaderSection(
             text = screenHeader.title,
             style = screenHeader.titleStyle,
             //lineHeight = 32.sp,
-            color = MaterialTheme.colorScheme.primary,
+            color = if(screen is Browse)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
             textAlign = TextAlign.Start
         )
     }

@@ -3,6 +3,7 @@
 package com.ryen.sunnah_alhadi.presentation.components.cards
 
 import android.os.Build
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -26,16 +27,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.outlined.AutoAwesome
-import androidx.compose.material.icons.outlined.Bookmark
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DividerDefaults
@@ -43,8 +37,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -53,10 +50,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -152,14 +150,14 @@ fun UsernameCard(
             painter = painterResource(R.drawable.sunnahlogo),
             contentDescription = null,
             modifier = Modifier.size(48.dp),
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.tertiary
         )
 
         Text(
             text = "Welcome to Sunnah Al-Hadi",
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.tertiary
         )
 
 
@@ -167,14 +165,14 @@ fun UsernameCard(
             text = "Let's personalize your experience.\nWhat is your good name?",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.tertiary
         )
 
         OutlinedTextField(
             value = username,
             onValueChange = onUsernameChange,
-            label = { Text("Your Name") },
-            placeholder = { Text("Enter your name") },
+            label = { Text("Your Name", color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)) },
+            placeholder = { Text("Enter your name", color = MaterialTheme.colorScheme.tertiary) },
             supportingText = {
                 usernameError?.let { error ->
                     Text(
@@ -183,24 +181,31 @@ fun UsernameCard(
                     )
                 } ?: Text(
                     text = "Enter your preferred name for the app",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             },
             trailingIcon = {
                 Text(
                     text = getUsernameCharacterCount(username),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             },
             isError = usernameError != null,
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f),
+                focusedTextColor = MaterialTheme.colorScheme.tertiary,
+                unfocusedTextColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
+            ),
             modifier = Modifier.fillMaxWidth()
         )
     }
 }
 
+@PreviewLightDark
 @Preview(showBackground = true)
 @Composable
 fun UsernameCardPreview() {
@@ -243,7 +248,7 @@ private fun ThemeCard(
                 subtitle = "Follow device theme settings",
                 isSelected = selectedTheme == ThemeMode.SYSTEM,
                 onClick = { onThemeSelect(ThemeMode.SYSTEM) },
-                icon = Icons.Outlined.Settings
+                icon = R.drawable.interface_system
             )
 
             ThemeOption(
@@ -251,7 +256,7 @@ private fun ThemeCard(
                 subtitle = "Always use light theme",
                 isSelected = selectedTheme == ThemeMode.LIGHT,
                 onClick = { onThemeSelect(ThemeMode.LIGHT) },
-                icon = Icons.Outlined.LightMode
+                icon = R.drawable.interface_light
             )
 
             ThemeOption(
@@ -259,7 +264,7 @@ private fun ThemeCard(
                 subtitle = "Always use dark theme",
                 isSelected = selectedTheme == ThemeMode.DARK,
                 onClick = { onThemeSelect(ThemeMode.DARK) },
-                icon = Icons.Outlined.DarkMode
+                icon = R.drawable.interface_dark
             )
         }
 
@@ -283,17 +288,23 @@ private fun ThemeCard(
                     Text(
                         text = "Dynamic Colors",
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.tertiary
                     )
                     Text(
                         text = "Use colors from your wallpaper",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
                     )
                 }
 
                 Switch(
                     checked = isDynamicThemeEnabled,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.colorScheme.secondary,
+                        checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                        uncheckedThumbColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f),
+                        uncheckedTrackColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
                     onCheckedChange = onDynamicThemeToggle
                 )
             }
@@ -314,7 +325,7 @@ private fun OnboardingCardHeader(
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = MaterialTheme.colorScheme.tertiary,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -322,7 +333,7 @@ private fun OnboardingCardHeader(
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -335,7 +346,7 @@ private fun ThemeOption(
     subtitle: String,
     isSelected: Boolean,
     onClick: () -> Unit,
-    icon: ImageVector,
+    @DrawableRes icon: Int,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -348,18 +359,22 @@ private fun ThemeOption(
     ) {
         RadioButton(
             selected = isSelected,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = MaterialTheme.colorScheme.tertiary,
+                unselectedColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
+            ),
             onClick = onClick
         )
 
         Spacer(modifier = Modifier.width(16.dp))
 
         Icon(
-            imageVector = icon,
+            painter = painterResource(icon),
             contentDescription = null,
             tint = if (isSelected) {
-                MaterialTheme.colorScheme.primary
+                MaterialTheme.colorScheme.tertiary
             } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
+                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
             },
             modifier = Modifier.size(24.dp)
         )
@@ -371,15 +386,15 @@ private fun ThemeOption(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 color = if (isSelected) {
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.tertiary
                 } else {
-                    MaterialTheme.colorScheme.onSurface
+                    MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f)
                 }
             )
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
             )
         }
     }
@@ -416,17 +431,23 @@ private fun NotificationCard(
                 Text(
                     text = "Enable Daily Reminders",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.tertiary
                 )
                 Text(
                     text = "Receive gentle reminders to stay connected with the Sunnah",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f)
                 )
             }
 
             Switch(
                 checked = isNotificationEnabled,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.secondary,
+                    checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f),
+                    uncheckedTrackColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
                 onCheckedChange = onNotificationToggle
             )
         }
@@ -449,7 +470,7 @@ private fun NotificationCard(
                 Text(
                     text = "Preferred Time",
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.padding(top = 8.dp)
                 )
 
@@ -488,7 +509,11 @@ private fun NotificationTimeOption(
     ) {
         RadioButton(
             selected = isSelected,
-            onClick = onClick
+            onClick = onClick,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = MaterialTheme.colorScheme.tertiary,
+                unselectedColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
+            )
         )
 
         Spacer(modifier = Modifier.width(12.dp))
@@ -498,15 +523,15 @@ private fun NotificationTimeOption(
                 text = timeText,
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (isSelected) {
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.tertiary
                 } else {
-                    MaterialTheme.colorScheme.onSurface
+                    MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
                 }
             )
             Text(
                 text = descriptionText,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
             )
         }
     }
@@ -527,16 +552,16 @@ private fun WelcomeCard(
             modifier = Modifier
                 .size(120.dp)
                 .background(
-                    color = MaterialTheme.colorScheme.primaryContainer,
+                    color = Color.Transparent,
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Outlined.AutoAwesome,
+                painter = painterResource(id = R.drawable.ec_benefit),
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                tint = MaterialTheme.colorScheme.tertiary
             )
         }
 
@@ -556,7 +581,7 @@ private fun WelcomeCard(
             Text(
                 text = "You're all set to begin your journey with the beautiful Sunnahs of Prophet Muhammad ﷺ",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.tertiary,
                 textAlign = TextAlign.Center,
                 lineHeight = 24.sp
             )
@@ -567,19 +592,19 @@ private fun WelcomeCard(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             WelcomeFeatureItem(
-                icon = Icons.AutoMirrored.Default.MenuBook,
-                title = "500+ Authentic Sunnahs",
+                icon = R.drawable.ec_explanation,
+                title = "470+ Sunnahs & Manners",
                 description = "Explore a comprehensive collection"
             )
 
             WelcomeFeatureItem(
-                icon = Icons.Outlined.Bookmark,
+                icon = R.drawable.interface_bookmarked,
                 title = "Personal Bookmarks",
                 description = "Save your favorite Sunnahs"
             )
 
             WelcomeFeatureItem(
-                icon = Icons.Outlined.Schedule,
+                icon = R.drawable.interface_clock,
                 title = "Daily Reminders",
                 description = "Stay connected every day"
             )
@@ -589,7 +614,7 @@ private fun WelcomeCard(
 
 @Composable
 private fun WelcomeFeatureItem(
-    icon: ImageVector,
+    @DrawableRes icon: Int,
     title: String,
     description: String,
     modifier: Modifier = Modifier
@@ -599,10 +624,10 @@ private fun WelcomeFeatureItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icon,
+            painter = painterResource(icon),
             contentDescription = null,
             modifier = Modifier.size(20.dp),
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.tertiary
         )
 
         Spacer(modifier = Modifier.width(12.dp))
@@ -611,12 +636,12 @@ private fun WelcomeFeatureItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.tertiary
             )
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f)
             )
         }
     }
@@ -642,18 +667,25 @@ private fun OnboardingNavigationButtons(
                 modifier = Modifier.padding(end = 24.dp)
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    painter = painterResource(R.drawable.interface_left),
                     contentDescription = null,
-                    modifier = Modifier.size(18.dp)
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Back")
+                Text("Back", color = MaterialTheme.colorScheme.tertiary)
             }
         }
 
         if (currentStep == OnboardingStep.WELCOME) {
             Button(
                 onClick = onComplete,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f),
+                    disabledContentColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                ),
                 modifier = Modifier.fillMaxWidth(if (canGoToPrevious) 1f else 1f)
             ) {
                 BasicText(
@@ -678,6 +710,10 @@ private fun OnboardingNavigationButtons(
             Button(
                 onClick = onNext,
                 enabled = canProceedToNext,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.surface
+                ),
                 modifier = Modifier.fillMaxWidth(if (canGoToPrevious) 0.6f else 1f)
             ) {
                 Text("Next")
@@ -692,6 +728,7 @@ private fun OnboardingNavigationButtons(
     }
 }
 
+@PreviewLightDark
 @Preview(showBackground = true)
 @Composable
 fun OnboardingNavigationButtonPrev1() {
@@ -761,6 +798,7 @@ fun OnboardingNavigationButtonPrev4() {
 }
 
 @Preview(widthDp = 240)
+@PreviewLightDark
 @Composable
 fun OnboardingCardsPrev() {
     SunnahAlHadiTheme(

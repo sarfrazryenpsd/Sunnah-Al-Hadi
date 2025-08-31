@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,9 +30,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -52,11 +48,13 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.ContentBlock
 import com.ryen.sunnah_alhadi.domain.model.ContentType
@@ -178,17 +176,6 @@ fun SunnahPager(
                 }
                 // Remove the else block to prevent flash - let the LaunchedEffect handle empty states
             }
-
-            // Conditional indicators for better performance
-            if (sunnahs.size > 1) {
-                PagerIndicators(
-                    pagerState = pagerState,
-                    pageCount = sunnahs.size,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(top = 32.dp)
-                )
-            }
         }
 
         // FIXED: Safe index access with bounds checking
@@ -196,15 +183,21 @@ fun SunnahPager(
             derivedStateOf { pagerState.currentPage }
         }
 
+
         // Only show bookmark button if we have a valid current page
         if (currentPage < sunnahs.size) {
             val currentSunnah = sunnahs[currentPage]
+            val bookmarkIcon = if (currentSunnah.isBookmarked) {
+                R.drawable.interface_bookmarked
+            } else {
+                R.drawable.interface_bookmark
+            }
 
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(bottom = 48.dp, end = 40.dp)
+                    .padding(bottom = 64.dp, end = 40.dp)
                     .size(48.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surface)
@@ -213,13 +206,10 @@ fun SunnahPager(
                     }
             ) {
                 Icon(
-                    imageVector = if (currentSunnah.isBookmarked) {
-                        Icons.Filled.Bookmark
-                    } else {
-                        Icons.Outlined.BookmarkBorder
-                    },
+                    painter = painterResource(bookmarkIcon),
                     contentDescription = if (currentSunnah.isBookmarked) "Remove Bookmark" else "Add Bookmark",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
@@ -278,11 +268,13 @@ private fun SunnahPagerCard(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ) {
-        Surface(
-            modifier = cardModifier,
-            shape = RoundedCornerShape(16.dp),
-            tonalElevation = 8.dp,
-            shadowElevation = 12.dp
+        Box(
+            modifier = cardModifier.then(
+                Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+            ),
+            contentAlignment = Alignment.Center
         ) {
             SunnahFullCard(
                 sunnah = sunnah,
@@ -344,32 +336,7 @@ fun SunnahFullCard(
 }
 
 
-@Composable
-private fun PagerIndicators(
-    pagerState: PagerState,
-    pageCount: Int,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = modifier
-    ) {
-        repeat(pageCount) { index ->
-            val isSelected = pagerState.currentPage == index
-            val alpha = if (isSelected) 1f else 0.4f
 
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .padding(horizontal = 2.dp)
-                    .background(
-                        color = Color.White.copy(alpha = alpha),
-                        shape = CircleShape
-                    )
-            )
-        }
-    }
-}
 
 
 val sampleContentBlockArabic = ContentBlock(
@@ -432,11 +399,6 @@ val sampleContentBlockEnglish = ContentBlock(
 
 val sampleExtraContentBenefit = ExtraContent(
     type = ExtraContentType.BENEFIT, // Use your actual ExtraContentType
-    content = listOf()
-)
-
-val sampleExtraContentWarning = ExtraContent(
-    type = ExtraContentType.WARNING, // Use your actual ExtraContentType
     content = listOf()
 )
 
@@ -607,23 +569,6 @@ fun ReferenceRendererPreview() {
     ) {
         Surface {
             DynamicReferenceRenderer(references = listOf(sampleReference))
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PagerIndicatorsPreview() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
-    ) {
-        val pagerState = rememberPagerState(initialPage = 1, pageCount = { 3 })
-        Surface(color = Color.DarkGray.copy(alpha = 0.5f)) { // Added background for visibility
-            PagerIndicators(
-                pagerState = pagerState,
-                pageCount = 5,
-                modifier = Modifier.padding(16.dp)
-            )
         }
     }
 }

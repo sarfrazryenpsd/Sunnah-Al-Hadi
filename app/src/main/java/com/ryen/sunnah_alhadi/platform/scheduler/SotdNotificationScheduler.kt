@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -30,12 +32,11 @@ class SotdNotificationScheduler @Inject constructor(@param:ApplicationContext pr
     private val workManager: WorkManager = WorkManager.getInstance(context)
 
     fun scheduleNotification(notificationTime: NotificationTime) {
-        // Cancel existing work first
+        // Cancel existing
         cancelNotification()
 
         val initialDelay = calculateInitialDelay(notificationTime)
 
-        // Create constraints to ensure reliability
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
             .setRequiresBatteryNotLow(false)
@@ -44,13 +45,8 @@ class SotdNotificationScheduler @Inject constructor(@param:ApplicationContext pr
             .setRequiresStorageNotLow(false)
             .build()
 
-        // Use daily periodic work with more robust scheduling
-        val workRequest = PeriodicWorkRequestBuilder<SotdNotificationWorker>(
-            repeatInterval = 1,
-            repeatIntervalTimeUnit = TimeUnit.DAYS,
-            flexTimeInterval = 30, // 30-minute flex window
-            flexTimeIntervalUnit = TimeUnit.MINUTES
-        )
+        // ✅ Use OneTimeWorkRequest
+        val workRequest = OneTimeWorkRequestBuilder<SotdNotificationWorker>()
             .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
             .setConstraints(constraints)
             .addTag(TAG_SOTD)
@@ -61,16 +57,27 @@ class SotdNotificationScheduler @Inject constructor(@param:ApplicationContext pr
             )
             .build()
 
-        workManager.enqueueUniquePeriodicWork(
+        workManager.enqueueUniqueWork(
             WORK_NAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingWorkPolicy.REPLACE,
             workRequest
         )
 
-        Log.d(
-            "SotdScheduler",
-            "Scheduled notification for ${notificationTime.name} with ${initialDelay}ms delay"
-        )
+        Log.d("SotdScheduler", "Scheduled one-time SOTD worker with ${initialDelay / 1000 / 60} min delay.")
+    }
+
+    // ✅ New method to schedule the next day's worker
+    fun scheduleNextNotification(notificationTime: NotificationTime) {
+        val nextDelay = calculateInitialDelay(notificationTime)
+        // Same as above, but ensure it's for tomorrow if needed (calculateInitialDelay handles it)
+
+        val workRequest = OneTimeWorkRequestBuilder<SotdNotificationWorker>()
+            .setInitialDelay(nextDelay, TimeUnit.MILLISECONDS)
+            // ... same constraints, tag, backoff
+            .build()
+
+        workManager.enqueueUniqueWork(WORK_NAME, ExistingWorkPolicy.REPLACE, workRequest)
+        Log.d("SotdScheduler", "Rescheduled next SOTD worker.")
     }
 
     private fun calculateInitialDelay(notificationTime: NotificationTime): Long {

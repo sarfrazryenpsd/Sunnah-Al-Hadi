@@ -77,7 +77,7 @@ fun TopicScreen(
 
     val onEventCallback = remember { viewModel::onEvent }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopicContent(
             uiState = uiState,
             dimensions = dimensions,

@@ -1,13 +1,25 @@
 package com.ryen.sunnah_alhadi.presentation.util
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import com.ryen.sunnah_alhadi.R
 
 
-object CategoryUtils{
+/**
+ * Extension function to determine if MaterialTheme is in dark mode
+ * by checking the luminance of the background color
+ */
+@Composable
+private fun MaterialTheme.isDarkMode(): Boolean {
+    return colorScheme.background.luminance() < 0.5f
+}
+
+object CategoryUtils {
 
     private val gradientMap = mapOf(
         0 to listOf(Color(0xFFBBE4A2), Color(0xFFA0CE8C)), // Walking
@@ -44,34 +56,18 @@ object CategoryUtils{
 
     @Composable
     fun categoryGradient(categoryId: Int): Brush {
-        val isDark = isSystemInDarkTheme()
-
-
 
         val colors = gradientMap[categoryId] ?: listOf(Color.Gray, Color.DarkGray)
 
-        val adjustedColors = if (isDark) {
-            colors.map { it.darken(0.15f).copy(alpha = 0.85f) }
-        } else {
-            colors
-        }
-
-        return Brush.linearGradient(adjustedColors)
+        return Brush.linearGradient(colors)
     }
 
     @Composable
     fun categoryGradientColors(categoryId: Int): List<Color> {
-        val isDark = isSystemInDarkTheme()
 
         val colors = gradientMap[categoryId] ?: listOf(Color.Gray, Color.DarkGray)
 
-        val adjustedColors = if (isDark) {
-            colors.map { it.darken(0.15f).copy(alpha = 0.85f) }
-        } else {
-            colors
-        }
-
-        return adjustedColors
+        return colors
     }
 
 
@@ -82,6 +78,15 @@ object CategoryUtils{
             blue = (blue * (1 - factor)).coerceIn(0f, 1f),
             alpha = alpha
         )
+    }
+
+    @Composable
+    fun specialGradient(isDarkTheme: Boolean = MaterialTheme.isDarkMode()): List<Color> {
+        return if (isDarkTheme) {
+            listOf(Color(0xFF9BD5C4), Color(0xFFCFF19E))
+        } else {
+            listOf(Color(0xFFFFCDC4), Color(0xFFFFEAD3))
+        }
     }
 
     val categoryImageMap = mapOf(

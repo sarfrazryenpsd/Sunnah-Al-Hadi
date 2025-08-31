@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,8 +41,8 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -73,6 +74,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.NotificationTime
+import com.ryen.sunnah_alhadi.presentation.screens.preferences.MarkdownText
 import com.ryen.sunnah_alhadi.presentation.util.ValidationResult
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
@@ -84,11 +86,14 @@ fun PreferenceSection(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Column(modifier = modifier.padding(horizontal = 16.dp)) {
+    Column(
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+    ) {
         Text(
             text = title,
             style = MaterialTheme.appTypography.notificationType,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.tertiary,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
         )
 
@@ -97,7 +102,7 @@ fun PreferenceSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(MaterialTheme.colorScheme.secondaryContainer)
                 .padding(horizontal = 12.dp)
         ) {
             Column(
@@ -147,7 +152,7 @@ fun PreferenceHorizontalItem(
                             alpha = 0.08f
                         )
                     )
-            ){
+            ) {
                 Icon(
                     painter = painterResource(leadingIcon),
                     contentDescription = null,
@@ -177,7 +182,7 @@ fun PreferenceHorizontalItem(
                     Text(
                         text = it,
                         style = MaterialTheme.appTypography.notificationSubtitle,
-                        color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        color = if (enabled) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant.copy(
                             alpha = 0.38f
                         )
                     )
@@ -228,7 +233,7 @@ fun PreferenceVerticalItem(
                             alpha = 0.08f
                         )
                     )
-            ){
+            ) {
                 Icon(
                     painter = painterResource(leadingIcon),
                     contentDescription = null,
@@ -258,7 +263,7 @@ fun PreferenceVerticalItem(
                     Text(
                         text = it,
                         style = MaterialTheme.appTypography.notificationSubtitle,
-                        color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        color = if (enabled) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant.copy(
                             alpha = 0.38f
                         )
                     )
@@ -299,8 +304,8 @@ fun PreferenceSwitch(
                 onCheckedChange = if (enabled) onCheckedChange else null,
                 enabled = enabled,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.inversePrimary,
-                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+                    checkedThumbColor = MaterialTheme.colorScheme.secondary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
                     checkedTrackColor = MaterialTheme.colorScheme.primary,
                     uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
                 )
@@ -382,7 +387,8 @@ fun PreferenceTextField(
         )
     }
 }
-private data class ThemeOptions (
+
+private data class ThemeOptions(
     val themeMode: ThemeMode,
     val label: String,
     val icon: Int
@@ -442,7 +448,12 @@ fun NotificationTimeDropdown(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
+                focusedTextColor = MaterialTheme.colorScheme.tertiary,
+                unfocusedTextColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f),
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+            ),
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, enabled)
                 .fillMaxWidth()
@@ -451,6 +462,7 @@ fun NotificationTimeDropdown(
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(16.dp)
         ) {
             timeOptions.forEach { time ->
@@ -467,9 +479,9 @@ fun NotificationTimeDropdown(
                     },
                     colors = MenuDefaults.itemColors(
                         textColor = if (time == selectedTime) {
-                            MaterialTheme.colorScheme.primary
+                            MaterialTheme.colorScheme.tertiary
                         } else {
-                            MaterialTheme.colorScheme.onSurface
+                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
                         }
                     )
                 )
@@ -483,7 +495,6 @@ fun UserNameDialog(
     showDialog: Boolean,
     onDismiss: () -> Unit,
     username: String,
-    placeholder: String,
     usernameError: String?,
     isUserNameValid: Boolean,
     onUsernameChange: (String) -> Unit,
@@ -508,7 +519,7 @@ fun UserNameDialog(
                 Text(
                     text = "Let's personalize your experience.\nWhat is your good name?",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.tertiary
                 )
 
                 OutlinedTextField(
@@ -517,6 +528,16 @@ fun UserNameDialog(
                         usernameState.value = it
                         onUsernameChange(it)
                     },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f),
+                        focusedTextColor = MaterialTheme.colorScheme.tertiary,
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                        errorBorderColor = MaterialTheme.colorScheme.error,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f),
+                        focusedLabelColor = MaterialTheme.colorScheme.tertiary,
+                        errorLabelColor = MaterialTheme.colorScheme.error,
+                        errorSupportingTextColor = MaterialTheme.colorScheme.error
+                    ),
                     label = { Text("Name") },
                     isError = usernameError != null,
                     supportingText = {
@@ -527,18 +548,28 @@ fun UserNameDialog(
                             )
                         } ?: Text(
                             text = "Enter your preferred name for the app",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
                         )
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
         },
+        containerColor = MaterialTheme.colorScheme.surface,
+        iconContentColor = MaterialTheme.colorScheme.tertiary,
+        titleContentColor = MaterialTheme.colorScheme.tertiary,
+        textContentColor = MaterialTheme.colorScheme.tertiary,
         confirmButton = {
             Button(
                 onClick = {
                     onSave(usernameState.value)
                 },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f),
+                    disabledContentColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                ),
                 enabled = isUserNameValid
             ) {
                 Text("Save")
@@ -548,7 +579,7 @@ fun UserNameDialog(
             TextButton(
                 onClick = onDismiss,
             ) {
-                Text("Cancel")
+                Text("Cancel", color = MaterialTheme.colorScheme.tertiary)
             }
         },
         properties = DialogProperties(
@@ -579,6 +610,10 @@ fun BugReportDialog(
                 style = MaterialTheme.typography.headlineSmall
             )
         },
+        containerColor = MaterialTheme.colorScheme.surface,
+        iconContentColor = MaterialTheme.colorScheme.tertiary,
+        titleContentColor = MaterialTheme.colorScheme.error,
+        textContentColor = MaterialTheme.colorScheme.tertiary,
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -594,12 +629,27 @@ fun BugReportDialog(
                         description = it
                         isDescriptionError = it.isBlank()
                     },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f),
+                        focusedTextColor = MaterialTheme.colorScheme.tertiary,
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                        errorBorderColor = MaterialTheme.colorScheme.error,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f),
+                        focusedLabelColor = MaterialTheme.colorScheme.tertiary,
+                        errorLabelColor = MaterialTheme.colorScheme.error,
+                        errorSupportingTextColor = MaterialTheme.colorScheme.error
+                    ),
                     shape = RoundedCornerShape(12.dp),
                     label = { Text("Bug Description *") },
-                    placeholder = { Text("Please describe the issue you encountered...") },
+                    placeholder = {
+                        Text(
+                            "Please describe the issue you encountered...",
+                            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
+                        )
+                    },
                     isError = isDescriptionError,
                     supportingText = if (isDescriptionError) {
-                        { Text("Description is required") }
+                        { Text("Description is required", color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)) }
                     } else null,
                     maxLines = 4,
                     modifier = Modifier.fillMaxWidth()
@@ -614,13 +664,23 @@ fun BugReportDialog(
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email
                     ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f),
+                        focusedTextColor = MaterialTheme.colorScheme.tertiary,
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                        errorBorderColor = MaterialTheme.colorScheme.error,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f),
+                        focusedLabelColor = MaterialTheme.colorScheme.tertiary,
+                        errorLabelColor = MaterialTheme.colorScheme.error,
+                        errorSupportingTextColor = MaterialTheme.colorScheme.error
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Text(
                     text = "Your device information will be included automatically to help with debugging.",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             }
         },
@@ -633,6 +693,12 @@ fun BugReportDialog(
                         isDescriptionError = true
                     }
                 },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f),
+                    disabledContentColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                ),
                 enabled = !isLoading && description.isNotBlank()
             ) {
                 if (isLoading) {
@@ -650,7 +716,7 @@ fun BugReportDialog(
                 onClick = onDismiss,
                 enabled = !isLoading
             ) {
-                Text("Cancel")
+                Text("Cancel", color = MaterialTheme.colorScheme.tertiary)
             }
         }
     )
@@ -673,23 +739,23 @@ fun ContentDisplayDialog(
                 style = MaterialTheme.typography.headlineSmall
             )
         },
+        containerColor = MaterialTheme.colorScheme.surface,
+        iconContentColor = MaterialTheme.colorScheme.tertiary,
+        titleContentColor = MaterialTheme.colorScheme.tertiary,
+        textContentColor = MaterialTheme.colorScheme.tertiary,
         text = {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
-                    Text(
-                        text = content,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    MarkdownText(content)
                 }
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Close")
+                Text("Close", color = MaterialTheme.colorScheme.tertiary)
             }
         },
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -742,6 +808,10 @@ fun NotificationPermissionDialog(
                 )
             }
         },
+        containerColor = MaterialTheme.colorScheme.surface,
+        iconContentColor = MaterialTheme.colorScheme.tertiary,
+        titleContentColor = MaterialTheme.colorScheme.tertiary,
+        textContentColor = MaterialTheme.colorScheme.tertiary,
         confirmButton = {
             Button(onClick = onConfirm) {
                 Text("Allow Notifications")
@@ -818,7 +888,7 @@ fun ThemeModeToggle(
                     width = borderWidth,
                     color =
                         if (isSelected) {
-                            MaterialTheme.colorScheme.inversePrimary
+                            MaterialTheme.colorScheme.secondary
                         } else {
                             MaterialTheme.colorScheme.outlineVariant
                         },
@@ -834,9 +904,9 @@ fun ThemeModeToggle(
                     modifier = Modifier.size(24.dp),
                     tint =
                         if (isSelected) {
-                            MaterialTheme.colorScheme.onPrimary
+                            MaterialTheme.colorScheme.secondary
                         } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
                         },
                 )
             }
@@ -847,12 +917,7 @@ fun ThemeModeToggle(
         Text(
             text = themeLabel,
             style = MaterialTheme.typography.labelMedium,
-            color =
-                if (isSelected) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
+            color = MaterialTheme.colorScheme.tertiary,
             textAlign = TextAlign.Center,
             maxLines = 1,
         )
@@ -860,11 +925,9 @@ fun ThemeModeToggle(
 }
 
 
-
-
 //-------------------------------------------------------------Previews----------------------------------------------------------------------------------
 
-@Preview(showBackground = true, backgroundColor = android.graphics.Color.WHITE.toLong())
+@Preview(showBackground = false, backgroundColor = android.graphics.Color.WHITE.toLong())
 @Composable
 private fun ThemeOptionPreview() {
     SunnahAlHadiTheme(
@@ -891,6 +954,7 @@ private fun ThemeOptionPreview() {
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 private fun PreferenceTextFieldPreview() {

@@ -18,7 +18,7 @@ fun getExtraContentMetaInfo(type: ExtraContentType): ExtraContentMetaInfo {
     val colors = MaterialTheme.colorScheme.extraContentColors(type)
     val iconRes = when (type) {
         ExtraContentType.PARABLE -> R.drawable.ec_parable
-        ExtraContentType.SCHOLARLY_EXPLANATION -> R.drawable.ec_explanation
+        ExtraContentType.SCHOLARLY_EXPLANATION -> R.drawable.ec_scholar
         ExtraContentType.EXPLANATION -> R.drawable.ec_explanation
         ExtraContentType.TRANSLATION -> R.drawable.ec_translate
         ExtraContentType.HADITH -> R.drawable.ec_hadith

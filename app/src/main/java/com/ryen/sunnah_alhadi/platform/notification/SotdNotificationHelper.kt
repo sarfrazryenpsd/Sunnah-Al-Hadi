@@ -45,9 +45,12 @@ class SotdNotificationHelper @Inject constructor(private val context: Context) {
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
+        Log.d("SotdNotification", "Notification channel created: $CHANNEL_ID")
     }
 
     fun showSotdNotification(sunnah: Sunnah) {
+        Log.d("SotdNotification", "Attempting to show notification for: ${sunnah.title}")
+
         // Check notification permission for Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val permissionGranted = ContextCompat.checkSelfPermission(
@@ -76,7 +79,7 @@ class SotdNotificationHelper @Inject constructor(private val context: Context) {
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_background) // Replace with a valid icon
+            .setSmallIcon(R.drawable.interface_notification)
             .setContentTitle("🌟 Sunnah of the Day")
             .setContentText(sunnah.title)
             .setStyle(
@@ -89,7 +92,12 @@ class SotdNotificationHelper @Inject constructor(private val context: Context) {
             .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
             .build()
 
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        try {
+            notificationManager.notify(NOTIFICATION_ID, notification)
+            Log.d("SotdNotification", "Notification displayed successfully")
+        } catch (e: Exception) {
+            Log.e("SotdNotification", "Failed to show notification", e)
+        }
     }
 
 }

@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -223,7 +224,7 @@ private fun OnboardingHeader(
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = "Close onboarding",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
             )
         }
     }
@@ -268,7 +269,7 @@ private fun StepDot(
 
     val targetColor by animateColorAsState(
         targetValue = when {
-            isCurrent -> MaterialTheme.colorScheme.primary
+            isCurrent -> MaterialTheme.colorScheme.tertiary
             isActive -> MaterialTheme.colorScheme.primaryContainer
             else -> MaterialTheme.colorScheme.outline
         },
@@ -329,6 +330,7 @@ private fun OBPrevHeader() {
 }
 
 @Preview
+@PreviewLightDark
 @Composable
 private fun OBPrevCardContainer() {
     SunnahAlHadiTheme(

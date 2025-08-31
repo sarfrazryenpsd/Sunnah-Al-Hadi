@@ -2,30 +2,22 @@ package com.ryen.sunnah_alhadi.presentation.components.overlay
 
 import android.graphics.Paint
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -38,11 +30,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -61,7 +53,6 @@ import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.presentation.components.SunnahFullCard
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeEvent
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeViewModel
-import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRendererV2
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
@@ -76,7 +67,7 @@ fun SotdCardContainer(
     val uiState by homeViewModel.uiState.collectAsState()
 
     val containerColor: Color = Color.White
-    val cornersRadius: Dp = 16.dp
+    val cornersRadius: Dp = 32.dp
     val glowingRadius: Dp = 32.dp
     val xShifting: Dp = 0.dp
     val yShifting: Dp = 0.dp
@@ -153,18 +144,18 @@ fun SotdCardContainer(
                     Text(
                         text = "SUNNAH OF THE DAY",
                         style = MaterialTheme.appTypography.displayName,
-                        color = MaterialTheme.colorScheme.background,
+                        color = MaterialTheme.colorScheme.secondary,
                         textAlign = TextAlign.Center,
                     )
-                    Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        tonalElevation = 8.dp,
-                        shadowElevation = 12.dp
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surface),
+                        contentAlignment = Alignment.Center
                     ) {
                         SunnahFullCard(
                             sunnah = sunnah,
                             modifier = Modifier
-                                .then(glow)
                                 .fillMaxWidth()
                                 .fillMaxHeight(0.8f)
                         )
@@ -189,6 +180,7 @@ fun SotdCardContainer(
                             style = MaterialTheme.appTypography.notificationType.copy(
                                 fontSize = 18.sp,
                             ),
+                            color = MaterialTheme.colorScheme.secondary
                         )
                     }
                 }
@@ -197,79 +189,6 @@ fun SotdCardContainer(
     }
 }
 
-@Composable
-fun SotdOverlayContent(
-    sunnah: Sunnah,
-    onDismiss: () -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .widthIn(max = 400.dp)
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { /* Prevent dismiss when clicking on card */ },
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Enhanced SOTD Card for overlay
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer
-            ),
-            border = BorderStroke(
-                width = 3.dp,
-                color = MaterialTheme.colorScheme.tertiary
-            ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 12.dp
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                // Sunnah Title
-                Text(
-                    text = sunnah.title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Sunnah Content
-                DynamicContentBlockRendererV2(
-                    contentBlocks = sunnah.body,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Action buttons
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
-                    ) {
-                        Text("Sub'han Allah")
-                    }
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview(showBackground = true)

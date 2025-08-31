@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi.presentation.screens.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,10 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -91,7 +95,7 @@ fun HomeScreen(
         }
     }
 
-    // ✅ NEW: Listen to SOTD overlay requests
+    // Listen to SOTD overlay requests
     LaunchedEffect(Unit) {
         viewModel.sotdOverlayRequest.collect { request ->
             onSotdRequested(request)
@@ -145,7 +149,7 @@ fun HomeScreenContent(
     modifier: Modifier = Modifier
 ) {
     val screenSize = LocalScreenSize.current
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         // Main content
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -214,13 +218,14 @@ fun HomeScreenContent(
                             Text(
                                 text = "Featured Topics",
                                 style = MaterialTheme.appTypography.featuredTopics,
+                                color = MaterialTheme.colorScheme.tertiary,
                                 fontWeight = FontWeight.SemiBold
                             )
 
                             Text(
                                 text = "See All",
                                 style = MaterialTheme.appTypography.seeAll,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.tertiary,
                                 modifier = Modifier.clickable {
                                     onNavigateToAllTopics()
                                 }
@@ -285,12 +290,12 @@ fun HomeScreenContent(
                         Text(
                             text = "Recent",
                             style = MaterialTheme.appTypography.featuredTopics,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.tertiary
                         )
                         Text(
                             text = "Sunnah Of The Day",
                             style = MaterialTheme.appTypography.notificationSubtitle,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.tertiary
                         )
                     }
                 }
@@ -312,14 +317,7 @@ fun HomeScreenContent(
             // Loading state
             if (uiState.isLoading) {
                 item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                    LoadingIndicator()
                 }
             }
 
@@ -381,7 +379,9 @@ private fun ActionItems(
     onOrbClick: () -> Unit,
     onInfoClick: () -> Unit,
 ) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.sotd_dark))
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val lottie = if (isDark) R.raw.sotd_dark else R.raw.sotd_light
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(lottie))
     val progress by animateLottieCompositionAsState(
         composition = composition,
         iterations = LottieConstants.IterateForever,
@@ -402,16 +402,18 @@ private fun ActionItems(
         Icon(
             painter = painterResource(id = R.drawable.interface_info0),
             contentDescription = "Info",
-            tint = MaterialTheme.colorScheme.primary,
+            tint = MaterialTheme.colorScheme.tertiary,
             modifier = Modifier.clickable { onInfoClick() }
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview(showBackground = true)
 @PreviewFontScale
 @PreviewScreenSizes
-@Preview(showBackground = true)
+@PreviewLightDark
+@PreviewDynamicColors
 @Composable
 private fun HomeScreenContentPrev() {
     CompositionLocalProvider(

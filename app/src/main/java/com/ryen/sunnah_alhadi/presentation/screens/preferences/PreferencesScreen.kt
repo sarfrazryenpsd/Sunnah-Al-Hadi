@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -117,6 +118,7 @@ fun PreferencesScreen(
 
 @Preview
 @PreviewScreenSizes
+@PreviewLightDark
 @Composable
 fun PreferencesScreenContentPreview() {
     SunnahAlHadiTheme(
@@ -296,8 +298,9 @@ private fun AppearanceSection(
                 iconColor = Color(0xFF3F51B5), // Deep Purple
                 trailingContent = {
                     Icon(
-                        imageVector = Icons.Rounded.Edit,
+                        painter = painterResource(R.drawable.ec_note),
                         contentDescription = null,
+                        tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(16.dp),
                     )
                 },
@@ -424,7 +427,7 @@ private fun AboutSection(
                 Icon(
                     painter = painterResource(R.drawable.interface_right),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -446,7 +449,7 @@ private fun AboutSection(
                 Icon(
                     painter = painterResource(R.drawable.interface_right),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -468,7 +471,7 @@ private fun AboutSection(
                 Icon(
                     painter = painterResource(R.drawable.interface_right),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -497,7 +500,7 @@ private fun SupportSection(
                 Icon(
                     painter = painterResource(R.drawable.interface_open),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -525,7 +528,7 @@ private fun SupportSection(
                     Icon(
                         painter = painterResource(R.drawable.interface_right),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -551,7 +554,7 @@ private fun SupportSection(
                 Icon(
                     painter = painterResource(R.drawable.interface_open),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -576,7 +579,7 @@ private fun SupportSection(
                 Icon(
                     painter = painterResource(R.drawable.interface_open),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -602,7 +605,6 @@ private fun PreferencesDialogs(
         showDialog = uiState.showUsernameDialog,
         onDismiss = { onEvent(PreferencesEvent.DismissUsernameDialog) },
         username = uiState.username,
-        placeholder = uiState.userPreferences?.username ?: "",
         usernameError = uiState.usernameValidation.errorMessage,
         isUserNameValid = uiState.usernameValidation.isValid,
         onUsernameChange = { onEvent(PreferencesEvent.UpdateUsername(it)) },
@@ -706,26 +708,3 @@ private fun AppearenceSectionPrev() {
     }
 }
 
-@Preview
-@Composable
-private fun AccountSectionPrev() {
-    SunnahAlHadiTheme(
-        windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(
-                width = 400.dp,
-                height = 900.dp
-            )
-        )
-    ) {
-
-        AccountSection(
-            uiState = PreferencesUiState(
-                isLoading = false,
-                userPreferences = UserPreferences(),
-                appVersion = "1.0.0",
-                buildNumber = "1",
-            ),
-            onEvent = {}
-        )
-    }
-}

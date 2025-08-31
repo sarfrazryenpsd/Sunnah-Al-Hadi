@@ -17,6 +17,7 @@ object PreferenceActions {
                 Intent.ACTION_VIEW,
                 "market://details?id=${context.packageName}".toUri()
             )
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         } catch (e: ActivityNotFoundException) {
             // Fallback to web browser
@@ -34,7 +35,7 @@ object PreferenceActions {
 
 I'd like to share this beautiful Islamic app with you: Sunnah Al-Hadi
 
-🌟 500+ authentic Sunnahs from Prophet Muhammad ﷺ
+🌟 470+ authentic Sunnahs from Prophet Muhammad ﷺ
 📚 Categorized by daily activities
 🔖 Bookmark your favorites
 📱 Works completely offline
@@ -74,7 +75,7 @@ Message:
 
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = "mailto:".toUri()
-            putExtra(Intent.EXTRA_EMAIL, arrayOf("developer@sunnahalhadi.com"))
+            putExtra(Intent.EXTRA_EMAIL, arrayOf("mdsarfraz.ilanos1915@gmail.com"))
             putExtra(Intent.EXTRA_SUBJECT, "Sunnah Al-Hadi - User Feedback")
             putExtra(Intent.EXTRA_TEXT, emailTemplate)
         }
@@ -84,10 +85,10 @@ Message:
         } else {
             // Fallback: copy email to clipboard
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("Developer Email", "developer@sunnahalhadi.com")
+            val clip = ClipData.newPlainText("Developer Email", "mdsarfraz.ilanos1915@gmail.com")
             clipboard.setPrimaryClip(clip)
 
-            Toast.makeText(context, "Email copied to clipboard: developer@sunnahalhadi.com", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Email copied to clipboard: mdsarfraz.ilanos1915@gmail.com", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -100,17 +101,4 @@ Message:
         }
     }
 
-    fun getAppVersionCode(context: Context): Long {
-        return try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                packageInfo.longVersionCode
-            } else {
-                @Suppress("DEPRECATION")
-                packageInfo.versionCode.toLong()
-            }
-        } catch (e: Exception) {
-            0L
-        }
-    }
 }

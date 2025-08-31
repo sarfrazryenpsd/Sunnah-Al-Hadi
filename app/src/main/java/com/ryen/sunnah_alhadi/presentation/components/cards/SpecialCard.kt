@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ryen.sunnah_alhadi.R
+import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.ui.theme.LocalScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
@@ -46,7 +47,7 @@ fun SpecialArabicCard(
     // Hardcoded Arabic content as per requirements
     val arabicContent = stringResource(R.string.salawat)
     val screenSize = LocalScreenSize.current
-    val colorList = listOf(Color(0xFFFFCDC4), Color(0xFFFFEAD3))
+    val colorList = CategoryUtils.specialGradient()
 
     val lineHeight = when (screenSize) {
         ScreenSize.COMPACT -> 36.sp
@@ -85,7 +86,8 @@ fun SpecialArabicCard(
                     textDirection = TextDirection.Rtl,
                     lineHeight = lineHeight,
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
                 ),
                 maxLines = 2,
                 autoSize = TextAutoSize.StepBased(

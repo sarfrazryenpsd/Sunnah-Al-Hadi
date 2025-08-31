@@ -136,11 +136,11 @@ private fun TopicCardContent(
                     BasicText(
                         text = title,
                         style = MaterialTheme.appTypography.topicMax.copy(
-                            color = MaterialTheme.colorScheme.primary,
                             lineHeightStyle = LineHeightStyle(
                                 alignment = LineHeightStyle.Alignment.Center,
                                 trim = LineHeightStyle.Trim.Both
-                            )
+                            ),
+                            color = MaterialTheme.colorScheme.primary
                         ),
                         maxLines = 2,
                         autoSize = TextAutoSize.StepBased(
@@ -175,7 +175,7 @@ private fun SunnahCountBadge(
         Text(
             text = "$count", style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.SemiBold, color = Color(0xFF1565C0)
-            ), color = MaterialTheme.colorScheme.onPrimary
+            ), color = MaterialTheme.colorScheme.primaryContainer
         )
     }
 }
@@ -314,19 +314,23 @@ fun TopicScreenCleanPreview() {
 }
 
 
-
 fun previewDummyTopics() = listOf(
-    TopicUiModel(Category(id = 1,topic = "Applying Oil and Combing Hair"), 12, R.drawable.oil_combing_16),
-    TopicUiModel(Category(id = 2,topic = "Funerals"), 12, R.drawable.funerals_27),
-    TopicUiModel(Category(id = 3,topic = "Sleeping"), 12, R.drawable.sleeping_14),
-    TopicUiModel(Category(id = 4,topic = "Hospitality"), 12, R.drawable.hospitality_07),
-    TopicUiModel(Category(id = 5,topic = "Miswak"), 12, R.drawable.miswak_17),
-    TopicUiModel(Category(id = 6,topic = "Visiting Graveyards"), 12, R.drawable.entering_leaving_03),
-    TopicUiModel(Category(id = 7,topic = "Applying Kohl"), 12, R.drawable.kohl_13),
+    TopicUiModel(
+        Category(id = 1, topic = "Applying Oil and Combing Hair"),
+        12,
+        R.drawable.oil_combing_16
+    ),
+    TopicUiModel(Category(id = 2, topic = "Funerals"), 12, R.drawable.funerals_27),
+    TopicUiModel(Category(id = 3, topic = "Sleeping"), 12, R.drawable.sleeping_14),
+    TopicUiModel(Category(id = 4, topic = "Hospitality"), 12, R.drawable.hospitality_07),
+    TopicUiModel(Category(id = 5, topic = "Miswak"), 12, R.drawable.miswak_17),
+    TopicUiModel(
+        Category(id = 6, topic = "Visiting Graveyards"),
+        12,
+        R.drawable.entering_leaving_03
+    ),
+    TopicUiModel(Category(id = 7, topic = "Applying Kohl"), 12, R.drawable.kohl_13),
 )
-
-
-
 
 
 data class TopicUiModel(

@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.ryen.sunnah_alhadi.R
@@ -37,13 +38,14 @@ fun DisclaimerDialog(
             Icon(
                 painter = painterResource(id = R.drawable.interface_info0f),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.tertiary
             )
         },
         title = {
             Text(
                 text = "About App Content",
                 style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.tertiary,
                 fontWeight = FontWeight.Bold
             )
         },
@@ -52,7 +54,7 @@ fun DisclaimerDialog(
                 Text(
                     text = stringResource(R.string.disclaimer),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.tertiary
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -62,7 +64,7 @@ fun DisclaimerDialog(
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.tertiary,
                     fontStyle = FontStyle.Italic,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -73,11 +75,11 @@ fun DisclaimerDialog(
             OutlinedButton(
                 onClick = onDismiss,
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary
+                    contentColor = MaterialTheme.colorScheme.tertiary
                 ),
                 border = BorderStroke(
                     width = 0.5.dp,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             ) {
                 Text(
@@ -88,15 +90,16 @@ fun DisclaimerDialog(
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
-        iconContentColor = MaterialTheme.colorScheme.primary,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        iconContentColor = MaterialTheme.colorScheme.tertiary,
+        titleContentColor = MaterialTheme.colorScheme.tertiary,
+        textContentColor = MaterialTheme.colorScheme.tertiary,
         modifier = modifier
     )
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview
+@PreviewLightDark
 @Composable
 private fun DisclaimerPrev() {
     SunnahAlHadiTheme(

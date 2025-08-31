@@ -61,6 +61,7 @@ fun AllTopicsScreen(
                 is AllTopicsUiEvent.TopicClicked -> {
                     onNavigateToTopic(event.categoryId)
                 }
+
                 else -> Unit
             }
         }
@@ -88,7 +89,10 @@ private fun AllTopicsContent(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxSize().padding(top = 48.dp)
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(top = 48.dp)
     ) {
         // Top app bar with Islamic design elements
         CustomTopBar(
@@ -134,8 +138,8 @@ private fun AllTopicsContent(
                 uiState.topics.isNotEmpty() -> {
                     // Main topics grid with pull-to-refresh
                     Box(modifier = Modifier.fillMaxSize())
-                     // Added fillMaxSize for better preview
-                         {
+                    // Added fillMaxSize for better preview
+                    {
                         OptimizedTopicsGrid(
                             topics = uiState.topics,
                             onTopicClick = onTopicClick,

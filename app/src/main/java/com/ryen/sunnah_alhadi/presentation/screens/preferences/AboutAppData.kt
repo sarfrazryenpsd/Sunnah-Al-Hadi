@@ -1,14 +1,21 @@
 package com.ryen.sunnah_alhadi.presentation.screens.preferences
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+
 object PreferenceContent {
 
     val aboutContent = """
-بسم الله الرحمن الرحيم
 
-Sunnah Al-Hadi is a comprehensive collection of authentic Sunnahs from the life of Prophet Muhammad ﷺ, designed to help Muslims incorporate these blessed practices into their daily lives.
+Sunnah Al-Hadi is a comprehensive collection of Sunnahs from the life of Prophet Muhammad ﷺ, designed to help Muslims incorporate these blessed practices into their daily lives.
 
 **Features:**
-• 500+ authenticated Sunnahs with references
+• 470+ Sunnahs and manners with references
 • Categorized by daily activities and occasions  
 • Arabic text with English translations
 • Bookmark your favorite Sunnahs
@@ -16,7 +23,7 @@ Sunnah Al-Hadi is a comprehensive collection of authentic Sunnahs from the life 
 • Fully offline - no internet required
 
 **Sources:**
-All Sunnahs are compiled from authentic hadith collections including Sahih Bukhari, Sahih Muslim, Sunan Abu Dawood, Jami' at-Tirmidhi, and other reliable sources.
+The Sunnahs in this app are compiled from authentic hadith collections — including Sahih al-Bukhari, Sahih Muslim, Sunan Abu Dawood, Jami‘ al-Tirmidhi — as well as classical Islamic works of fiqh and guidance such as Bahar-e-Shariat, Fatawa Alamgiri, Fatawa Razawiya, and Ihya’ ‘Ulum al-Din, among other reliable references.
 
 **Our Mission:**
 To make the beautiful Sunnah of our beloved Prophet ﷺ easily accessible to Muslims worldwide, helping them follow his guidance in their daily lives.
@@ -35,9 +42,8 @@ While we strive for accuracy, please consult Islamic scholars for religious guid
     val privacyPolicyContent = """
 **PRIVACY POLICY FOR SUNNAH AL-HADI**
 
-**Last Updated:** January 2025
+**Last Updated:** August 2025
 
-**بسم الله الرحمن الرحيم**
 
 **Data Collection:**
 Sunnah Al-Hadi is designed with privacy in mind:
@@ -51,7 +57,6 @@ Sunnah Al-Hadi is designed with privacy in mind:
 • We use Firebase Crashlytics to improve app stability
 • Only technical crash data is collected (no personal content)
 • No identification of individual users
-• You can opt-out in device settings
 
 **Notifications:**
 • Local notifications only (no cloud messaging)
@@ -124,10 +129,42 @@ We reserve the right to discontinue the app or remove it from app stores.
 These terms are governed by Islamic principles of justice (Adl) and good faith (Husn al-Qada).
 
 **Contact:**
-For questions about these terms, contact us at developer@sunnahalhadi.com
+For questions about these terms, contact us at mdsarfraz.ilanos1915@gmail.com
 
 May Allah ﷻ bless this effort and make it beneficial for the Ummah.
 
 بارك الله فيكم
     """.trimIndent()
+}
+
+@Composable
+fun MarkdownText(text: String, modifier: Modifier = Modifier) {
+    val styled = buildAnnotatedString {
+        val boldRegex = "\\*\\*(.*?)\\*\\*".toRegex()
+        var lastIndex = 0
+
+        boldRegex.findAll(text).forEach { match ->
+            // Append text before the bold section
+            append(text.substring(lastIndex, match.range.first))
+
+            // Apply bold style
+            pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+            append(match.groupValues[1])
+            pop()
+
+            lastIndex = match.range.last + 1
+        }
+
+        // Append remaining text
+        if (lastIndex < text.length) {
+            append(text.substring(lastIndex))
+        }
+    }
+
+    Text(
+        text = styled,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.tertiary,
+        modifier = modifier
+    )
 }

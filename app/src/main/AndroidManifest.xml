@@ -19,27 +19,26 @@
         android:theme="@style/Theme.SunnahAlHadi"
         tools:targetApi="31">
 
+        <profileable
+            android:shell="true"
+            tools:targetapi="q" />
+
         <!-- Disable default WorkManager initialization -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
-
-            <meta-data
-                android:name="com.ryen.sunnah_alhadi.WorkManagerInitializer"
-                android:value="androidx.startup" />
-
-            <!-- Remove WorkManager auto-init -->
+            <!-- Disable default WorkManager initialization -->
             <meta-data
                 android:name="androidx.work.WorkManagerInitializer"
                 android:value="androidx.startup"
                 tools:node="remove" />
+            <!-- Enable custom WorkManager initialization -->
+            <meta-data
+                android:name="com.ryen.sunnah_alhadi.WorkManagerInitializer"
+                android:value="androidx.startup" />
         </provider>
-
-        <profileable
-            android:shell="true"
-            tools:targetapi="q" />
 
         <activity
             android:name=".MainActivity"

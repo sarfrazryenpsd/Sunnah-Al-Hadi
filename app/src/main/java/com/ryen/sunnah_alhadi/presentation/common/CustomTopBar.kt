@@ -21,6 +21,7 @@ import com.ryen.sunnah_alhadi.R
 @Composable
 fun CustomTopBar(
     isTopLevel: Boolean = true,
+    isBrowse: Boolean = false,
     onBackClick: () -> Unit = {},
     actionContents: @Composable () -> Unit = {}
 ) {
@@ -36,7 +37,7 @@ fun CustomTopBar(
         Icon(
             painter = painterResource(id = icon),
             contentDescription = "Sunnah Logo",
-            tint = MaterialTheme.colorScheme.primary,
+            tint = if(isBrowse)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
             modifier = Modifier.size(size).clickable { onBackClick() }
         )
         actionContents()

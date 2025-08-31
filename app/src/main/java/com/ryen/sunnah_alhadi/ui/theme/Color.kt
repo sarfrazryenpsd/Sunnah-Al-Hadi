@@ -16,22 +16,22 @@ object SunnahColors {
     // Secondary Colors - Glow effects and accent elements
     val LightSecondary = Color(0xFFF4C1A7) // Warm glow color for Home Sunnah
     val LightOnSecondary = Color(0xFF282626) // Dark text on glow backgrounds
-    val LightSecondaryContainer = Color(0xFFFFF2ED) // Very light peachy container
+    val LightSecondaryContainer = Color(0xFFFFFFFF) // Very light peachy container
     val LightOnSecondaryContainer = Color(0xFF5D4037) // Brown text on secondary containers
 
     // Tertiary Colors - Additional accent system
-    val LightTertiary = Color(0xFFEAD5CA) // Search bar color - muted peach
+    val LightTertiary = Color(0xFF282626) // Search bar color - muted peach
     val LightOnTertiary = Color(0xFF282626) // Dark text on tertiary backgrounds
-    val LightTertiaryContainer = Color(0xFFF7EDE8) // Light tertiary container
+    val LightTertiaryContainer = Color(0xFFF4C1A7) // Light tertiary container
     val LightOnTertiaryContainer = Color(0xFF4A3A35) // Text on tertiary containers
 
     // Background & Surface Colors
     val LightBackground = Color(0xFFF9F7F4) // Main app background - warm cream
     val LightOnBackground = Color(0xFF282626) // Primary text color
-    val LightSurface = Color(0xFFFFFFFC) // Sunnah card backgrounds - off-white
+    val LightSurface = Color(0xFFFFFEFC) // Sunnah card backgrounds - off-white
     val LightOnSurface = Color(0xFF282626) // Text on cards
     val LightSurfaceVariant = Color(0xFFF9F8F4) // Depth/variant surfaces
-    val LightOnSurfaceVariant = Color(0xFF6B6B6B) // Muted text on variants
+    val LightOnSurfaceVariant = Color(0xFFE0E0E0) // Muted text on variants
 
     // Interactive States
     val LightSurfaceContainer = Color(0xFFE0E0E0) // Unselected tabs
@@ -61,30 +61,30 @@ object SunnahColors {
     // =============================================================================
 
     // Primary Colors
-    val DarkPrimary = Color(0xFFF2F2F2) // Off-white text - easy on eyes
+    val DarkPrimary = Color(0xFF282626) // Off-white text - easy on eyes
     val DarkOnPrimary = Color(0xFF1A1A1A) // Dark text for contrast
-    val DarkPrimaryContainer = Color(0xFF2C3D35) // Dark green container
-    val DarkOnPrimaryContainer = Color(0xFFE8F5E9) // Light text on dark containers
+    val DarkPrimaryContainer = Color(0xFFFFFFFF) // Dark green container
+    val DarkOnPrimaryContainer = Color(0xFF2C3D35) // Light text on dark containers
 
     // Secondary Colors - Bright Islamic green glow
     val DarkSecondary = Color(0xFFCDF0A0) // Bright lime green glow
     val DarkOnSecondary = Color(0xFF1A2E1A) // Very dark green text
-    val DarkSecondaryContainer = Color(0xFF2A4A2A) // Dark green container
+    val DarkSecondaryContainer = Color(0xFF2C3D35) // Dark green container
     val DarkOnSecondaryContainer = Color(0xFFE8F5E9) // Light text on dark green
 
     // Tertiary Colors
-    val DarkTertiary = Color(0xFFDDFFDA) // Search bar - very light green
-    val DarkOnTertiary = Color(0xFF1A2E1A) // Dark green text
-    val DarkTertiaryContainer = Color(0xFF2C3D35) // Dark container
+    val DarkTertiary = Color(0xFFF2F2F2) // Search bar - very light green
+    val DarkOnTertiary = Color(0xFF163125) // Dark green text
+    val DarkTertiaryContainer = Color(0xFFDDFFDA) // Dark container
     val DarkOnTertiaryContainer = Color(0xFFDDFFDA) // Light green text
 
     // Background & Surface Colors
     val DarkBackground = Color(0xFF19241F) // Main dark background - deep forest
-    val DarkOnBackground = Color(0xFFF2F2F2) // Off-white text
+    val DarkOnBackground = Color(0xFFF9F7F4) // Off-white text
     val DarkSurface = Color(0xFF27272B) // Sunnah card backgrounds - dark gray
     val DarkOnSurface = Color(0xFFF2F2F2) // Light text on cards
     val DarkSurfaceVariant = Color(0xFF0A1711) // Depth surfaces - very dark
-    val DarkOnSurfaceVariant = Color(0xFFB8C4BB) // Muted green-gray text
+    val DarkOnSurfaceVariant = Color(0xFF0A1711) // Muted green-gray text
 
     // Interactive States
     val DarkSurfaceContainer = Color(0xFFE0E0E0) // Unselected tabs (keeping light for contrast)

@@ -201,6 +201,7 @@ private fun groupConsecutiveInlineBlocks(
 fun DynamicContentBlockRendererV2(
     contentBlocks: List<ContentBlock>,
     modifier: Modifier = Modifier,
+    isHomeSunnah: Boolean = false,
     debugMode: Boolean = false
 ) {
     val blockSpacing = DynamicContentStyleResolver.getBlockSpacing()
@@ -225,7 +226,7 @@ fun DynamicContentBlockRendererV2(
                             blocks = group.blocks
                         )
                     }
-                    RenderInlineGroupV2(group.blocks)
+                    RenderInlineGroupV2(group.blocks, isHomeSunnah)
                 }
 
                 is BlockGroup.SingleBlock -> {
@@ -235,7 +236,7 @@ fun DynamicContentBlockRendererV2(
                             blocks = listOf(group.block)
                         )
                     }
-                    RenderSingleBlock(group.block)
+                    RenderSingleBlock(group.block, isHomeSunnah)
                 }
             }
         }
@@ -245,8 +246,9 @@ fun DynamicContentBlockRendererV2(
 @Composable
 private fun DebugInfoBox(
     groupType: String,
+    modifier: Modifier = Modifier,
     blocks: List<ContentBlock>,
-    modifier: Modifier = Modifier
+    isHomeSunnah: Boolean = false
 ) {
     Card(
         modifier = modifier
@@ -302,7 +304,7 @@ private fun DebugInfoBox(
                 fontSize = style.fontSize,
                 fontWeight = style.fontWeight,
                 fontStyle = style.fontStyle,
-                color = getContentColor(block.type, block.subtype)
+                color = getContentColor(isHomeSunnah)
             )
 
             // Apply different styling based on content type
@@ -349,7 +351,7 @@ private fun DebugInfoBox(
 }
 
 @Composable
-private fun RenderSingleBlock(block: ContentBlock) {
+private fun RenderSingleBlock(block: ContentBlock, isHomeSunnah: Boolean) {
     val textStyle = DynamicContentStyleResolver.getTextStyle(
         type = block.type,
         subtype = block.subtype
@@ -386,13 +388,13 @@ private fun RenderSingleBlock(block: ContentBlock) {
                         )
                     } else contentPadding
                 ),
-                color = getContentColor(block.type, block.subtype)
+                color = getContentColor(isHomeSunnah = isHomeSunnah)
             )
         }
     }
 }
 @Composable
-private fun RenderInlineGroupV2(blocks: List<ContentBlock>) {
+private fun RenderInlineGroupV2(blocks: List<ContentBlock>, isHomeSunnah: Boolean) {
     // Determine if we have mixed languages in the group
     val hasMixedLanguages = blocks.any { it.type == ContentType.ARABIC_TEXT } &&
             blocks.any { it.type == ContentType.ENGLISH_TEXT }
@@ -409,7 +411,7 @@ private fun RenderInlineGroupV2(blocks: List<ContentBlock>) {
                 fontSize = style.fontSize,
                 fontWeight = style.fontWeight,
                 fontStyle = style.fontStyle,
-                color = getContentColor(block.type, block.subtype)
+                color = getContentColor(isHomeSunnah = isHomeSunnah)
             )
 
             withStyle(spanStyle) {
@@ -554,15 +556,11 @@ private fun determineDynamicArabicStyle(
  * Determines text color based on content type and subtype
  */
 @Composable
-private fun getContentColor(type: ContentType, subtype: Any): Color {
-    return when {
-        type == ContentType.ARABIC_TEXT && subtype == ArabicSubtype.VERSE ->
-            MaterialTheme.colorScheme.primary
-
-        type == ContentType.ENGLISH_TEXT && subtype == EnglishSubtype.TRANSLATION ->
-            MaterialTheme.colorScheme.secondary
-
-        else -> MaterialTheme.colorScheme.onSurface
+private fun getContentColor(isHomeSunnah: Boolean): Color {
+    return if(isHomeSunnah){
+        MaterialTheme.colorScheme.onTertiary
+    } else {
+        MaterialTheme.colorScheme.tertiary
     }
 }
 
@@ -614,7 +612,7 @@ fun DynamicReferenceRenderer(
                             fontWeight = FontWeight.Normal,
                             lineHeight = 16.sp
                         ),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
@@ -873,7 +871,7 @@ fun DynamicContentPreviewWrapper(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                //.background(MaterialTheme.colorScheme.background)
                 .padding(16.dp)
         ) {
             DynamicContentBlockRendererV2(

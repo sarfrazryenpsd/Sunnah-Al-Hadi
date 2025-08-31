@@ -9,7 +9,16 @@ class MarkSotdAsSeenUseCase @Inject constructor(
 ) : NoParamUseCase<Unit>() {
 
     override suspend fun execute() {
+        // Get current SOTD ID before marking as seen
+        val currentSotdId = userPreferencesRepository.getCurrentSotd()
+
+        // Mark SOTD as seen
         userPreferencesRepository.markSotdAsSeen()
+
+        // Add to recently viewed if SOTD exists
+        if (currentSotdId.isNotEmpty()) {
+            userPreferencesRepository.addToRecentlyViewed(currentSotdId)
+        }
     }
 }
 

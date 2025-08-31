@@ -45,8 +45,6 @@ class SunnahApplicationTest {
         assertThat(factory).isNotNull()
     }
 
-
-
     @Test
     fun application_onCreate_should_handle_initialization_exception_gracefully() {
         // Given
@@ -61,48 +59,44 @@ class SunnahApplicationTest {
             // Then: Test passed
             assertThat(e.message).isEqualTo("Initialization failed")
         }
-
     }
 
     @Test
     fun application_should_survive_low_memory_conditions() {
         // Given
-        val application = SunnahApplication()
-        application.onCreate()
+        val context = ApplicationProvider.getApplicationContext<SunnahApplication>()
 
         // When
-        application.onLowMemory()
+        context.onLowMemory()
 
         // Then
         // Should not crash and remain functional
-        assertThat(application).isNotNull()
+        assertThat(context).isNotNull()
     }
 
     @Test
     fun application_should_handle_configuration_changes() {
         // Given
-        val application = SunnahApplication()
-        application.onCreate()
+        val context = ApplicationProvider.getApplicationContext<SunnahApplication>()
 
         // When
-        application.onConfigurationChanged(Configuration())
+        context.onConfigurationChanged(Configuration())
 
         // Then
         // Should handle configuration changes gracefully
-        assertThat(application).isNotNull()
+        assertThat(context).isNotNull()
     }
 
     @Test
     fun application_should_handle_trim_memory_events() {
         // Given
-        val application = SunnahApplication()
-        application.onCreate()
+        val context = ApplicationProvider.getApplicationContext<SunnahApplication>()
 
         // When
-        application.onTrimMemory(ComponentCallbacks2.TRIM_MEMORY_MODERATE)
+        context.onTrimMemory(ComponentCallbacks2.TRIM_MEMORY_MODERATE)
 
         // Then
         // Should handle memory trim events gracefully
-        assertThat(application).isNotNull()
+        assertThat(context).isNotNull()
     }
 }

@@ -2,12 +2,6 @@
 
 package com.ryen.sunnah_alhadi.presentation.common
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,6 +24,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,15 +33,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.ryen.sunnah_alhadi.domain.model.ContentBlock
+import com.ryen.sunnah_alhadi.domain.model.ContentType
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.presentation.components.cards.innerShadow
 import com.ryen.sunnah_alhadi.presentation.util.CategoryUtils
 import com.ryen.sunnah_alhadi.presentation.util.buildMetaInfoIconsForSunnah
 import com.ryen.sunnah_alhadi.ui.theme.ScreenSize
+import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
 
 
@@ -57,7 +55,6 @@ fun SunnahGridCardContainer(
     screenSize: ScreenSize,
     modifier: Modifier = Modifier,
     searchQuery: String = "", // Add search query parameter
-    showAnimations: Boolean = true // Add animation control
 ) {
 
     Box(
@@ -97,45 +94,39 @@ fun SunnahGridCardContainer(
                 val metaIcons = buildMetaInfoIconsForSunnah(sunnah)
                 val gradientColors = CategoryUtils.categoryGradientColors(sunnah.categoryId)
 
-                if (showAnimations) {
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = slideInVertically(
-                            animationSpec = tween(300),
-                            initialOffsetY = { it / 2 }
-                        ) + fadeIn(animationSpec = tween(300)),
-                        exit = slideOutVertically(
-                            animationSpec = tween(300),
-                            targetOffsetY = { -it / 2 }
-                        ) + fadeOut(animationSpec = tween(300))
-                    ) {
-                        SunnahCardCompactWithHighlight(
-                            title = sunnah.title,
-                            extraIcons = metaIcons,
-                            borderColor = gradientColors.first(),
-                            searchQuery = searchQuery,
-                            modifier = modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(gradientColors.first().copy(alpha = 0.5f))
-                                .clickable { onSunnahClick(index) }
-                        )
-                    }
-                } else {
-                    SunnahCardCompactWithHighlight(
-                        title = sunnah.title,
-                        extraIcons = metaIcons,
-                        borderColor = gradientColors.first(),
-                        searchQuery = searchQuery,
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(gradientColors.first().copy(alpha = 0.5f))
-                            .clickable { onSunnahClick(index) }
-                    )
-                }
+
+                SunnahCardCompactWithHighlight(
+                    title = sunnah.title,
+                    extraIcons = metaIcons,
+                    bgColor = gradientColors.first(),
+                    searchQuery = searchQuery,
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(gradientColors.first().copy(alpha = 0.5f))
+                        .clickable { onSunnahClick(index) }
+                )
+
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun SunnahCardCompactWithHighlightPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(640.dp, 360.dp))
+    ) {
+        SunnahCardCompactWithHighlight(
+            title = "This is a sample title with highlight",
+            extraIcons = listOf(
+                { Text("Icon1") },
+                { Text("Icon2") }
+            ),
+            bgColor = MaterialTheme.colorScheme.primary,
+            searchQuery = "sample"
+        )
     }
 }
 
@@ -144,19 +135,19 @@ fun SunnahCardCompactWithHighlight(
     modifier: Modifier = Modifier,
     title: String,
     extraIcons: List<@Composable () -> Unit>,
-    borderColor: Color,
+    bgColor: Color,
     searchQuery: String = "",
 ) {
     Card(
         modifier = modifier
             .border(
                 width = 2.dp,
-                color = borderColor,
+                color = MaterialTheme.colorScheme.secondary,
                 shape = RoundedCornerShape(20.dp)
             ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
+            containerColor = bgColor
         )
     ) {
         Column(
@@ -246,3 +237,51 @@ fun HighlightedText(
         modifier = modifier
     )
 }
+
+@Preview
+@Composable
+fun SunnahGridCardContainerPreview() {
+    SunnahAlHadiTheme(
+        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(640.dp, 360.dp))
+    ) {
+        val sunnahs = listOf(
+            Sunnah(
+                id = "1",
+                categoryId = 1,
+                title = "Sunnah of Eating",
+                body = listOf(
+                    ContentBlock(
+                        ContentType.ENGLISH_TEXT,
+                        "NORMAL",
+                        "Wash your hands before eating."
+                    ),
+                    ContentBlock(ContentType.ARABIC_TEXT, "SUPPLICATION", "بِسْمِ اللهِ")
+                )
+            ),
+            Sunnah(
+                id = "2",
+                categoryId = 2,
+                title = "Sunnah of Sleeping",
+                body = listOf(
+                    ContentBlock(
+                        ContentType.ENGLISH_TEXT,
+                        "NORMAL",
+                        "Recite Ayatul Kursi before sleeping."
+                    ),
+                    ContentBlock(
+                        ContentType.ARABIC_TEXT,
+                        "VERSE",
+                        "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ"
+                    )
+                )
+            )
+        )
+        SunnahGridCardContainer(
+            sunnahs = sunnahs,
+            onSunnahClick = {},
+            screenSize = ScreenSize.COMPACT,
+            searchQuery = "Eating",
+        )
+    }
+}
+
