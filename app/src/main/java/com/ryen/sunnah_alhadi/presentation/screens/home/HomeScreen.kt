@@ -19,11 +19,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -149,7 +147,9 @@ fun HomeScreenContent(
     modifier: Modifier = Modifier
 ) {
     val screenSize = LocalScreenSize.current
-    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Box(modifier = modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.background)) {
         // Main content
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -159,6 +159,7 @@ fun HomeScreenContent(
                 CustomTopBar(
                     actionContents = {
                         ActionItems(
+                            shouldShowOrb = uiState.sotd != null,
                             onOrbClick = { onEvent(HomeEvent.ToggleSotd) },
                             onInfoClick = { onEvent(HomeEvent.ToggleDisclaimer) }
                         )
@@ -173,7 +174,9 @@ fun HomeScreenContent(
                 ScreenHeaderSection(
                     userName = uiState.username,
                     screen = Home,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("ASSALAMUALAIKUM")
                 )
             }
 
@@ -226,9 +229,11 @@ fun HomeScreenContent(
                                 text = "See All",
                                 style = MaterialTheme.appTypography.seeAll,
                                 color = MaterialTheme.colorScheme.tertiary,
-                                modifier = Modifier.clickable {
-                                    onNavigateToAllTopics()
-                                }
+                                modifier = Modifier
+                                    .clickable {
+                                        onNavigateToAllTopics()
+                                    }
+                                    .testTag("See All")
                             )
                         }
 
@@ -339,7 +344,7 @@ fun HomeScreenContent(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Error,
+                                    painter = painterResource(R.drawable.interface_cross),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onErrorContainer
                                 )
@@ -376,6 +381,7 @@ fun HomeScreenContent(
 
 @Composable
 private fun ActionItems(
+    shouldShowOrb: Boolean,
     onOrbClick: () -> Unit,
     onInfoClick: () -> Unit,
 ) {
@@ -391,14 +397,16 @@ private fun ActionItems(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        LottieAnimation(
-            composition = composition,
-            progress = { progress },
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .clickable { onOrbClick() }
-        )
+        if (shouldShowOrb){
+            LottieAnimation(
+                composition = composition,
+                progress = { progress },
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .clickable { onOrbClick() }
+            )
+        }
         Icon(
             painter = painterResource(id = R.drawable.interface_info0),
             contentDescription = "Info",

@@ -32,8 +32,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -49,11 +47,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.presentation.NotificationPermissionHandler
 import com.ryen.sunnah_alhadi.presentation.components.cards.OnboardingCard
 import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingEvent
@@ -222,7 +222,7 @@ private fun OnboardingHeader(
             modifier = Modifier.size(32.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.Close,
+                painter = painterResource(R.drawable.interface_cross),
                 contentDescription = "Close onboarding",
                 tint = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
             )

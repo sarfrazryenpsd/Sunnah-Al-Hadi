@@ -15,7 +15,7 @@ plugins {
 }
 
 android {
-    namespace = "com.ryen.sunnah_alhadi"
+        namespace = "com.ryen.sunnah_alhadi"
     compileSdk = 36
 
     defaultConfig {
@@ -28,14 +28,25 @@ android {
         testInstrumentationRunner = "com.ryen.sunnah_alhadi.HiltTestRunner"
     }
 
+    firebaseCrashlytics{
+        mappingFileUploadEnabled = true
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        create("benchmark") {
+            initWith(buildTypes.getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
+            proguardFiles("baseline-profiles-rule.pro")
         }
     }
     compileOptions {
@@ -187,10 +198,9 @@ dependencies {
 
     testImplementation(libs.androidx.core.testing)
 
+    implementation(libs.androidx.profileinstaller)
 
 
 
-
-    implementation(libs.androidx.material.icons.extended)
 
 }

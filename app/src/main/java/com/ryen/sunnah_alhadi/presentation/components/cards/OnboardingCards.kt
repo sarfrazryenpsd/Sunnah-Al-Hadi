@@ -26,8 +26,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -701,7 +699,7 @@ private fun OnboardingNavigationButtons(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                    painter = painterResource(R.drawable.interface_right),
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -719,7 +717,7 @@ private fun OnboardingNavigationButtons(
                 Text("Next")
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                    painter = painterResource(R.drawable.interface_right),
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )

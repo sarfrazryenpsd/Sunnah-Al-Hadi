@@ -32,8 +32,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -53,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -252,6 +251,7 @@ fun BrowseScreenContent(
                         sunnahs = uiState.filteredSunnahs,
                         onSunnahClick = onSunnahCardClickedByIndex, // Use index-based callback
                         screenSize = screenSize,
+                        modifier = Modifier.testTag("SunnahGridCardContainer"),
                         searchQuery = uiState.searchQuery, // Pass search query for highlighting
                     )
                 }
@@ -397,7 +397,7 @@ private fun BrowseSearchBar(
                 modifier = Modifier.size(16.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Clear,
+                    painter = painterResource(R.drawable.interface_cross),
                     contentDescription = "Clear search",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(16.dp)

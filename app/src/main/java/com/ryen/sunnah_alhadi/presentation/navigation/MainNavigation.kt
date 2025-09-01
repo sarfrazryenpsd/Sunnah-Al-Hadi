@@ -26,12 +26,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuOpen
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
@@ -272,14 +268,12 @@ private fun ExpandedScreenLayout(
     onSotdRequested: (SotdOverlayRequest) -> Unit
 ) {
     // State for navigation rail expansion
-    var isNavRailExpanded by rememberSaveable { mutableStateOf(false) }
 
     Row(modifier = Modifier.fillMaxSize()) {
         SideNavigationRail(
-            expanded = isNavRailExpanded,
+            expanded = false,
             topLevelDestinations = topLevelDestinations,
             currentDestination = backStack.lastOrNull(),
-            onToggleExpansion = { isNavRailExpanded = !isNavRailExpanded },
             onDestinationSelected = { destination ->
                 backStack.clear()
                 backStack.add(destination)
@@ -423,7 +417,6 @@ private fun SideNavigationRail(
     expanded: Boolean,
     topLevelDestinations: List<NavKey>,
     currentDestination: NavKey?,
-    onToggleExpansion: () -> Unit,
     onDestinationSelected: (NavKey) -> Unit
 ) {
     val navScale =

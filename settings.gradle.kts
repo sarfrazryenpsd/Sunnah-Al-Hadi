@@ -23,4 +23,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Sunnah-Al Hadi"
 include(":app")
- 
+include(":benchmark")

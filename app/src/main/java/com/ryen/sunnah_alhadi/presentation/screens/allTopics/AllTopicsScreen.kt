@@ -13,9 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -93,6 +90,7 @@ private fun AllTopicsContent(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(top = 48.dp)
+
     ) {
         // Top app bar with Islamic design elements
         CustomTopBar(
@@ -209,7 +207,7 @@ private fun ErrorContent(
         modifier = modifier.padding(32.dp)
     ) {
         Icon(
-            imageVector = Icons.Filled.ErrorOutline,
+            painter = painterResource(R.drawable.ec_warning),
             contentDescription = null,
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.error
@@ -239,7 +237,7 @@ private fun ErrorContent(
             modifier = Modifier.fillMaxWidth(0.6f)
         ) {
             Icon(
-                imageVector = Icons.Filled.Refresh,
+                painter = painterResource(R.drawable.interface_clock),
                 contentDescription = null,
                 modifier = Modifier.size(18.dp)
             )

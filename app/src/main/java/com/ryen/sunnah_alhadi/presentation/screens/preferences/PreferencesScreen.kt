@@ -6,8 +6,6 @@ import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -17,17 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -36,7 +27,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -58,7 +48,6 @@ import com.ryen.sunnah_alhadi.presentation.components.NotificationTimeDropdown
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceHorizontalItem
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceSection
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceSwitch
-import com.ryen.sunnah_alhadi.presentation.components.PreferenceTextField
 import com.ryen.sunnah_alhadi.presentation.components.PreferenceVerticalItem
 import com.ryen.sunnah_alhadi.presentation.components.ThemeSegmentedButton
 import com.ryen.sunnah_alhadi.presentation.components.UserNameDialog
@@ -233,55 +222,8 @@ fun PreferencesScreenContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PreferencesTopBar(
-    successMessage: String?
-) {
-    TopAppBar(
-        title = {
-            Column {
-                Text(
-                    text = "Settings",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                // Show success message in subtitle
-                successMessage?.let { message ->
-                    Text(
-                        text = message,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.alpha(0.8f)
-                    )
-                }
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent
-        )
-    )
-}
 
-@Composable
-private fun AccountSection(
-    uiState: PreferencesUiState,
-    onEvent: (PreferencesEvent) -> Unit
-) {
-    PreferenceSection(title = "Account") {
-        uiState.userPreferences?.let { preferences ->
-            PreferenceTextField(
-                title = "Username",
-                value = preferences.username,
-                onValueChange = { onEvent(PreferencesEvent.UpdateUsername(it)) },
-                leadingIcon = Icons.Default.Person,
-                iconColor = MaterialTheme.colorScheme.primary,
-                validation = uiState.usernameValidation,
-                characterCount = getUsernameCharacterCount(preferences.username),
-                placeholder = "Enter your name"
-            )
-        }
-    }
-}
+
 
 @Composable
 private fun AppearanceSection(
@@ -646,10 +588,6 @@ private fun PreferencesDialogs(
     )
 }
 
-// Helper function for username character count (reuse from validation)
-private fun getUsernameCharacterCount(username: String): String {
-    return "${username.length}/50"
-}
 
 
 /*-----------------------------------------------------PREVIEWS----------------------------------------------------*/

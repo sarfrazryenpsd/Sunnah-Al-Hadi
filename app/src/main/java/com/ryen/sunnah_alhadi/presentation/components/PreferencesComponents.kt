@@ -24,9 +24,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -58,7 +55,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -94,7 +91,7 @@ fun PreferenceSection(
             text = title,
             style = MaterialTheme.appTypography.notificationType,
             color = MaterialTheme.colorScheme.tertiary,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp).testTag("Notification")
         )
 
         Box(
@@ -319,7 +316,7 @@ fun PreferenceTextField(
     title: String,
     value: String,
     onValueChange: (String) -> Unit,
-    leadingIcon: ImageVector,
+    @DrawableRes leadingIcon: Int,
     iconColor: Color,
     validation: ValidationResult,
     characterCount: String,
@@ -336,7 +333,7 @@ fun PreferenceTextField(
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
-                imageVector = leadingIcon,
+                painter = painterResource(leadingIcon),
                 contentDescription = null,
                 tint = iconColor,
                 modifier = Modifier.size(24.dp)
@@ -779,7 +776,7 @@ fun NotificationPermissionDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.Default.NotificationsActive,
+                painter = painterResource(R.drawable.interface_notification),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp)
@@ -965,7 +962,7 @@ private fun PreferenceTextFieldPreview() {
             title = "Title",
             value = "Value",
             onValueChange = {},
-            leadingIcon = Icons.Default.Person,
+            leadingIcon = R.drawable.interface_user,
             iconColor = MaterialTheme.colorScheme.primary,
             validation = ValidationResult(true, null),
             characterCount = "10/20",
@@ -1005,7 +1002,7 @@ private fun PreferenceItemPrev() {
             iconColor = MaterialTheme.colorScheme.primary,
             trailingContent = {
                 Icon(
-                    imageVector = Icons.Default.Person,
+                    painter = painterResource(id = R.drawable.interface_user),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -1028,7 +1025,7 @@ private fun PreferenceSectionPrev() {
                 iconColor = MaterialTheme.colorScheme.primary,
                 trailingContent = {
                     Icon(
-                        imageVector = Icons.Default.Person,
+                        painter = painterResource(id = R.drawable.interface_user),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -1041,7 +1038,7 @@ private fun PreferenceSectionPrev() {
                 iconColor = MaterialTheme.colorScheme.primary,
                 trailingContent = {
                     Icon(
-                        imageVector = Icons.Default.Person,
+                        painter = painterResource(id = R.drawable.interface_user),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary
                     )

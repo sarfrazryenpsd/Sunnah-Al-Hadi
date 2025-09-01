@@ -79,7 +79,7 @@ class SotdNotificationHelper @Inject constructor(private val context: Context) {
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.interface_notification)
+            .setSmallIcon(R.drawable.sunnahlogo)
             .setContentTitle("🌟 Sunnah of the Day")
             .setContentText(sunnah.title)
             .setStyle(

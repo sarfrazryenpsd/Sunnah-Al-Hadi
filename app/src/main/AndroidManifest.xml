@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-
     <application
         android:name=".SunnahApplication"
         android:allowBackup="true"
@@ -18,17 +17,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SunnahAlHadi"
         tools:targetApi="31">
-
         <profileable
             android:shell="true"
+            tools:targetApi="29"
             tools:targetapi="q" />
-
         <!-- Disable default WorkManager initialization -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
+
             <!-- Disable default WorkManager initialization -->
             <meta-data
                 android:name="androidx.work.WorkManagerInitializer"
@@ -46,6 +45,7 @@
             android:theme="@style/Theme.SunnahAlHadi">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
