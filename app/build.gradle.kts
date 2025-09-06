@@ -15,20 +15,20 @@ plugins {
 }
 
 android {
-        namespace = "com.ryen.sunnah_alhadi"
+    namespace = "com.ryen.sunnah_alhadi"
     compileSdk = 36
 
     defaultConfig {
         applicationId = "com.ryen.sunnah_alhadi"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "com.ryen.sunnah_alhadi.HiltTestRunner"
     }
 
-    firebaseCrashlytics{
+    firebaseCrashlytics {
         mappingFileUploadEnabled = true
     }
 
@@ -40,6 +40,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            ndk {
+                debugSymbolLevel = "FULL" // or 'SYMBOL_TABLE' if you want smaller symbol files
+            }
         }
         create("benchmark") {
             initWith(buildTypes.getByName("release"))
@@ -61,7 +64,7 @@ android {
             freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
         }
     }
-    
+
     buildFeatures {
         compose = true
     }
@@ -109,7 +112,7 @@ dependencies {
 
 
     ksp(libs.androidx.room.compiler)
-    implementation (libs.bundles.hilt)
+    implementation(libs.bundles.hilt)
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
@@ -134,7 +137,7 @@ dependencies {
 
     implementation(libs.lottie)
 
-    implementation (platform(libs.firebase.bom))
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
 
@@ -199,8 +202,6 @@ dependencies {
     testImplementation(libs.androidx.core.testing)
 
     implementation(libs.androidx.profileinstaller)
-
-
 
 
 }

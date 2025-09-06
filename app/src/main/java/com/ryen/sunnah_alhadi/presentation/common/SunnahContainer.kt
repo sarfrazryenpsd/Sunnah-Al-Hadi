@@ -76,7 +76,7 @@ fun SunnahGridCardContainer(
         val columns = when (screenSize) {
             ScreenSize.COMPACT -> 1
             ScreenSize.MEDIUM -> 2
-            ScreenSize.EXPANDED -> 1
+            ScreenSize.EXPANDED -> 2
         }
 
         LazyVerticalStaggeredGrid(

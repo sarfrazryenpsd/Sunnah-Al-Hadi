@@ -448,7 +448,7 @@ private fun SideNavigationRail(
                     )
                 },
                 colors = NavigationRailItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.tertiary,
+                    selectedIconColor = MaterialTheme.colorScheme.primaryContainer,
                     unselectedIconColor = MaterialTheme.colorScheme.primary,
                     indicatorColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
