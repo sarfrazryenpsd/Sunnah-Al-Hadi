@@ -9,8 +9,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -518,7 +516,7 @@ private fun BrowseFilterChips(
     LazyRow(
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(
             items = FilterType.entries,
@@ -595,11 +593,7 @@ private fun BrowseFilterChip(
                 modifier = Modifier.size(20.dp)
             )
 
-            AnimatedVisibility(
-                visible = isSelected,
-                enter = slideInHorizontally() + fadeIn(),
-                exit = slideOutHorizontally() + fadeOut()
-            ) {
+
                 Row {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
@@ -614,7 +608,7 @@ private fun BrowseFilterChip(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-            }
+
         }
     }
 }

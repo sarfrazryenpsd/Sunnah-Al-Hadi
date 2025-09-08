@@ -7,7 +7,6 @@ import com.ryen.sunnah_alhadi.domain.useCase.GetRecentlyViewedSunnahsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahCountsUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetUserPreferencesFlowUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.ToggleBookmarkUseCase
-import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.GetCurrentSotdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.MarkSotdAsSeenUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.ShouldShowSotdCardUseCase
@@ -35,7 +34,6 @@ class HomeViewModel @Inject constructor(
     private val getRecentlyViewedSunnahsUseCase: GetRecentlyViewedSunnahsUseCase,
     private val shouldShowSotdCardUseCase: ShouldShowSotdCardUseCase,
     private val markSotdAsSeenUseCase: MarkSotdAsSeenUseCase,
-    private val generateNewSotdIdUseCase: GenerateNewSotdIdUseCase,
     private val toggleBookmarkUseCase: ToggleBookmarkUseCase,
 ) : ViewModel() {
 
@@ -345,6 +343,16 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 toggleBookmarkUseCase(sunnah)
+                val updatedSunnahs = _uiState.value.recentSotd.map {
+                    if (it.id == sunnah) {
+                        it.copy(isBookmarked = !it.isBookmarked)
+                    } else {
+                        it
+                    }
+                }
+                _uiState.update {
+                    it.copy(recentSotd = updatedSunnahs)
+                }
 
             } catch (e: Exception) {
                 _uiState.update {

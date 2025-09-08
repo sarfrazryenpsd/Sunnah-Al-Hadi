@@ -2,10 +2,9 @@
 
 package com.ryen.sunnah_alhadi.presentation.components
 
-// Import for Modifier.blur
-// Remove RenderEffect and Shader imports if no longer used elsewhere, or keep if needed
-// import androidx.compose.ui.graphics.RenderEffect
-// import androidx.compose.ui.graphics.Shader
+
+import android.graphics.RenderEffect
+import android.graphics.Shader
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -44,10 +43,11 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -76,9 +76,6 @@ fun PagerState.startOffsetForPage(page: Int): Float {
     return offsetForPage(page).coerceAtLeast(0f)
 }
 
-fun PagerState.endOffsetForPage(page: Int): Float {
-    return offsetForPage(page).coerceAtMost(0f)
-}
 
 @Composable
 fun SunnahPager(
@@ -174,7 +171,6 @@ fun SunnahPager(
                         )
                     }
                 }
-                // Remove the else block to prevent flash - let the LaunchedEffect handle empty states
             }
         }
 
@@ -223,63 +219,61 @@ private fun SunnahPagerCard(
     page: Int,
     modifier: Modifier = Modifier
 ) {
-    val startOffset = remember(pagerState.currentPage, pagerState.currentPageOffsetFraction) {
-        pagerState.startOffsetForPage(page)
+    val startOffset by remember(pagerState) {
+        derivedStateOf { pagerState.startOffsetForPage(page) }
     }
+
     val shouldApplyEffects = startOffset > 0.05f
-    val blurRadius = (startOffset * 20f).coerceAtLeast(0.1f)
+    val blurRadiusPx = (startOffset * 20f).coerceAtLeast(0.1f)
+    val blurDp = with(LocalDensity.current) { blurRadiusPx.toDp() }
 
-    val cardModifier = modifier
-        .graphicsLayer {
-            // Cinematic parallax
-            if (shouldApplyEffects) {
-                translationX = size.width * (startOffset * 0.99f)
-                alpha = (2f - startOffset) / 2f
-
-                // Scale effect
-                val scale = 1f - (startOffset * 0.1f)
-                scaleX = scale
-                scaleY = scale
-            } else {
-                alpha = 1f
-                scaleX = 1f
-                scaleY = 1f
-                renderEffect = null
-            }
-        }
-        .then(
-            // Apply blur conditionally based on startOffset
-            // Modifier.blur is available on API 31+
-            // On older APIs, this will be a no-op, gracefully degrading.
-            if (shouldApplyEffects && startOffset > 0.1f && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                Modifier.blur(
-                    radius = blurRadius.dp, // Use Dp for blur radius
-                    // edgeTreatment can be BlurredEdge or UnblurredEdge (from androidx.compose.ui.draw)
-                    // For behavior similar to Shader.TileMode.DECAL, UnblurredEdge might be closer,
-                    // or you might not need to specify it if default is fine.
-                    // For compose 1.6.0+ edgeTreatment is replaced with BlurredEdgeTreatment
-                    edgeTreatment = androidx.compose.ui.draw.BlurredEdgeTreatment.Unbounded // Or .None or .Rectangle
-                )
-            } else Modifier
-        )
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()
+    // Give space for blur to expand + disable clipping
+    Box(
+        modifier = modifier
+            .padding(if (shouldApplyEffects) blurDp else 0.dp)
+//            .clipToBounds(false)
     ) {
-        Box(
-            modifier = cardModifier.then(
-                Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-            ),
-            contentAlignment = Alignment.Center
+        Column(
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
         ) {
-            SunnahFullCard(
-                sunnah = sunnah,
-                modifier = Modifier.fillMaxSize()
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        if (shouldApplyEffects) {
+                            translationX = size.width * (startOffset * 0.99f)
+                            alpha = (2f - startOffset) / 2f
+
+                            val scale = 1f - (startOffset * 0.1f)
+                            scaleX = scale
+                            scaleY = scale
+
+                            // Apply blur directly via RenderEffect
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                                renderEffect = RenderEffect.createBlurEffect(
+                                    blurRadiusPx,
+                                    blurRadiusPx,
+                                    Shader.TileMode.DECAL
+                                ).asComposeRenderEffect()
+                            }
+                        } else {
+                            alpha = 1f
+                            scaleX = 1f
+                            scaleY = 1f
+                            renderEffect = null
+                        }
+                    }
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surface),
+                contentAlignment = Alignment.Center
+            ) {
+                SunnahFullCard(
+                    sunnah = sunnah,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 }

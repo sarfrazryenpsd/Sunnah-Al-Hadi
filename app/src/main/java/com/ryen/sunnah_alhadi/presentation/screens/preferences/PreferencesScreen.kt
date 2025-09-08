@@ -124,7 +124,6 @@ fun PreferencesScreenContentPreview() {
                 isLoading = false,
                 userPreferences = UserPreferences(username = "Muhammed"),
                 appVersion = "1.0.0",
-                buildNumber = "1",
                 hasNotificationPermission = true
             ),
             onEvent = {},
@@ -145,7 +144,7 @@ fun PreferencesScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(vertical = 32.dp)
+            .padding(top = 48.dp)
     ) {
         Column(
             modifier = Modifier.background(
@@ -347,7 +346,7 @@ private fun AboutSection(
         // App Version (Non-clickable)
         PreferenceHorizontalItem(
             title = "App Version",
-            subtitle = "Version ${uiState.appVersion} (Build ${uiState.buildNumber})",
+            subtitle = "Version ${uiState.appVersion}",
             leadingIcon = R.drawable.interface_info,
             iconColor = Color(0xFF2196F3), // Blue
             trailingContent = { }
@@ -608,7 +607,6 @@ private fun NotificationSectionPreview() {
                 isLoading = false,
                 userPreferences = UserPreferences(),
                 appVersion = "1.0.0",
-                buildNumber = "1",
                 hasNotificationPermission = false,
                 showPermissionDialog = false,
                 showBugReportDialog = false,
@@ -639,7 +637,6 @@ private fun AppearenceSectionPrev() {
                 isLoading = false,
                 userPreferences = UserPreferences(),
                 appVersion = "1.0.0",
-                buildNumber = "1",
             ),
             onEvent = {}
         )

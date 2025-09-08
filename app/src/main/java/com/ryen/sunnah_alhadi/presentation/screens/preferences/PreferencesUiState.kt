@@ -20,6 +20,5 @@ data class PreferencesUiState(
     val showTermsOfServiceDialog: Boolean = false,
     val showAboutDialog: Boolean = false,
     val appVersion: String = "",
-    val buildNumber: String = "",
     val usernameValidation: ValidationResult = ValidationResult(true, null)
 )

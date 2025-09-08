@@ -1,6 +1,5 @@
 package com.ryen.sunnah_alhadi.presentation.screens.topic
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryen.sunnah_alhadi.domain.useCase.GetTopicWithSunnahsUseCase
@@ -102,6 +101,16 @@ class TopicViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 toggleBookmarkUseCase(sunnah)
+                val updatedSunnahs = _uiState.value.sunnahs.map {
+                    if (it.id == sunnah) {
+                        it.copy(isBookmarked = !it.isBookmarked)
+                    } else {
+                        it
+                    }
+                }
+                _uiState.update {
+                    it.copy(sunnahs = updatedSunnahs)
+                }
 
             } catch (e: Exception) {
                 _uiState.update {

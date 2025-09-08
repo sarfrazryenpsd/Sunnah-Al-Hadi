@@ -105,24 +105,16 @@ class PreferencesViewModel @Inject constructor(
         try {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
             val versionName = packageInfo.versionName ?: "Unknown"
-            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                packageInfo.longVersionCode.toString()
-            } else {
-                @Suppress("DEPRECATION")
-                packageInfo.versionCode.toString()
-            }
 
             _uiState.update {
                 it.copy(
                     appVersion = versionName,
-                    buildNumber = versionCode
                 )
             }
         } catch (e: PackageManager.NameNotFoundException) {
             _uiState.update {
                 it.copy(
                     appVersion = "Unknown",
-                    buildNumber = "Unknown"
                 )
             }
         }
