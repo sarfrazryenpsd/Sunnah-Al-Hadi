@@ -249,6 +249,10 @@ private fun AppearanceSection(
                     onEvent(PreferencesEvent.ShowUserNameDialog)
                 }
             )
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+            )
 
             // Theme Mode Selection
             PreferenceVerticalItem(
@@ -266,7 +270,7 @@ private fun AppearanceSection(
 
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
             )
 
             // Dynamic Colors Toggle
@@ -309,7 +313,7 @@ private fun NotificationsSection(
             if (preferences.isSotdNotificationEnabled) {
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
                 )
 
                 // Notification Time Selection
@@ -354,7 +358,7 @@ private fun AboutSection(
 
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
         )
 
         // About Sunnah Al-Hadi
@@ -376,7 +380,7 @@ private fun AboutSection(
 
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
         )
 
         // Privacy Policy
@@ -398,7 +402,7 @@ private fun AboutSection(
 
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
         )
 
         // Terms of Service
@@ -449,7 +453,7 @@ private fun SupportSection(
 
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
         )
 
         // Report Bug
@@ -478,7 +482,7 @@ private fun SupportSection(
 
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
         )
 
         // Contact Developer
@@ -503,7 +507,7 @@ private fun SupportSection(
 
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
         )
 
         // Share App

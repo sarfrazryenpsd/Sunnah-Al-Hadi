@@ -3,6 +3,7 @@ package com.ryen.sunnah_alhadi.presentation.util
 import androidx.annotation.DrawableRes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.ExtraContentType
@@ -30,8 +31,9 @@ fun getExtraContentMetaInfo(type: ExtraContentType): ExtraContentMetaInfo {
 }
 
 @Composable
-fun buildMetaInfoIconsForSunnah(sunnah: Sunnah): List<@Composable () -> Unit> {
+fun buildMetaInfoIconsForSunnah(sunnah: Sunnah, iconInList: Boolean = false): List<@Composable () -> Unit> {
     return buildList {
+        val darkerIconColor = Color.Black.copy(alpha = 0.4f)
         // ExtraContent icons
         sunnah.extra
             ?.map { it.type }
@@ -40,7 +42,7 @@ fun buildMetaInfoIconsForSunnah(sunnah: Sunnah): List<@Composable () -> Unit> {
                 val meta = getExtraContentMetaInfo(type)
                 add {
                     ECIconBox(
-                        iconColor = meta.colors.iconColor,
+                        iconColor = if(iconInList) darkerIconColor else meta.colors.iconColor,
                         iconRes = meta.icon,
                     )
                 }
@@ -50,8 +52,9 @@ fun buildMetaInfoIconsForSunnah(sunnah: Sunnah): List<@Composable () -> Unit> {
         if (sunnah.body.any { it.subtype.equals(ArabicSubtype.VERSE.name, ignoreCase = true) }) {
             val style = getSunnahMetaInfoStyle(SunnahMetaInfoType.VERSE)
             add {
+
                 ECIconBox(
-                    iconColor = style.iconColor,
+                    iconColor = if(iconInList) darkerIconColor else style.iconColor,
                     iconRes = style.icon,
                 )
             }
@@ -62,7 +65,7 @@ fun buildMetaInfoIconsForSunnah(sunnah: Sunnah): List<@Composable () -> Unit> {
             val style = getSunnahMetaInfoStyle(SunnahMetaInfoType.SUPPLICATION)
             add {
                 ECIconBox(
-                    iconColor = style.iconColor,
+                    iconColor = if(iconInList) darkerIconColor else style.iconColor,
                     iconRes = style.icon,
                 )
             }
@@ -73,7 +76,7 @@ fun buildMetaInfoIconsForSunnah(sunnah: Sunnah): List<@Composable () -> Unit> {
             val style = getSunnahMetaInfoStyle(SunnahMetaInfoType.REFERENCE)
             add {
                 ECIconBox(
-                    iconColor = style.iconColor,
+                    iconColor = if(iconInList) darkerIconColor else style.iconColor,
                     iconRes = style.icon,
                 )
             }

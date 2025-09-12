@@ -284,6 +284,9 @@ class HomeViewModel @Inject constructor(
                         } else {
                             sotdState
                         }*/
+                        if (recentSotd.isNotEmpty()) {
+                            _uiState.update { it.copy(recentSotd = recentSotd) }
+                        }
 
                         // ✅ Update UI on main thread
                         _uiState.update {
@@ -291,7 +294,6 @@ class HomeViewModel @Inject constructor(
                                 isLoading = false,
                                 username = homeData.userName,
                                 featuredCategories = homeData.featuredCategories,
-                                recentSotd = recentSotd,
                                 sotd = sotdState.currentSotd,
                             )
                         }

@@ -91,7 +91,8 @@ fun SunnahGridCardContainer(
                 key = { index: Int, sunnah: Sunnah -> sunnah.id }
             ) { index: Int, sunnah: Sunnah ->
 
-                val metaIcons = buildMetaInfoIconsForSunnah(sunnah)
+                val metaIcons = buildMetaInfoIconsForSunnah(sunnah, true)
+
                 val gradientColors = CategoryUtils.categoryGradientColors(sunnah.categoryId)
 
 
@@ -139,12 +140,7 @@ fun SunnahCardCompactWithHighlight(
     searchQuery: String = "",
 ) {
     Card(
-        modifier = modifier
-            .border(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.secondary,
-                shape = RoundedCornerShape(20.dp)
-            ),
+        modifier = modifier,
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = bgColor
@@ -184,13 +180,14 @@ fun HighlightedText(
     searchQuery: String,
     style: TextStyle,
     modifier: Modifier = Modifier,
-    highlightColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    highlightTextColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
+    highlightColor: Color = MaterialTheme.colorScheme.secondary,
+    highlightTextColor: Color = MaterialTheme.colorScheme.primary
 ) {
     if (searchQuery.isEmpty() || searchQuery.length < 2) {
         Text(
             text = text,
             style = style,
+            color = MaterialTheme.colorScheme.primary,
             modifier = modifier
         )
         return
@@ -234,6 +231,7 @@ fun HighlightedText(
     Text(
         text = annotatedString,
         style = style,
+        color = MaterialTheme.colorScheme.primary,
         modifier = modifier
     )
 }

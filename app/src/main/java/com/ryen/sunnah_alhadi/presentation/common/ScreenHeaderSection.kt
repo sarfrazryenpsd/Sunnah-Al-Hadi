@@ -39,7 +39,7 @@ fun ScreenHeaderSection(
     val screenHeader = when (screen) {
         is Home -> {
             ScreenHeader(
-                title = userName.ifBlank { "Friend" }.uppercase(),
+                title = userName.ifBlank { "Brother/Sister" }.uppercase(),
                 subtitle = stringResource(R.string.greeting),
                 titleStyle = MaterialTheme.appTypography.displayName,
                 subtitleStyle = MaterialTheme.appTypography.browseSubtitle

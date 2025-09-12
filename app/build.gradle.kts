@@ -22,8 +22,8 @@ android {
         applicationId = "com.ryen.sunnah_alhadi"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.0.2"
+        versionCode = 5
+        versionName = "1.0.5"
 
         testInstrumentationRunner = "com.ryen.sunnah_alhadi.HiltTestRunner"
     }
@@ -191,6 +191,7 @@ dependencies {
 
 // Turbine (Flow testing)
     androidTestImplementation(libs.turbine)
+    testImplementation(libs.turbine)
 
     //Robolectric
     testImplementation(libs.robolectric)

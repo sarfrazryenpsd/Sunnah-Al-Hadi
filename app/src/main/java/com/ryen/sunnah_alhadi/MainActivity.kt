@@ -6,10 +6,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,19 +30,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
 
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.auto(
-                lightScrim = Color.Transparent.toArgb(), // For light backgrounds
-                darkScrim = Color.Black.copy(alpha = 0.2f).toArgb(), // Adjust scrim if needed
-                detectDarkMode = { /* Use true for dark mode detection */ false }
-            )
-        )
+        enableEdgeToEdge()
         setContent {
 
 
             // Global theme state management
             val themeViewModel: ThemeViewModel = hiltViewModel()
             val themeUiState by themeViewModel.uiState.collectAsStateWithLifecycle()
+
 
             // Check if onboarding should be shown
 
@@ -53,7 +50,15 @@ class MainActivity : ComponentActivity() {
                 themeMode = themeUiState.themeMode,
                 isDynamicColorEnabled = themeUiState.isDynamicThemeEnabled
             ) {
+                val isDarkBackground = MaterialTheme.colorScheme.background.luminance() < 0.5
 
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.auto(
+                        lightScrim = Color.Transparent.toArgb(), // For light backgrounds
+                        darkScrim = Color.Black.copy(alpha = 0.2f).toArgb(), // Adjust scrim if needed
+                        detectDarkMode = { isDarkBackground }
+                    )
+                )
                 val isFromNotification = intent?.getBooleanExtra("show_sotd", false) ?: false
 
 

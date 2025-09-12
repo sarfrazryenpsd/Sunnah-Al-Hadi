@@ -74,7 +74,7 @@ This app is suitable for all ages and does not collect data from children.
 We may update this policy and will notify users through app updates.
 
 **Contact:**
-For privacy concerns, contact us at developer@sunnahalhadi.com
+For privacy concerns, contact us at mdsarfraz.ilanos1915@gmail.com
 
 **Islamic Principle:**
 Following Islamic principles of privacy and trust (Amanah), we commit to protecting user privacy as a religious obligation.
