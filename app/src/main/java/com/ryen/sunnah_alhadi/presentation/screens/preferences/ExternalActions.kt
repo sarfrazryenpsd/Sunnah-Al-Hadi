@@ -71,26 +71,31 @@ Message:
 [Please write your message here]
 
 جزاك الله خيراً
-        """.trimIndent()
+    """.trimIndent()
 
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = "mailto:".toUri()
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "message/rfc822" // email MIME type
             putExtra(Intent.EXTRA_EMAIL, arrayOf("mdsarfraz.ilanos1915@gmail.com"))
             putExtra(Intent.EXTRA_SUBJECT, "Sunnah Al-Hadi - User Feedback")
             putExtra(Intent.EXTRA_TEXT, emailTemplate)
         }
 
-        if (intent.resolveActivity(context.packageManager) != null) {
-            context.startActivity(intent)
-        } else {
+        try {
+            context.startActivity(Intent.createChooser(intent, "Choose an email app"))
+        } catch (e: ActivityNotFoundException) {
             // Fallback: copy email to clipboard
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Developer Email", "mdsarfraz.ilanos1915@gmail.com")
             clipboard.setPrimaryClip(clip)
 
-            Toast.makeText(context, "Email copied to clipboard: mdsarfraz.ilanos1915@gmail.com", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                "No email app found. Email copied to clipboard: mdsarfraz.ilanos1915@gmail.com",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
+
 
     private fun getAppVersion(context: Context): String {
         return try {

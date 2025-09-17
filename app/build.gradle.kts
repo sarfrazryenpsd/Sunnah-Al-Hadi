@@ -22,8 +22,8 @@ android {
         applicationId = "com.ryen.sunnah_alhadi"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.0.5"
+        versionCode = 6
+        versionName = "1.0.6"
 
         testInstrumentationRunner = "com.ryen.sunnah_alhadi.HiltTestRunner"
     }

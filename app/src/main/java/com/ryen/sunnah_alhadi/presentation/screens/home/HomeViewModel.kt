@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -53,6 +54,7 @@ class HomeViewModel @Inject constructor(
         observeUserPreferences()
         loadHomeData()
         loadCountsAsync()
+        observeRecentSotd()
     }
 
     // ✅ Load counts asynchronously to prevent main thread blocking
@@ -264,31 +266,15 @@ class HomeViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             try {
-                // Load all data concurrently on IO thread
                 val homeDataDeferred = async { getHomeDataUseCase() }
                 val sotdStateDeferred = async { getCurrentSotdUseCase() }
-                val recentSotdDeferred = async { getRecentlyViewedSunnahsUseCase() }
 
                 val homeDataResult = homeDataDeferred.await()
                 val sotdState = sotdStateDeferred.await()
-                val recentSotd = recentSotdDeferred.await()
 
                 when (homeDataResult) {
                     is Result.Success -> {
                         val homeData = homeDataResult.data
-
-                        // Generate SOTD if none exists
-                        /*val finalSotdState = if (sotdState.currentSotd == null) {
-                            generateNewSotdIdUseCase()
-                            getCurrentSotdUseCase()
-                        } else {
-                            sotdState
-                        }*/
-                        if (recentSotd.isNotEmpty()) {
-                            _uiState.update { it.copy(recentSotd = recentSotd) }
-                        }
-
-                        // ✅ Update UI on main thread
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
@@ -298,7 +284,6 @@ class HomeViewModel @Inject constructor(
                             )
                         }
                     }
-
                     is Result.Error -> {
                         _uiState.update {
                             it.copy(
@@ -317,6 +302,15 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    private fun observeRecentSotd() {
+        viewModelScope.launch {
+            getRecentlyViewedSunnahsUseCase()
+                .collectLatest { recent ->
+                    _uiState.update { it.copy(recentSotd = recent) }
+                }
         }
     }
 

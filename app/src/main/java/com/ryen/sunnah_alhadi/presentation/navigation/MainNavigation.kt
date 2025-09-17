@@ -5,7 +5,6 @@ package com.ryen.sunnah_alhadi.presentation.navigation
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -34,7 +33,6 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
@@ -212,6 +210,7 @@ private fun CompactScreenLayout(
 ) {
     val baseBottomBarVisible = backStack.lastOrNull()?.let { it in topLevelDestinations } ?: false
     val isPagerVisible by PagerVisibilityState.isPagerVisible.collectAsStateWithLifecycle()
+    val bottomBarAnimation = MaterialTheme.motionScheme
 
     // Bottom bar is visible if we're on a top level destination AND pager is not visible
     val isBottomBarVisible = baseBottomBarVisible && !isPagerVisible
@@ -235,7 +234,7 @@ private fun CompactScreenLayout(
             visible = isBottomBarVisible,
             enter = slideInVertically(
                 initialOffsetY = { it },
-                animationSpec = tween(durationMillis = 100)
+                animationSpec = bottomBarAnimation.slowEffectsSpec()
             ),
             exit = slideOutVertically(
                 targetOffsetY = { it },
@@ -267,11 +266,9 @@ private fun ExpandedScreenLayout(
     topLevelDestinations: List<NavKey>,
     onSotdRequested: (SotdOverlayRequest) -> Unit
 ) {
-    // State for navigation rail expansion
 
     Row(modifier = Modifier.fillMaxSize()) {
         SideNavigationRail(
-            expanded = false,
             topLevelDestinations = topLevelDestinations,
             currentDestination = backStack.lastOrNull(),
             onDestinationSelected = { destination ->
@@ -341,12 +338,12 @@ private fun NavigationContent(
                 }
             },
             popTransitionSpec = {
-                slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                        slideOutHorizontally(targetOffsetX = { it })
+                slideInHorizontally(animationSpec = navAnimation.defaultSpatialSpec(),initialOffsetX = { -it }) togetherWith
+                        slideOutHorizontally(animationSpec = navAnimation.defaultSpatialSpec(),targetOffsetX = { it })
             },
             predictivePopTransitionSpec = {
-                slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                        slideOutHorizontally(targetOffsetX = { it })
+                slideInHorizontally(animationSpec = navAnimation.defaultSpatialSpec(),initialOffsetX = { -it }) togetherWith
+                        slideOutHorizontally(animationSpec = navAnimation.defaultSpatialSpec(),targetOffsetX = { it })
             },
             entryProvider = createEntryProvider(backStack, onSotdRequested)
         )
@@ -414,22 +411,16 @@ fun CustomBottomBar(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SideNavigationRail(
-    expanded: Boolean,
     topLevelDestinations: List<NavKey>,
     currentDestination: NavKey?,
     onDestinationSelected: (NavKey) -> Unit
 ) {
-    val navScale =
-        animateDpAsState(
-            targetValue = if (expanded) 240.dp else 80.dp,
-            animationSpec = MaterialTheme.motionScheme.fastSpatialSpec()
-        )
 
     NavigationRail(
         containerColor = MaterialTheme.colorScheme.primaryContainer,
         modifier = Modifier
             .background(MaterialTheme.colorScheme.primaryContainer)
-            .width(navScale.value)
+            .width(80.dp)
             .fillMaxHeight(),
         header = {
 
@@ -452,11 +443,6 @@ private fun SideNavigationRail(
                     unselectedIconColor = MaterialTheme.colorScheme.primary,
                     indicatorColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
-                label = if (expanded) {
-                    { Text(destination.toString()) }
-                } else {
-                    null
-                }
             )
         }
     }
