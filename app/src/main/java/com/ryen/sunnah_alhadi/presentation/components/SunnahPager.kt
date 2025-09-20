@@ -5,6 +5,8 @@ package com.ryen.sunnah_alhadi.presentation.components
 
 import android.graphics.RenderEffect
 import android.graphics.Shader
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -41,12 +43,14 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +58,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.ContentBlock
@@ -66,8 +72,12 @@ import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.presentation.util.DynamicContentBlockRendererV2
 import com.ryen.sunnah_alhadi.presentation.util.DynamicExtraContentRenderer
 import com.ryen.sunnah_alhadi.presentation.util.DynamicReferenceRenderer
+import com.ryen.sunnah_alhadi.presentation.viewmodel.ExportAction
+import com.ryen.sunnah_alhadi.presentation.viewmodel.ExportState
+import com.ryen.sunnah_alhadi.presentation.viewmodel.ImageExportViewModel
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
+import kotlinx.coroutines.launch
 
 // Pager extension functions for cinematic effects
 fun PagerState.offsetForPage(page: Int) = (currentPage - page) + currentPageOffsetFraction
@@ -75,7 +85,6 @@ fun PagerState.offsetForPage(page: Int) = (currentPage - page) + currentPageOffs
 fun PagerState.startOffsetForPage(page: Int): Float {
     return offsetForPage(page).coerceAtLeast(0f)
 }
-
 
 @Composable
 fun SunnahPager(
@@ -131,6 +140,57 @@ fun SunnahPager(
         label = "background_alpha"
     )
 
+    // Image export functionality
+    val imageExportViewModel: ImageExportViewModel = hiltViewModel()
+    val exportState by imageExportViewModel.exportState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    // Handle export state changes
+    LaunchedEffect(exportState) {
+        when (val state = exportState) {
+            is ExportState.Success -> {
+                when (state.action) {
+                    ExportAction.SAVE -> {
+                        if (state.uri != null) {
+                            Toast.makeText(
+                                context,
+                                "Sunnah card saved successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                    ExportAction.SHARE -> {
+                        // Share action is handled by the system share sheet
+                    }
+                }
+                imageExportViewModel.resetState()
+            }
+            is ExportState.Error -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
+                Log.e("ImageExport", state.message)
+                imageExportViewModel.resetState()
+            }
+            is ExportState.Loading -> {
+                when (state.action) {
+                    ExportAction.SAVE -> {
+                        Toast.makeText(context, "Saving sunnah card...", Toast.LENGTH_SHORT).show()
+                    }
+
+                    ExportAction.SHARE -> {
+                        Toast.makeText(
+                            context,
+                            "Preparing sunnah card for sharing...",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+            else -> {}
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -167,7 +227,10 @@ fun SunnahPager(
                             sunnah = sunnahs[page],
                             pagerState = pagerState,
                             page = page,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            onExportImage = { sunnah, action ->
+                                imageExportViewModel.exportSunnahAsImage(sunnah, action)
+                            }
                         )
                     }
                 }
@@ -179,10 +242,63 @@ fun SunnahPager(
             derivedStateOf { pagerState.currentPage }
         }
 
-
         // Only show bookmark button if we have a valid current page
         if (currentPage < sunnahs.size) {
             val currentSunnah = sunnahs[currentPage]
+
+            // Export buttons container
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 64.dp, end = 40.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Share button
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .clickable {
+                            imageExportViewModel.exportSunnahAsImage(
+                                currentSunnah,
+                                ExportAction.SHARE
+                            )
+                        }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.interface_share),
+                        contentDescription = "Share Sunnah Card",
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                // Save button
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .clickable {
+                            imageExportViewModel.exportSunnahAsImage(
+                                currentSunnah,
+                                ExportAction.SAVE
+                            )
+                        }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.interface_download),
+                        contentDescription = "Save Sunnah Card",
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            // Bookmark button (moved to be below export buttons)
             val bookmarkIcon = if (currentSunnah.isBookmarked) {
                 R.drawable.interface_bookmarked
             } else {
@@ -192,8 +308,8 @@ fun SunnahPager(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 64.dp, end = 40.dp)
+                    .align(Alignment.BottomStart)
+                    .padding(bottom = 64.dp, start = 40.dp)
                     .size(48.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surface)
@@ -217,7 +333,8 @@ private fun SunnahPagerCard(
     sunnah: Sunnah,
     pagerState: PagerState,
     page: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onExportImage: (Sunnah, ExportAction) -> Unit = { _, _ -> }
 ) {
     val startOffset by remember(pagerState) {
         derivedStateOf { pagerState.startOffsetForPage(page) }
@@ -231,7 +348,6 @@ private fun SunnahPagerCard(
     Box(
         modifier = modifier
             .padding(if (shouldApplyEffects) blurDp else 0.dp)
-//            .clipToBounds(false)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -329,10 +445,6 @@ fun SunnahFullCard(
     }
 }
 
-
-
-
-
 val sampleContentBlockArabic = ContentBlock(
     type = ContentType.ARABIC_TEXT,
     content = "بسم الله الرحمن الرحيم",
@@ -396,7 +508,6 @@ val sampleExtraContentBenefit = ExtraContent(
     content = listOf()
 )
 
-
 val sampleReference = Reference(source = "Sahih Al-Bukhari, Hadith 1")
 
 val sampleSunnah1 = Sunnah(
@@ -441,8 +552,7 @@ fun SunnahPagerCard_ActivePreview() {
     ) {
         val pagerState = rememberPagerState(initialPage = 0, pageCount = { 1 })
         // To simulate active, ensure page = 0 and pagerState.currentPage = 0, offset = 0
-        // For the preview, we explicitly set the pagerState for this card'''s context
-
+        // For the preview, we explicitly set the pagerState for this card's context
 
         Box(
             modifier = Modifier
@@ -466,9 +576,8 @@ fun SunnahPagerCard_BlurredPreview() {
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
         // Simulate this card (page 1) being to the right of the current page (page 0)
-        // So, currentPage = 0, this card'''s page = 1. Offset will be -1 + offsetFraction
+        // So, currentPage = 0, this card's page = 1. Offset will be -1 + offsetFraction
         val pagerState = rememberPagerState(initialPage = 0, pageCount = { 1 })
-
 
         Box(
             modifier = Modifier
@@ -484,7 +593,6 @@ fun SunnahPagerCard_BlurredPreview() {
         }
     }
 }
-
 
 @Preview(showBackground = true, widthDp = 360)
 @Composable
@@ -554,7 +662,6 @@ fun ContentBlockRenderer_EnglishPreview() {
     }
 }
 
-
 @Preview(showBackground = true, widthDp = 360)
 @Composable
 fun ReferenceRendererPreview() {
@@ -566,4 +673,3 @@ fun ReferenceRendererPreview() {
         }
     }
 }
-

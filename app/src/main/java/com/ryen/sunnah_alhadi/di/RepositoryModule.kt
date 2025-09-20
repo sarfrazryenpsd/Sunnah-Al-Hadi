@@ -1,52 +1,86 @@
 package com.ryen.sunnah_alhadi.di
 
+import androidx.datastore.core.DataStore
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.ryen.sunnah_alhadi.data.local.datasource.dao.BookmarkDao
+import com.ryen.sunnah_alhadi.data.local.datasource.dao.BugReportDao
+import com.ryen.sunnah_alhadi.data.local.datasource.dao.CategoryDao
+import com.ryen.sunnah_alhadi.data.local.datasource.dao.SunnahDao
 import com.ryen.sunnah_alhadi.data.repository.BookmarkRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.BugReportRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.CategoryRepositoryImpl
+import com.ryen.sunnah_alhadi.data.repository.ImageExportRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.SunnahRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.UserPreferencesRepositoryImpl
+import com.ryen.sunnah_alhadi.datastore.ProtoUserPreferences
 import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
 import com.ryen.sunnah_alhadi.domain.repository.BugReportRepository
 import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
+import com.ryen.sunnah_alhadi.domain.repository.ImageExportRepository
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
-import dagger.Binds
+import com.ryen.sunnah_alhadi.domain.useCase.ExportSunnahAsImageUseCase
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
+object RepositoryModule {
 
-    @Binds
+    @Provides
     @Singleton
-    abstract fun bindUserPreferencesRepository(
-        impl: UserPreferencesRepositoryImpl
-    ): UserPreferencesRepository
+    fun provideSunnahRepository(
+        sunnahDao: SunnahDao,
+        ioDispatcher: CoroutineDispatcher
+    ): SunnahRepository {
+        return SunnahRepositoryImpl(sunnahDao, ioDispatcher)
+    }
 
-    @Binds
+    @Provides
     @Singleton
-    abstract fun bindSunnahRepository(
-        impl: SunnahRepositoryImpl
-    ): SunnahRepository
+    fun provideCategoryRepository(
+        categoryDao: CategoryDao,
+        ioDispatcher: CoroutineDispatcher
+    ): CategoryRepository {
+        return CategoryRepositoryImpl(categoryDao, ioDispatcher)
+    }
 
-    @Binds
+    @Provides
     @Singleton
-    abstract fun bindBookmarkRepository(
-        impl: BookmarkRepositoryImpl
-    ): BookmarkRepository
+    fun provideBookmarkRepository(
+        bookmarkDao: BookmarkDao,
+        ioDispatcher: CoroutineDispatcher
+    ): BookmarkRepository {
+        return BookmarkRepositoryImpl(bookmarkDao, ioDispatcher)
+    }
 
-    @Binds
+    @Provides
     @Singleton
-    abstract fun bindCategoryRepository(
-        impl: CategoryRepositoryImpl
-    ): CategoryRepository
+    fun provideUserPreferencesRepository(
+        dataStore: DataStore<ProtoUserPreferences>,
+        @ApplicationScope applicationScope: kotlinx.coroutines.CoroutineScope
+    ): UserPreferencesRepository {
+        return UserPreferencesRepositoryImpl(dataStore, applicationScope)
+    }
 
-    @Binds
+    @Provides
     @Singleton
-    abstract fun bindBugReportRepository(
-        impl: BugReportRepositoryImpl
-    ): BugReportRepository
+    fun provideBugReportRepository(
+        bugReportDao: BugReportDao,
+        crashlytics: FirebaseCrashlytics
+    ): BugReportRepository {
+        return BugReportRepositoryImpl(bugReportDao, crashlytics)
+    }
+
+    @Provides
+    @Singleton
+    fun provideImageExportRepository(
+        exportSunnahAsImageUseCase: ExportSunnahAsImageUseCase
+    ): ImageExportRepository {
+        return ImageExportRepositoryImpl(exportSunnahAsImageUseCase)
+    }
 }

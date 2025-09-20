@@ -2,12 +2,12 @@ package com.ryen.sunnah_alhadi.domain.useCase
 
 import kotlinx.coroutines.flow.Flow
 
-abstract class UseCase<in P, out R> {
+abstract class UseCase<in P, R> {
     suspend operator fun invoke(parameters: P): R = execute(parameters)
     protected abstract suspend fun execute(parameters: P): R
 }
 
-abstract class NoParamUseCase<out R> {
+abstract class NoParamUseCase<R> {
     suspend operator fun invoke(): R = execute()
     protected abstract suspend fun execute(): R
 }
