@@ -1,5 +1,6 @@
 package com.ryen.sunnah_alhadi
 
+import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.res.Configuration
@@ -64,10 +65,10 @@ class SunnahApplicationTest {
     @Test
     fun application_should_survive_low_memory_conditions() {
         // Given
-        val context = ApplicationProvider.getApplicationContext<SunnahApplication>()
+        val context = ApplicationProvider.getApplicationContext<Application>()
 
         // When
-        context.onLowMemory()
+        (context as ComponentCallbacks2).onLowMemory()
 
         // Then
         // Should not crash and remain functional
@@ -77,10 +78,10 @@ class SunnahApplicationTest {
     @Test
     fun application_should_handle_configuration_changes() {
         // Given
-        val context = ApplicationProvider.getApplicationContext<SunnahApplication>()
+        val context = ApplicationProvider.getApplicationContext<Application>()
 
         // When
-        context.onConfigurationChanged(Configuration())
+        (context as ComponentCallbacks2).onConfigurationChanged(Configuration())
 
         // Then
         // Should handle configuration changes gracefully
@@ -90,10 +91,10 @@ class SunnahApplicationTest {
     @Test
     fun application_should_handle_trim_memory_events() {
         // Given
-        val context = ApplicationProvider.getApplicationContext<SunnahApplication>()
+        val context = ApplicationProvider.getApplicationContext<Application>()
 
         // When
-        context.onTrimMemory(ComponentCallbacks2.TRIM_MEMORY_MODERATE)
+        (context as ComponentCallbacks2).onTrimMemory(ComponentCallbacks2.TRIM_MEMORY_MODERATE)
 
         // Then
         // Should handle memory trim events gracefully

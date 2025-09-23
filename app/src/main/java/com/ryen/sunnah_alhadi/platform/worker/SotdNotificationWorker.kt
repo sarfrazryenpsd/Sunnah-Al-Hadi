@@ -24,7 +24,8 @@ class SotdNotificationWorker @AssistedInject constructor(
     private val generateNewSotdIdUseCase: GenerateNewSotdIdUseCase,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val notificationHelper: SotdNotificationHelper,
-    private val getSunnahByIdUseCase: GetSunnahByIdUseCase
+    private val getSunnahByIdUseCase: GetSunnahByIdUseCase,
+    private val sotdNotificationScheduler: SotdNotificationScheduler
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -84,9 +85,7 @@ class SotdNotificationWorker @AssistedInject constructor(
                     Log.d("SotdWorker", "Showing notification for: ${sunnah.data.title}")
                     notificationHelper.showSotdNotification(sunnah.data)
                     Log.d("SotdWorker", "SOTD notification sent successfully")
-                    val notificationTime = userPreferencesRepository.getSotdNotificationTime()
-                    val scheduler = SotdNotificationScheduler(applicationContext)
-                    scheduler.scheduleNextNotification(notificationTime)
+                    sotdNotificationScheduler.scheduleNextNotification(userPrefs.sotdNotificationTime)
                     return Result.success()
                 }
             }
@@ -97,9 +96,12 @@ class SotdNotificationWorker @AssistedInject constructor(
         } catch (e: Exception) {
             Log.e("SotdWorker", "Error in SOTD worker", e)
 
-            val notificationTime = userPreferencesRepository.getSotdNotificationTime()
-            val scheduler = SotdNotificationScheduler(applicationContext)
-            scheduler.scheduleNextNotification(notificationTime)
+            try {
+                val notificationTime = userPreferencesRepository.getSotdNotificationTime()
+                sotdNotificationScheduler.scheduleNextNotification(notificationTime)
+            } catch (ex: Exception) {
+                Log.e("SotdWorker", "Error getting notification time", ex)
+            }
 
             // Implement exponential backoff for retries
             val runAttemptCount = runAttemptCount
