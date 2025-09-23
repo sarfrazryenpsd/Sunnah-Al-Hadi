@@ -49,11 +49,9 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew test
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Build Debug APK and Signed Release AAB (Skip Benchmark)
+        run: ./gradlew assembleDebug bundleRelease --exclude-task :app:processBenchmarkGoogleServices
 
-      - name: Build Signed Release AAB
-        run: ./gradlew bundleRelease
 
       - name: Upload Release AAB Artifact
         if: success() && github.event_name == 'push'
