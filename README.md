@@ -3,6 +3,7 @@
 <div align="center">
   <img src="app/src/main/ic_launcher-playstore.png" alt="Sunnah Al-Hadi Logo" width="120"/>
 
+![Sunnah CI](https://github.com/sarfrazryenpsd/Sunnah-Al-Hadi/actions/workflows/android-ci.yml/badge.svg)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-orange.svg?style=flat&logo=kotlin)](https://kotlinlang.org/)
 [![Android](https://img.shields.io/badge/Android-API_26+-green.svg?style=flat&logo=android)](https://developer.android.com/)
 [![Compose](https://img.shields.io/badge/Compose-Jetpack-blue.svg?style=flat&logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
