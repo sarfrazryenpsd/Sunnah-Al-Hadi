@@ -22,10 +22,19 @@ android {
         applicationId = "com.ryen.sunnah_alhadi"
         minSdk = 26
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.0.8"
+        versionCode = System.getenv("VERSION_CODE")?.toInt() ?: 1
+        versionName = System.getenv("VERSION_NAME") ?: "1.0.0"
 
         testInstrumentationRunner = "com.ryen.sunnah_alhadi.HiltTestRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("my-release-key.jks")
+            storePassword = System.getenv("MYAPP_STORE_PASSWORD")
+            keyAlias = System.getenv("MYAPP_KEY_ALIAS")
+            keyPassword = System.getenv("MYAPP_KEY_PASSWORD")
+        }
     }
 
     firebaseCrashlytics {
