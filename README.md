@@ -1,7 +1,6 @@
-# Sunnah Al-Hadi - Android App
-
 <div align="center">
-  <img src="app/src/main/ic_launcher-playstore.png" alt="Sunnah Al-Hadi Logo" width="120"/>
+
+# Sunnah Al-Hadi
 
 [![Sunnah CI](https://github.com/sarfrazryenpsd/Sunnah-Al-Hadi/actions/workflows/sunnah_ci.yml/badge.svg)](https://github.com/sarfrazryenpsd/Sunnah-Al-Hadi/actions/workflows/sunnah_ci.yml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-orange.svg?style=flat&logo=kotlin)](https://kotlinlang.org/)
@@ -10,10 +9,13 @@
 [![Hilt](https://img.shields.io/badge/Hilt-DI-purple.svg?style=flat)](https://dagger.dev/hilt/)
 [![Room](https://img.shields.io/badge/Room-Database-red.svg?style=flat)](https://developer.android.com/training/data-storage/room)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-</div>
+
 
 <a href="https://play.google.com/store/apps/details?id=com.ryen.sunnah_alhadi" target="_blank">
 <img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="90"/></a>
+</div>
+
+![Feature graphic](https://github.com/sarfrazryenpsd/Sunnah-Al-Hadi/blob/main/.github/screenshots/feature-graphic-downscaled.png)
 
 ## 🕌 About the Project
 
@@ -37,6 +39,30 @@ helping them follow his guidance in their daily routines through a modern, user-
 - **Daily Reminders**: Get gentle notifications about the "Sunnah of the Day"
 - **Fully Offline**: No internet connection required after installation
 - **Privacy Focused**: No personal data collection, local storage only
+
+## 📱 Screenshots
+
+**Light**
+
+| | | |
+|---|---|---|
+| ![Home](.github/screenshots/Home_Light.png) | ![Explore](.github/screenshots/AllSunnah_Light.png) | ![Preference](.github/screenshots/Settings_Light.png) |
+| ![All Topics](.github/screenshots/AllTopics_Light.png) | ![Topic](.github/screenshots/Topic_Light.png) | ![Sunnah Card](.github/screenshots/SunnahCard_Light.png) |
+
+| | | |
+|---|---|---|
+| ![Medium Screen](.github/screenshots/AllTopics_Midium_Light.png) | ![Large Screen](.github/screenshots/Home_Expanded_Light.png) | ![Large Screen](.github/screenshots/AllSunnah_Expanded_Light.png) |
+
+**Dark**
+
+| | | |
+|---|---|---|
+| ![Home](.github/screenshots/Home_Dark.png) | ![Explore](.github/screenshots/AllSunnah_Dark.png) | ![Preference](.github/screenshots/Settings_Dark.png) |
+| ![All Topics](.github/screenshots/AllTopics_Dark.png) | ![Topic](.github/screenshots/Topic_Dark.png) | ![Sunnah Card](.github/screenshots/SunnahCard_Dark.png) |
+
+| | | |
+|---|---|---|
+| ![Medium Screen](.github/screenshots/AllTopics_Midium_Dark.png) | ![Large Screen](.github/screenshots/Home_Expanded_Dark.png) | ![Large Screen](.github/screenshots/AllSunnah_Expanded_Dark.png) |
 
 ## 🛠️ Technical Implementation
 
@@ -122,15 +148,6 @@ com.ryen.sunnah_alhadi
 - **Local Notifications**: Scheduling system for daily Sunnah reminders
 - **Offline-First Design**: All content stored locally with no required network calls
 - **Privacy-First Approach**: No data collection, everything stays on-device
-
-## 📱 Screenshots
-
-*(Add actual screenshots from the app here when available)*
-
-- Home Screen with personalized greeting
-- Sunnah browsing by categories
-- Detailed Sunnah view with Arabic text and translations
-- Settings screen with theme customization
 
 ## 🏗️ Development Setup
 
