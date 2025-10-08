@@ -3,7 +3,7 @@
 <div align="center">
   <img src="app/src/main/ic_launcher-playstore.png" alt="Sunnah Al-Hadi Logo" width="120"/>
 
-![Sunnah CI](https://github.com/sarfrazryenpsd/Sunnah-Al-Hadi/actions/workflows/android-ci.yml/badge.svg)
+[![Sunnah CI](https://github.com/sarfrazryenpsd/Sunnah-Al-Hadi/actions/workflows/sunnah_ci.yml/badge.svg)](https://github.com/sarfrazryenpsd/Sunnah-Al-Hadi/actions/workflows/sunnah_ci.yml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-orange.svg?style=flat&logo=kotlin)](https://kotlinlang.org/)
 [![Android](https://img.shields.io/badge/Android-API_26+-green.svg?style=flat&logo=android)](https://developer.android.com/)
 [![Compose](https://img.shields.io/badge/Compose-Jetpack-blue.svg?style=flat&logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
@@ -11,6 +11,9 @@
 [![Room](https://img.shields.io/badge/Room-Database-red.svg?style=flat)](https://developer.android.com/training/data-storage/room)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 </div>
+
+<a href="https://play.google.com/store/apps/details?id=com.ryen.sunnah_alhadi" target="_blank">
+<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="90"/></a>
 
 ## 🕌 About the Project
 
