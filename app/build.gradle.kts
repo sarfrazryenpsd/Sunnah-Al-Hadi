@@ -14,6 +14,14 @@ plugins {
     alias(libs.plugins.firebase.crashlytics)
 }
 
+// google-services.json is gitignored (CI injects it); skip Firebase tasks when it's absent so local builds work.
+if (!file("google-services.json").exists()) {
+    logger.warn("app/google-services.json missing: Google Services / Crashlytics upload tasks disabled")
+    tasks.configureEach {
+        if (name.matches(Regex("process.*GoogleServices|uploadCrashlyticsMappingFile.*"))) enabled = false
+    }
+}
+
 android {
     namespace = "com.ryen.sunnah_alhadi"
     compileSdk = 36
