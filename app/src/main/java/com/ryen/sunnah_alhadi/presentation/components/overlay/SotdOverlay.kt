@@ -50,6 +50,7 @@ import com.ryen.sunnah_alhadi.domain.model.ExtraContent
 import com.ryen.sunnah_alhadi.domain.model.ExtraContentType
 import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
+import com.ryen.sunnah_alhadi.presentation.components.SunnahCardActions
 import com.ryen.sunnah_alhadi.presentation.components.SunnahFullCard
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeEvent
 import com.ryen.sunnah_alhadi.presentation.screens.home.HomeViewModel
@@ -149,17 +150,21 @@ fun SotdCardContainer(
                     )
                     Box(
                         modifier = Modifier
+                            .weight(1f) // leaves room below for the action buttons
                             .clip(RoundedCornerShape(16.dp))
                             .background(MaterialTheme.colorScheme.surface),
                         contentAlignment = Alignment.Center
                     ) {
                         SunnahFullCard(
                             sunnah = sunnah,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(0.8f)
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
+                    // Same bookmark / save / share buttons and behaviour as the pager
+                    SunnahCardActions(
+                        sunnah = sunnah,
+                        onBookmarkClick = { homeViewModel.onEvent(HomeEvent.ToggleBookmark(it)) }
+                    )
                     Button(
                         onClick = {
                             homeViewModel.onEvent(HomeEvent.MarkSotdAsSeen)

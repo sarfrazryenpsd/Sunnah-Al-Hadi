@@ -9,17 +9,14 @@ import com.ryen.sunnah_alhadi.data.local.datasource.dao.SunnahDao
 import com.ryen.sunnah_alhadi.data.repository.BookmarkRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.BugReportRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.CategoryRepositoryImpl
-import com.ryen.sunnah_alhadi.data.repository.ImageExportRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.SunnahRepositoryImpl
 import com.ryen.sunnah_alhadi.data.repository.UserPreferencesRepositoryImpl
 import com.ryen.sunnah_alhadi.datastore.ProtoUserPreferences
 import com.ryen.sunnah_alhadi.domain.repository.BookmarkRepository
 import com.ryen.sunnah_alhadi.domain.repository.BugReportRepository
 import com.ryen.sunnah_alhadi.domain.repository.CategoryRepository
-import com.ryen.sunnah_alhadi.domain.repository.ImageExportRepository
 import com.ryen.sunnah_alhadi.domain.repository.SunnahRepository
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
-import com.ryen.sunnah_alhadi.domain.useCase.ExportSunnahAsImageUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -74,13 +71,5 @@ object RepositoryModule {
         crashlytics: FirebaseCrashlytics
     ): BugReportRepository {
         return BugReportRepositoryImpl(bugReportDao, crashlytics)
-    }
-
-    @Provides
-    @Singleton
-    fun provideImageExportRepository(
-        exportSunnahAsImageUseCase: ExportSunnahAsImageUseCase
-    ): ImageExportRepository {
-        return ImageExportRepositoryImpl(exportSunnahAsImageUseCase)
     }
 }
