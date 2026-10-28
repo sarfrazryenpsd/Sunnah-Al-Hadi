@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -64,6 +62,7 @@ import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingUiState
 import com.ryen.sunnah_alhadi.presentation.util.getUsernameCharacterCount
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.ThemeMode
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun OnboardingCard(
@@ -87,7 +86,7 @@ fun OnboardingCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (step) {
@@ -352,7 +351,7 @@ private fun ThemeOption(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .clickable { onClick() }
-            .padding(16.dp),
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
@@ -364,7 +363,7 @@ private fun ThemeOption(
             onClick = onClick
         )
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
         Icon(
             painter = painterResource(icon),
@@ -377,7 +376,7 @@ private fun ThemeOption(
             modifier = Modifier.size(24.dp)
         )
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -654,16 +653,14 @@ private fun OnboardingNavigationButtons(
     onPrevious: () -> Unit,
     onComplete: () -> Unit
 ) {
+    val isLastStep = currentStep == OnboardingStep.WELCOME
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (canGoToPrevious) Arrangement.SpaceBetween else Arrangement.End,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (canGoToPrevious) {
-            TextButton(
-                onClick = onPrevious,
-                modifier = Modifier.padding(end = 24.dp)
-            ) {
+            TextButton(onClick = onPrevious) {
                 Icon(
                     painter = painterResource(R.drawable.interface_left),
                     contentDescription = null,
@@ -671,57 +668,43 @@ private fun OnboardingNavigationButtons(
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Back", color = MaterialTheme.colorScheme.tertiary)
+                Text("Back", color = MaterialTheme.colorScheme.tertiary, maxLines = 1)
             }
         }
 
-        if (currentStep == OnboardingStep.WELCOME) {
-            Button(
-                onClick = onComplete,
-                colors = ButtonDefaults.buttonColors(
+        // Takes all the width Back leaves, so the label stays on one line on narrow phones
+        Button(
+            onClick = if (isLastStep) onComplete else onNext,
+            enabled = isLastStep || canProceedToNext,
+            // Colours exactly as before: Get Started keeps its own disabled colours and label colour
+            colors = if (isLastStep) {
+                ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,
                     contentColor = MaterialTheme.colorScheme.surface,
                     disabledContainerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f),
                     disabledContentColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
-                ),
-                modifier = Modifier.fillMaxWidth(if (canGoToPrevious) 1f else 1f)
-            ) {
-                BasicText(
-                    text = "Get Started",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onPrimary
-                    ),
-                    maxLines = 2,
-                    autoSize = TextAutoSize.StepBased(
-                        minFontSize = MaterialTheme.typography.bodyMedium.fontSize * .5,
-                        maxFontSize = MaterialTheme.typography.bodyMedium.fontSize
-                    )
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    painter = painterResource(R.drawable.interface_right),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        } else {
-            Button(
-                onClick = onNext,
-                enabled = canProceedToNext,
-                colors = ButtonDefaults.buttonColors(
+            } else {
+                ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,
                     contentColor = MaterialTheme.colorScheme.surface
-                ),
-                modifier = Modifier.fillMaxWidth(if (canGoToPrevious) 0.6f else 1f)
-            ) {
-                Text("Next")
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    painter = painterResource(R.drawable.interface_right),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
                 )
-            }
+            },
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = if (isLastStep) "Get Started" else "Next",
+                color = if (isLastStep) MaterialTheme.colorScheme.onPrimary else Color.Unspecified,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false) // the arrow keeps its space
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Icon(
+                painter = painterResource(R.drawable.interface_right),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
         }
     }
 }

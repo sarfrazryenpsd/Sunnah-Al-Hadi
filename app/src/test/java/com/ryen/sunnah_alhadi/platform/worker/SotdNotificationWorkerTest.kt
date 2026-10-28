@@ -19,6 +19,7 @@ import com.ryen.sunnah_alhadi.domain.model.Reference
 import com.ryen.sunnah_alhadi.domain.model.Sunnah
 import com.ryen.sunnah_alhadi.domain.model.UserPreferences
 import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
+import com.ryen.sunnah_alhadi.domain.useCase.ExportSunnahAsImageUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdIdUseCase
 import com.ryen.sunnah_alhadi.platform.notification.SotdNotificationHelper
@@ -480,4 +481,8 @@ class TestSotdWorkerModule {
     @Provides
     @Singleton
     fun provideSotdNotificationScheduler(): SotdNotificationScheduler = mockk()
+
+    @Provides
+    @Singleton
+    fun provideExportSunnahAsImageUseCase(): ExportSunnahAsImageUseCase = mockk()
 }

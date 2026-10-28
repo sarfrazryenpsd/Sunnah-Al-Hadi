@@ -61,6 +61,10 @@ import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingStep
 import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingUiState
 import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingViewModel
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun CardOverlay(
@@ -123,14 +127,17 @@ fun OnboardingOverlayContent(
         }
     )
 
-    // Centered onboarding card (80% screen size)
+    // Centered onboarding card: full width minus margins (capped for tablets), clear of the system bars
     OnboardingCardContainer(
         uiState = uiState,
         onEvent = onboardingViewModel::onEvent,
         onDismiss = onDismiss,
         onComplete = onComplete,
         modifier = Modifier
-            .fillMaxWidth(0.85f)
+            .systemBarsPadding()
+            .padding(16.dp)
+            .widthIn(max = 480.dp)
+            .fillMaxWidth()
             .wrapContentHeight()
     )
 }
@@ -163,7 +170,8 @@ private fun OnboardingCardContainer(
     ) {
         Column(
             modifier = Modifier
-                .padding(24.dp)
+                .verticalScroll(rememberScrollState()) // short phones: scroll instead of clipping
+                .padding(16.dp)
                 .fillMaxWidth()
         ) {
             // ✅ Header with proper dismiss handling

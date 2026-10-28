@@ -25,7 +25,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 object UseCaseModule {
@@ -70,11 +69,11 @@ object UseCaseModule {
         repository: UserPreferencesRepository
     ) = GetUserPreferencesUseCase(repository)
 
-
     @Provides
     fun provideExportSunnahAsImageUseCase() = ExportSunnahAsImageUseCase()
 
-    @Provides fun provideGetAllCategoriesUseCase(categoryRepository: CategoryRepository) =
+    @Provides
+    fun provideGetAllCategoriesUseCase(categoryRepository: CategoryRepository) =
         GetAllCategoriesUseCase(categoryRepository)
 
     @Provides

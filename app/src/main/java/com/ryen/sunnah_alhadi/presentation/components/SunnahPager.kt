@@ -26,10 +26,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,13 +46,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ryen.sunnah_alhadi.R
 import com.ryen.sunnah_alhadi.domain.model.ArabicSubtype
 import com.ryen.sunnah_alhadi.domain.model.ContentBlock
 import com.ryen.sunnah_alhadi.domain.model.ContentType
@@ -68,6 +64,7 @@ import com.ryen.sunnah_alhadi.presentation.util.DynamicExtraContentRenderer
 import com.ryen.sunnah_alhadi.presentation.util.DynamicReferenceRenderer
 import com.ryen.sunnah_alhadi.ui.theme.SunnahAlHadiTheme
 import com.ryen.sunnah_alhadi.ui.theme.appTypography
+import android.os.Build
 
 // Pager extension functions for cinematic effects
 fun PagerState.offsetForPage(page: Int) = (currentPage - page) + currentPageOffsetFraction
@@ -75,7 +72,6 @@ fun PagerState.offsetForPage(page: Int) = (currentPage - page) + currentPageOffs
 fun PagerState.startOffsetForPage(page: Int): Float {
     return offsetForPage(page).coerceAtLeast(0f)
 }
-
 
 @Composable
 fun SunnahPager(
@@ -179,35 +175,18 @@ fun SunnahPager(
             derivedStateOf { pagerState.currentPage }
         }
 
-
         // Only show bookmark button if we have a valid current page
         if (currentPage < sunnahs.size) {
             val currentSunnah = sunnahs[currentPage]
-            val bookmarkIcon = if (currentSunnah.isBookmarked) {
-                R.drawable.interface_bookmarked
-            } else {
-                R.drawable.interface_bookmark
-            }
 
-            Box(
-                contentAlignment = Alignment.Center,
+            // Same buttons and behaviour as the Sunnah of the Day card
+            SunnahCardActions(
+                sunnah = currentSunnah,
+                onBookmarkClick = onBookmarkClick,
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 64.dp, end = 40.dp)
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .clickable {
-                        onBookmarkClick(currentSunnah.id)
-                    }
-            ) {
-                Icon(
-                    painter = painterResource(bookmarkIcon),
-                    contentDescription = if (currentSunnah.isBookmarked) "Remove Bookmark" else "Add Bookmark",
-                    tint = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+                    .align(Alignment.BottomCenter)
+                    .padding(start = 40.dp, end = 40.dp, bottom = 64.dp)
+            )
         }
     }
 }
@@ -231,7 +210,6 @@ private fun SunnahPagerCard(
     Box(
         modifier = modifier
             .padding(if (shouldApplyEffects) blurDp else 0.dp)
-//            .clipToBounds(false)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -281,14 +259,15 @@ private fun SunnahPagerCard(
 @Composable
 fun SunnahFullCard(
     sunnah: Sunnah,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scrollable: Boolean = true // false for image export, which must lay out the whole card
 ) {
     val scrollState = rememberScrollState()
 
     Column(
         modifier = modifier
             .padding(20.dp)
-            .verticalScroll(scrollState)
+            .then(if (scrollable) Modifier.verticalScroll(scrollState) else Modifier)
     ) {
         // Header with title and metadata
         Text(
@@ -328,10 +307,6 @@ fun SunnahFullCard(
         }
     }
 }
-
-
-
-
 
 val sampleContentBlockArabic = ContentBlock(
     type = ContentType.ARABIC_TEXT,
@@ -396,7 +371,6 @@ val sampleExtraContentBenefit = ExtraContent(
     content = listOf()
 )
 
-
 val sampleReference = Reference(source = "Sahih Al-Bukhari, Hadith 1")
 
 val sampleSunnah1 = Sunnah(
@@ -441,8 +415,7 @@ fun SunnahPagerCard_ActivePreview() {
     ) {
         val pagerState = rememberPagerState(initialPage = 0, pageCount = { 1 })
         // To simulate active, ensure page = 0 and pagerState.currentPage = 0, offset = 0
-        // For the preview, we explicitly set the pagerState for this card'''s context
-
+        // For the preview, we explicitly set the pagerState for this card's context
 
         Box(
             modifier = Modifier
@@ -466,9 +439,8 @@ fun SunnahPagerCard_BlurredPreview() {
         windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp))
     ) {
         // Simulate this card (page 1) being to the right of the current page (page 0)
-        // So, currentPage = 0, this card'''s page = 1. Offset will be -1 + offsetFraction
+        // So, currentPage = 0, this card's page = 1. Offset will be -1 + offsetFraction
         val pagerState = rememberPagerState(initialPage = 0, pageCount = { 1 })
-
 
         Box(
             modifier = Modifier
@@ -484,7 +456,6 @@ fun SunnahPagerCard_BlurredPreview() {
         }
     }
 }
-
 
 @Preview(showBackground = true, widthDp = 360)
 @Composable
@@ -554,7 +525,6 @@ fun ContentBlockRenderer_EnglishPreview() {
     }
 }
 
-
 @Preview(showBackground = true, widthDp = 360)
 @Composable
 fun ReferenceRendererPreview() {
@@ -566,4 +536,3 @@ fun ReferenceRendererPreview() {
         }
     }
 }
-

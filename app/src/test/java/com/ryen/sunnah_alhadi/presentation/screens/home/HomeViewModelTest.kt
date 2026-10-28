@@ -398,6 +398,22 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `toggleBookmark on the Sunnah of the Day updates its bookmark state`() = runTest {
+        coEvery { getCurrentSotdUseCase() } returns SotdState(
+            sampleSunnah, isSeen = false, isAvailable = true, generatedDate = 0L
+        )
+        coEvery { toggleBookmarkUseCase(any()) } returns Unit
+        viewModel.onEvent(HomeEvent.HandleNotificationLaunch)
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.sotd?.isBookmarked).isFalse()
+
+        viewModel.onEvent(HomeEvent.ToggleBookmark(sampleSunnah.id))
+        advanceUntilIdle()
+
+        assertThat(viewModel.uiState.value.sotd?.isBookmarked).isTrue()
+    }
+
+    @Test
     fun `onEvent DismissSotd does nothing`() = runTest {
         val before = viewModel.uiState.value
         viewModel.onEvent(HomeEvent.DismissSotd)

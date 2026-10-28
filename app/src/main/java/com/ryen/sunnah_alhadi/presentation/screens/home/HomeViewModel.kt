@@ -347,7 +347,13 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 _uiState.update {
-                    it.copy(recentSotd = updatedSunnahs)
+                    it.copy(
+                        recentSotd = updatedSunnahs,
+                        // The Sunnah of the Day card shows its own bookmark button, so keep it in sync too
+                        sotd = it.sotd?.let { sotd ->
+                            if (sotd.id == sunnah) sotd.copy(isBookmarked = !sotd.isBookmarked) else sotd
+                        }
+                    )
                 }
 
             } catch (e: Exception) {
