@@ -67,7 +67,7 @@ class SotdNotificationHelper @Inject constructor(private val context: Context) {
         // Intent to open the app and show SOTD
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            putExtra("show_sotd", true)
+            putExtra(MainActivity.EXTRA_SHOW_SOTD, true)
             putExtra("sotd_id", sunnah.id)
         }
 

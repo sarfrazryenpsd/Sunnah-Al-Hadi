@@ -10,6 +10,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
@@ -25,9 +27,16 @@ class MainActivity : ComponentActivity() {
 
     //private val viewModel: DbSeederViewModel by viewModels()
 
+    // Set when opened from the Sunnah of the Day notification; cleared once the card is shown
+    private var openSotdFromNotification by mutableStateOf(false)
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Only on a fresh launch: after rotation or other recreation the overlay restores itself
+        if (savedInstanceState == null) {
+            openSotdFromNotification = intent?.getBooleanExtra(EXTRA_SHOW_SOTD, false) == true
+        }
 
 
         enableEdgeToEdge()
@@ -59,12 +68,10 @@ class MainActivity : ComponentActivity() {
                         detectDarkMode = { isDarkBackground }
                     )
                 )
-                val isFromNotification = intent?.getBooleanExtra("show_sotd", false) ?: false
-
-
                 MainNavigation(
                     showOnboarding = !themeUiState.userPreferences.hasCompletedOnboarding,
-                    isFromNotification = isFromNotification
+                    isFromNotification = openSotdFromNotification,
+                    onNotificationHandled = { openSotdFromNotification = false }
                 )
             }
         }
@@ -74,10 +81,15 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         this.intent = intent
 
-        // ✅ For notification clicks while app is running, recreate with new intent
-        if (intent.getBooleanExtra("show_sotd", false)) {
-            recreate() // Simple approach to handle new intent
+        // Notification tapped while the app is running: open the card without recreating the activity
+        if (intent.getBooleanExtra(EXTRA_SHOW_SOTD, false)) {
+            openSotdFromNotification = true
         }
+    }
+
+    companion object {
+        /** Set by SotdNotificationHelper on the notification's tap intent. */
+        const val EXTRA_SHOW_SOTD = "show_sotd"
     }
 }
 

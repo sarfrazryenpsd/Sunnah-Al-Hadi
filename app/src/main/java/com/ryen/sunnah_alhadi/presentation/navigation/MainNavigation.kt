@@ -86,6 +86,7 @@ import kotlinx.coroutines.delay
 fun MainNavigation(
     showOnboarding: Boolean,
     isFromNotification: Boolean = false,
+    onNotificationHandled: () -> Unit = {},
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val isCompact = !windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
@@ -94,7 +95,6 @@ fun MainNavigation(
     val backStack = rememberNavBackStack(Home)
 
     // ✅ Sequential overlay state management
-    var onboardingCompleted by rememberSaveable { mutableStateOf(false) }
     var currentOverlay by rememberSaveable { mutableStateOf<OverlayType?>(null) }
     var isInitializing by remember { mutableStateOf(true) }
     val twoPaneStrategy = remember { TwoPaneSceneStrategy<NavKey>() }
@@ -113,11 +113,14 @@ fun MainNavigation(
         }
     }
 
-    // ✅ Handle post-onboarding flow
-    LaunchedEffect(onboardingCompleted, isFromNotification) {
-        if (!isInitializing && onboardingCompleted && isFromNotification) {
-            delay(300) // Smooth transition
+    // ✅ Open the Sunnah of the Day when launched from its notification, for every user, as soon
+    // as onboarding isn't showing (so a first-time user sees it right after onboarding). The request
+    // is consumed, so rotation or other recreation doesn't reopen a card the user already closed.
+    LaunchedEffect(showOnboarding, isFromNotification) {
+        if (!showOnboarding && isFromNotification) {
+            delay(300) // Smooth transition; also runs after the initial overlay state above is set
             currentOverlay = OverlayType.SOTD_FROM_NOTIFICATION
+            onNotificationHandled()
         }
     }
 
@@ -159,7 +162,6 @@ fun MainNavigation(
                             currentOverlay = null
                         },
                         onComplete = {
-                            onboardingCompleted = true
                             currentOverlay = null
                         }
                     )
