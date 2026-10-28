@@ -71,7 +71,7 @@ class HomeViewModelTest {
         )
         coEvery { getUserPreferencesFlowUseCase() } returns flowOf(UserPreferences("user1"))
         coEvery { getSunnahCountsUseCase(any()) } returns emptyMap()
-        coEvery { getRecentlyViewedSunnahsUseCase() } returns emptyList()
+        coEvery { getRecentlyViewedSunnahsUseCase() } returns flowOf(emptyList())
 
         viewModel = HomeViewModel(
             getHomeDataUseCase,

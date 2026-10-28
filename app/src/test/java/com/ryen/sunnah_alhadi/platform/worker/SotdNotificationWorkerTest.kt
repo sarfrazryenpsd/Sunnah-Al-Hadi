@@ -22,6 +22,7 @@ import com.ryen.sunnah_alhadi.domain.repository.UserPreferencesRepository
 import com.ryen.sunnah_alhadi.domain.useCase.GetSunnahByIdUseCase
 import com.ryen.sunnah_alhadi.domain.useCase.sotd.GenerateNewSotdIdUseCase
 import com.ryen.sunnah_alhadi.platform.notification.SotdNotificationHelper
+import com.ryen.sunnah_alhadi.platform.scheduler.SotdNotificationScheduler
 import com.ryen.sunnah_alhadi.util.Result
 import dagger.Module
 import dagger.Provides
@@ -74,10 +75,12 @@ class SotdNotificationWorkerTest {
     private lateinit var notificationHelper: SotdNotificationHelper
 
     @MockK
+    private lateinit var sotdNotificationScheduler: SotdNotificationScheduler
+
+    @MockK
     private lateinit var getSunnahByIdUseCase: GetSunnahByIdUseCase
 
     private lateinit var context: Context
-    private lateinit var worker: SotdNotificationWorker
 
     @Before
     fun setUp() {
@@ -106,7 +109,8 @@ class SotdNotificationWorkerTest {
             generateNewSotdIdUseCase = generateSotdIdUseCase,
             userPreferencesRepository = userPrefsRepository,
             notificationHelper = notificationHelper,
-            getSunnahByIdUseCase = getSunnahByIdUseCase
+            getSunnahByIdUseCase = getSunnahByIdUseCase,
+            sotdNotificationScheduler = sotdNotificationScheduler
         )
 
         return worker.doWork()
@@ -117,6 +121,7 @@ class SotdNotificationWorkerTest {
         // Given
         val userPrefs = createUserPreferences(isSotdNotificationEnabled = false)
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
 
         // When
         val result = createAndRunWorker()
@@ -133,6 +138,7 @@ class SotdNotificationWorkerTest {
         // Given
         val userPrefs = createUserPreferences(isSotdNotificationEnabled = true)
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
 
         // Revoke notification permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -155,6 +161,7 @@ class SotdNotificationWorkerTest {
         val userPrefs = createUserPreferences(isSotdNotificationEnabled = true)
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } returns false
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
 
         // When
         val result = createAndRunWorker()
@@ -172,6 +179,7 @@ class SotdNotificationWorkerTest {
         val userPrefs = createUserPreferences(isSotdNotificationEnabled = true)
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } returns true
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
         coEvery { generateSotdIdUseCase.invoke() } returns null
 
         // When
@@ -190,6 +198,7 @@ class SotdNotificationWorkerTest {
         val sunnahId = "01_01"
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } returns true
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
         coEvery { generateSotdIdUseCase.invoke() } returns sunnahId
         coEvery { getSunnahByIdUseCase.invoke(sunnahId) } returns Result.Error(
             Exception("Database error"),
@@ -213,6 +222,7 @@ class SotdNotificationWorkerTest {
         val sunnahId = "01_01"
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } returns true
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
         coEvery { generateSotdIdUseCase.invoke() } returns sunnahId
         coEvery { getSunnahByIdUseCase.invoke(sunnahId) } returns Result.Success(null)
 
@@ -234,9 +244,11 @@ class SotdNotificationWorkerTest {
 
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } returns true
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
         coEvery { generateSotdIdUseCase.invoke() } returns sunnahId
         coEvery { getSunnahByIdUseCase.invoke(sunnahId) } returns Result.Success(sunnah)
         coEvery { notificationHelper.showSotdNotification(sunnah) } just Runs
+        coEvery { sotdNotificationScheduler.scheduleNextNotification(NotificationTime.MORNING) } just Runs
 
         // When
         val result = createAndRunWorker()
@@ -248,6 +260,7 @@ class SotdNotificationWorkerTest {
         coVerify { generateSotdIdUseCase.invoke() }
         coVerify { getSunnahByIdUseCase.invoke(sunnahId) }
         coVerify { notificationHelper.showSotdNotification(sunnah) }
+        coVerify { sotdNotificationScheduler.scheduleNextNotification(any()) }
     }
 
     @Test
@@ -255,6 +268,7 @@ class SotdNotificationWorkerTest {
         // Given
         val userPrefs = createUserPreferences(isSotdNotificationEnabled = true)
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } throws SecurityException("Permission denied")
 
         // When
@@ -270,6 +284,7 @@ class SotdNotificationWorkerTest {
         // Given
         val userPrefs = createUserPreferences(isSotdNotificationEnabled = true)
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } throws RuntimeException("Database error")
 
         // When
@@ -278,12 +293,13 @@ class SotdNotificationWorkerTest {
         // Then
         assertThat(result).isEqualTo(ListenableWorker.Result.retry())
     }
-    //THIS ONE GETTING FAILED
+
     @Test
     fun doWork_should_return_failure_when_other_exception_is_thrown_with_high_attempt_count() = runTest {
         // Given
         val userPrefs = createUserPreferences(isSotdNotificationEnabled = true)
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } throws RuntimeException("Database error")
 
         // When
@@ -302,6 +318,7 @@ class SotdNotificationWorkerTest {
 
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } returns true
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
         coEvery { generateSotdIdUseCase.invoke() } returns sunnahId
         coEvery { getSunnahByIdUseCase.invoke(sunnahId) } returns Result.Success(sunnah)
         coEvery { notificationHelper.showSotdNotification(sunnah) } throws RuntimeException("Notification error")
@@ -323,9 +340,11 @@ class SotdNotificationWorkerTest {
 
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } returns true
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
         coEvery { generateSotdIdUseCase.invoke() } returns sunnahId
         coEvery { getSunnahByIdUseCase.invoke(sunnahId) } returns Result.Success(sunnah)
         coEvery { notificationHelper.showSotdNotification(sunnah) } just Runs
+        coEvery { sotdNotificationScheduler.scheduleNextNotification(NotificationTime.MORNING) } just Runs
 
         // When
         val result = createAndRunWorker()
@@ -340,6 +359,7 @@ class SotdNotificationWorkerTest {
             generateSotdIdUseCase.invoke()
             getSunnahByIdUseCase.invoke(sunnahId)
             notificationHelper.showSotdNotification(sunnah)
+            sotdNotificationScheduler.scheduleNextNotification(any())
         }
     }
 
@@ -348,6 +368,7 @@ class SotdNotificationWorkerTest {
         // Given
         val userPrefs = createUserPreferences(isSotdNotificationEnabled = true)
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } returns false
 
         // When - simulate multiple rapid calls
@@ -367,6 +388,7 @@ class SotdNotificationWorkerTest {
     fun doWork_should_handle_null_userPreferences_gracefully() = runTest {
         // Given
         coEvery { userPrefsRepository.getUserPreferences() } throws Exception("Preferences not found")
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
 
         // When
         val result = createAndRunWorker()
@@ -384,9 +406,11 @@ class SotdNotificationWorkerTest {
 
         coEvery { userPrefsRepository.getUserPreferences() } returns userPrefs
         coEvery { userPrefsRepository.shouldGenerateNewSotd() } returns true
+        coEvery { userPrefsRepository.getSotdNotificationTime() } returns NotificationTime.MORNING
         coEvery { generateSotdIdUseCase.invoke() } returns sunnahId
         coEvery { getSunnahByIdUseCase.invoke(sunnahId) } returns Result.Success(sunnah)
         coEvery { notificationHelper.showSotdNotification(sunnah) } just Runs
+        coEvery { sotdNotificationScheduler.scheduleNextNotification(NotificationTime.MORNING) } just Runs
 
         // When
         val result = createAndRunWorker()
@@ -452,4 +476,8 @@ class TestSotdWorkerModule {
     @Provides
     @Singleton
     fun provideGetSunnahByIdUseCase(): GetSunnahByIdUseCase = mockk()
+
+    @Provides
+    @Singleton
+    fun provideSotdNotificationScheduler(): SotdNotificationScheduler = mockk()
 }

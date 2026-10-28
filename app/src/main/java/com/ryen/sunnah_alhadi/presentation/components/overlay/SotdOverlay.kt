@@ -180,7 +180,7 @@ fun SotdCardContainer(
                             style = MaterialTheme.appTypography.notificationType.copy(
                                 fontSize = 18.sp,
                             ),
-                            color = MaterialTheme.colorScheme.secondary
+                            color = MaterialTheme.colorScheme.tertiary
                         )
                     }
                 }
