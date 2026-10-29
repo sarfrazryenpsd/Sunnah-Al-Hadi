@@ -15,3 +15,7 @@
 local.properties
 app/google-services.json
 /.idea/ChatHistory_schema_*.xml
+
+# Release signing key
+*.jks
+*.keystore

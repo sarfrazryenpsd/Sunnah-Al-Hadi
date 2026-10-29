@@ -40,7 +40,7 @@ jobs:
 
       - name: Decode Keystore
         run: |
-          echo "${{ secrets.MYAPP_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.jks
+          echo "${{ secrets.MYAPP_KEYSTORE_BASE64 }}" | base64 --decode > app/my-release-key.jks
 
       - name: Set Version Automatically
         run: |
@@ -54,6 +54,10 @@ jobs:
         run: ./gradlew test
 
       - name: Build Debug APK and Signed Release AAB (Skip Benchmark)
+        env:
+          MYAPP_STORE_PASSWORD: ${{ secrets.MYAPP_STORE_PASSWORD }}
+          MYAPP_KEY_ALIAS: ${{ secrets.MYAPP_KEY_ALIAS }}
+          MYAPP_KEY_PASSWORD: ${{ secrets.MYAPP_KEY_PASSWORD }}
         run: ./gradlew assembleDebug bundleRelease --exclude-task :app:processBenchmarkGoogleServices
 
 
