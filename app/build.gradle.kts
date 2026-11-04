@@ -67,7 +67,6 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release")
             isDebuggable = false
-            proguardFiles("baseline-profiles-rule.pro")
         }
     }
     compileOptions {
@@ -123,15 +122,11 @@ dependencies {
     implementation(libs.bundles.room)
     implementation(libs.coil)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.androidx.junit.ktx)
-    implementation(libs.androidx.runner)
     implementation(libs.kotlinx.serialization.core)
     androidTestImplementation(libs.androidx.core.testing)
 
 
     ksp(libs.androidx.room.compiler)
-    implementation(libs.bundles.hilt)
-
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
@@ -164,7 +159,6 @@ dependencies {
 
     debugImplementation(libs.bundles.compose.debug)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.ui.tooling)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

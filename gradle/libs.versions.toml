@@ -137,14 +137,6 @@ compose-debug = [
     "androidx-ui-test-manifest",
 ]
 
-hilt = [
-    "hilt-android",
-    "hilt-android-testing",
-    "hilt-compiler",
-    "androidx-hilt-work",
-    "androidx-hilt-compiler"
-]
-
 room = [
     "androidx-room-ktx",
     "androidx-room-runtime"
