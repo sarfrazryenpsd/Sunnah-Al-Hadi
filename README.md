@@ -3,7 +3,7 @@
 # Sunnah Al-Hadi
 
 [![Sunnah CI](https://github.com/sarfrazryenpsd/Sunnah-Al-Hadi/actions/workflows/sunnah_ci.yml/badge.svg)](https://github.com/sarfrazryenpsd/Sunnah-Al-Hadi/actions/workflows/sunnah_ci.yml)
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-orange.svg?style=flat&logo=kotlin)](https://kotlinlang.org/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.2-orange.svg?style=flat&logo=kotlin)](https://kotlinlang.org/)
 [![Android](https://img.shields.io/badge/Android-API_26+-green.svg?style=flat&logo=android)](https://developer.android.com/)
 [![Compose](https://img.shields.io/badge/Compose-Jetpack-blue.svg?style=flat&logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
 [![Hilt](https://img.shields.io/badge/Hilt-DI-purple.svg?style=flat)](https://dagger.dev/hilt/)
@@ -36,6 +36,7 @@ helping them follow his guidance in their daily routines through a modern, user-
 - **Categorized Content**: Organized by daily activities and occasions for easy navigation
 - **Dual Language Support**: Arabic texts with English translations
 - **Bookmarking System**: Save your favorite Sunnahs for quick reference
+- **Save & Share Cards**: Save any Sunnah card to the gallery as an image, or share it to any app
 - **Daily Reminders**: Get gentle notifications about the "Sunnah of the Day"
 - **Fully Offline**: No internet connection required after installation
 - **Privacy Focused**: No personal data collection, local storage only
@@ -156,11 +157,31 @@ com.ryen.sunnah_alhadi
 3. Sync Gradle dependencies
 4. Build and run the project
 
+`app/google-services.json` is optional for local builds. Download it from the Firebase console
+(project settings → Your apps) to enable Crashlytics and Analytics; without it the Google Services
+and Crashlytics upload tasks are skipped with a warning.
+
 ### Prerequisites
 
 - Android Studio Iguana or later
-- JDK 11+
+- JDK 17+
 - Android SDK 36 (compileSdk)
+
+## 🚀 Releases
+
+Every push to `main` runs [Sunnah CI](.github/workflows/sunnah_ci.yml), which tests the app and builds
+a signed release bundle.
+
+- **Version**: the workflow's run number is the version code, and the version name is
+  `1.0.<run number>` (run #13 → version code 13, version name 1.0.13). Local builds are 1 / 1.0.0.
+- **Bundle**: open the run under the Actions tab and download `signed-release-aab` from its
+  Artifacts section. Unzip it and upload `app-release.aab` to Play Console. Pull request runs
+  don't upload the bundle.
+- **Signing**: the workflow reads these repository secrets: `MYAPP_KEYSTORE_BASE64` (the upload
+  keystore, base64-encoded), `MYAPP_STORE_PASSWORD`, `MYAPP_KEY_ALIAS`, `MYAPP_KEY_PASSWORD`, and
+  `GOOGLE_SERVICES_JSON` (base64-encoded).
+- **Crash deobfuscation**: the R8 mapping file ships inside the bundle for Play, and CI uploads it to
+  Crashlytics. The app has no native code of its own, so there are no native debug symbols to upload.
 
 ## 📦 Dependencies
 
