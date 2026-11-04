@@ -3,16 +3,14 @@ package com.ryen.sunnah_alhadi.presentation.navigation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.ui.Scene
-import androidx.navigation3.ui.SceneStrategy
+import androidx.navigation3.scene.Scene
+import androidx.navigation3.scene.SceneStrategy
+import androidx.navigation3.scene.SceneStrategyScope
+import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
-import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 
 // --- TwoPaneScene ---
 /**
@@ -51,16 +49,10 @@ class TwoPaneScene<T : Any>(
  * A [SceneStrategy] that activates a [TwoPaneScene] if the window is wide enough
  * and the top two back stack entries declare support for two-pane display.
  */
-class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
-    @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3WindowSizeClassApi::class) // Opt-in for adaptive and window size class APIs
-    @Composable
-    override fun calculateScene(
-        entries: List<NavEntry<T>>,
-        onBack: (Int) -> Unit
-    ): Scene<T>? {
-
-        val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
-
+class TwoPaneSceneStrategy<T : Any>(
+    private val windowSizeClass: WindowSizeClass,
+) : SceneStrategy<T> {
+    override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {
         // Condition 1: Only return a Scene if the window is sufficiently wide to render two panes.
         // We use isWidthAtLeastBreakpoint with WIDTH_DP_EXPANDED_LOWER_BOUND (840dp).
         if (!windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)) {

@@ -1,6 +1,5 @@
 @file:OptIn(
     ExperimentalMaterial3WindowSizeClassApi::class,
-    ExperimentalMaterial3ExpressiveApi::class
 )
 
 package com.ryen.sunnah_alhadi.presentation.components.overlay
@@ -34,7 +33,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,8 +50,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ryen.sunnah_alhadi.R
+import com.ryen.sunnah_alhadi.ui.theme.AppMotion
 import com.ryen.sunnah_alhadi.presentation.NotificationPermissionHandler
 import com.ryen.sunnah_alhadi.presentation.components.cards.OnboardingCard
 import com.ryen.sunnah_alhadi.presentation.screens.onboarding.OnboardingEvent
@@ -74,7 +73,7 @@ fun CardOverlay(
     overlayContent: @Composable () -> Unit,
     content: @Composable () -> Unit
 ) {
-    val motion = MaterialTheme.motionScheme
+    val motion = AppMotion
     Box(modifier = modifier.fillMaxSize()) {
         // Main content underneath
         content()

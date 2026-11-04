@@ -4,12 +4,11 @@ import android.os.Build
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -24,6 +23,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+
+// The Material 3 Expressive motion springs (MotionScheme.expressive() in material3 1.4.0-alpha17).
+// material3 1.4.0 stable made MotionScheme internal, so the values are kept here to preserve the motion.
+object AppMotion {
+    fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T> = spring(dampingRatio = 0.8f, stiffness = 380f)
+    fun <T> fastEffectsSpec(): FiniteAnimationSpec<T> = spring(dampingRatio = 1f, stiffness = 3800f)
+    fun <T> slowEffectsSpec(): FiniteAnimationSpec<T> = spring(dampingRatio = 1f, stiffness = 800f)
+}
 
 // Theme preferences
 enum class ThemeMode {
@@ -139,7 +146,7 @@ val MaterialTheme.appDimensions: DynamicDimensions
 // UPDATED THEME COMPOSABLE
 // =============================================================================
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SunnahAlHadiTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
@@ -182,11 +189,10 @@ fun SunnahAlHadiTheme(
         extraLarge = RoundedCornerShape(baseDimensions.cardRadiusL)
     )
 
-    MaterialExpressiveTheme(
+    MaterialTheme(
         colorScheme = colorScheme,
         typography = materialTypography,
         shapes = shapes,
-        motionScheme = MotionScheme.expressive()
     ) {
         SharedTransitionLayout {
             CompositionLocalProvider(

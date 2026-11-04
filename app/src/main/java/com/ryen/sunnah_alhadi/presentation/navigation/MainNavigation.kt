@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
@@ -45,7 +44,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,15 +53,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.navEntryDecorator
 import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import com.ryen.sunnah_alhadi.R
@@ -78,10 +73,11 @@ import com.ryen.sunnah_alhadi.presentation.screens.home.SotdOverlayRequest
 import com.ryen.sunnah_alhadi.presentation.screens.preferences.PreferencesScreen
 import com.ryen.sunnah_alhadi.presentation.screens.topic.TopicScreen
 import com.ryen.sunnah_alhadi.presentation.util.PagerVisibilityState
+import com.ryen.sunnah_alhadi.ui.theme.AppMotion
 import kotlinx.coroutines.delay
 
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun MainNavigation(
     showOnboarding: Boolean,
@@ -97,7 +93,7 @@ fun MainNavigation(
     // ✅ Sequential overlay state management
     var currentOverlay by rememberSaveable { mutableStateOf<OverlayType?>(null) }
     var isInitializing by remember { mutableStateOf(true) }
-    val twoPaneStrategy = remember { TwoPaneSceneStrategy<NavKey>() }
+    val twoPaneStrategy = remember(windowSizeClass) { TwoPaneSceneStrategy<NavKey>(windowSizeClass) }
 
     // ✅ Handle initial loading
     LaunchedEffect(showOnboarding) {
@@ -205,10 +201,9 @@ fun MainNavigation(
 }
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CompactScreenLayout(
-    backStack: SnapshotStateList<NavKey>,
+    backStack: NavBackStack<NavKey>,
     windowSizeClass: WindowSizeClass,
     twoPaneStrategy: TwoPaneSceneStrategy<NavKey>,
     topLevelDestinations: List<NavKey>,
@@ -216,7 +211,7 @@ private fun CompactScreenLayout(
 ) {
     val baseBottomBarVisible = backStack.lastOrNull()?.let { it in topLevelDestinations } ?: false
     val isPagerVisible by PagerVisibilityState.isPagerVisible.collectAsStateWithLifecycle()
-    val bottomBarAnimation = MaterialTheme.motionScheme
+    val bottomBarAnimation = AppMotion
 
     // Bottom bar is visible if we're on a top level destination AND pager is not visible
     val isBottomBarVisible = baseBottomBarVisible && !isPagerVisible
@@ -230,7 +225,6 @@ private fun CompactScreenLayout(
         NavigationContent(
             backStack = backStack,
             onSotdRequested = onSotdRequested,
-            windowSizeClass = windowSizeClass,
             twoPaneStrategy = twoPaneStrategy,
             topLevelDestinations = topLevelDestinations,
             modifier = Modifier.fillMaxSize()
@@ -266,7 +260,7 @@ private fun CompactScreenLayout(
 
 @Composable
 private fun ExpandedScreenLayout(
-    backStack: SnapshotStateList<NavKey>,
+    backStack: NavBackStack<NavKey>,
     windowSizeClass: WindowSizeClass,
     twoPaneStrategy: TwoPaneSceneStrategy<NavKey>,
     topLevelDestinations: List<NavKey>,
@@ -285,7 +279,6 @@ private fun ExpandedScreenLayout(
 
         NavigationContent(
             backStack = backStack,
-            windowSizeClass = windowSizeClass,
             onSotdRequested = onSotdRequested,
             twoPaneStrategy = twoPaneStrategy,
             topLevelDestinations = topLevelDestinations,
@@ -294,46 +287,24 @@ private fun ExpandedScreenLayout(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NavigationContent(
-    backStack: SnapshotStateList<NavKey>,
-    windowSizeClass: WindowSizeClass,
+    backStack: NavBackStack<NavKey>,
     onSotdRequested: (SotdOverlayRequest) -> Unit,
     twoPaneStrategy: TwoPaneSceneStrategy<NavKey>,
     topLevelDestinations: List<NavKey>,
     modifier: Modifier = Modifier
 ) {
-    val navAnimation = MaterialTheme.motionScheme
+    val navAnimation = AppMotion
     SharedTransitionLayout {
-        // Shared transition decorator for smooth animations
-        val sharedEntryDecorator = navEntryDecorator<NavKey> { entry ->
-            val isCompact = !windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
-
-            if (isCompact) {
-                entry.Content()
-            } else {
-                Box(
-                    Modifier.sharedElement(
-                        rememberSharedContentState(entry.contentKey),
-                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                    )
-                ) {
-                    entry.Content()
-                }
-            }
-        }
-
+        // NavDisplay applies the shared-element transition between scenes itself
         NavDisplay(
             modifier = modifier,
             backStack = backStack,
-            onBack = { keysToRemove -> repeat(keysToRemove) { backStack.removeLastOrNull() } },
-            entryDecorators = listOf(
-                sharedEntryDecorator,
-                rememberSceneSetupNavEntryDecorator(),
-                rememberSavedStateNavEntryDecorator()
-            ),
-            sceneStrategy = twoPaneStrategy,
+            onBack = { backStack.removeLastOrNull() },
+            entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
+            sceneStrategies = listOf(twoPaneStrategy),
+            sharedTransitionScope = this,
             transitionSpec = {
                 if(backStack.lastOrNull() !in topLevelDestinations) {
                     slideInHorizontally(animationSpec = navAnimation.defaultSpatialSpec(), initialOffsetX = { it }) togetherWith
@@ -359,7 +330,7 @@ private fun NavigationContent(
 @Composable
 fun CustomBottomBar(
     topLevelDestinations: List<NavKey>,
-    backStack: SnapshotStateList<NavKey>,
+    backStack: NavBackStack<NavKey>,
     onItemSelected: (NavKey) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -415,7 +386,6 @@ fun CustomBottomBar(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SideNavigationRail(
     topLevelDestinations: List<NavKey>,
@@ -468,7 +438,7 @@ private fun getDestinationIcon(destination: NavKey): Int {
 
 // Entry provider factory function
 private fun createEntryProvider(
-    backStack: SnapshotStateList<NavKey>,
+    backStack: NavBackStack<NavKey>,
     onSotdRequested: (SotdOverlayRequest) -> Unit
 ) =
     entryProvider<NavKey> {
@@ -522,7 +492,7 @@ private fun createEntryProvider(
     }
 
 // Extension function for adding topic routes
-private fun SnapshotStateList<NavKey>.addTopicRoute(topicId: Int) {
+private fun NavBackStack<NavKey>.addTopicRoute(topicId: Int) {
     val topicRoute = Topic("$topicId")
     if (this.lastOrNull() == topicRoute) {
         // If the exact same topic is already the last one, do nothing.
@@ -535,7 +505,7 @@ private fun SnapshotStateList<NavKey>.addTopicRoute(topicId: Int) {
     this.add(topicRoute) // Add the new (or now moved) topic to the end of the stack.
 }
 
-private fun SnapshotStateList<NavKey>.clearDuplicateTopic(topicId: Int) {
+private fun NavBackStack<NavKey>.clearDuplicateTopic(topicId: Int) {
     val newTopicKey = Topic("$topicId") // Create the key for the new topic
     val currentLastKey = this.lastOrNull()
 

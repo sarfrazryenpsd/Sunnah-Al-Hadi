@@ -20,19 +20,10 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Grant execute permission to gradlew
         run: chmod +x gradlew
-
-      - name: Enable Gradle Caching
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle
 
       - name: Inject google-services.json
         run: |
@@ -48,7 +39,9 @@ jobs:
           echo "VERSION_NAME=1.0.${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
 
       - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
 
       - name: Run Unit Tests
         run: ./gradlew test

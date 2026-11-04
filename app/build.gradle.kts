@@ -1,10 +1,6 @@
-import org.gradle.kotlin.dsl.testImplementation
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
@@ -24,7 +20,7 @@ if (!file("google-services.json").exists()) {
 
 android {
     namespace = "com.ryen.sunnah_alhadi"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.ryen.sunnah_alhadi"
@@ -43,10 +39,6 @@ android {
             keyAlias = System.getenv("MYAPP_KEY_ALIAS")
             keyPassword = System.getenv("MYAPP_KEY_PASSWORD")
         }
-    }
-
-    firebaseCrashlytics {
-        mappingFileUploadEnabled = true
     }
 
     buildTypes {
@@ -73,13 +65,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
         isCoreLibraryDesugaringEnabled = true
-    }
-
-    tasks.withType<KotlinJvmCompile>().configureEach {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-            freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
-        }
     }
 
     buildFeatures {
@@ -128,7 +113,7 @@ dependencies {
 
     ksp(libs.androidx.room.compiler)
     implementation(libs.hilt.android)
-    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     ksp(libs.hilt.compiler)
 
     //Navigation3

@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.test)
-    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -31,9 +30,6 @@ android {
 
     targetProjectPath = ":app"
     experimentalProperties["android.experimental.self-instrumenting"] = true
-}
-kotlin {
-    jvmToolchain(11) // Or your desired common Java version (e.g., 8, 11, 17)
 }
 
 dependencies {
